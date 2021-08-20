@@ -1,0 +1,26 @@
+url: https://github.com/eclipse/keyple-plugin-android-nfc-java-lib
+organization:
+  name: Eclipse Keyple
+  url: https://keyple.org/
+licenses:
+  - name: Eclipse Public License - v 2.0
+    url: https://www.eclipse.org/legal/epl-2.0/
+    distribution: repo
+developers:
+  - name: Olivier Delcroix
+    email: odelcroi@gmail.com
+  - name: Jean-Pierre Fortune
+    email: jean-pierre.fortune@ialto.com
+  - name: Andrei Cristea
+    email: andrei.cristea019@gmail.com
+  - name: Pierre Terrée
+    email: pierre.terree@calypsonet.org
+  - name: Meddy Menzikoff
+    email: m.menzikoff@oneclickflare.fr
+scm:
+  connection: scm:git:git://github.com/eclipse/keyple-plugin-android-nfc-java-lib.git
+  developerConnection: scm:git:https://github.com/eclipse/keyple-plugin-android-nfc-java-lib.git
+  url: https://github.com/eclipse/keyple-plugin-android-nfc-java-lib
+ciManagement:
+  system: Jenkins
+  url: https://ci.eclipse.org/keyple/job/Keyple/job/keyple-plugin-android-nfc-java-lib/
