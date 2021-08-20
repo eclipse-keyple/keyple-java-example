@@ -4,8 +4,8 @@
 plugins {
     id("com.diffplug.spotless") version "5.10.2"
     id("com.android.application") version "4.2.2"
-    kotlin("android") version "1.5.21"
-    kotlin("android.extensions") version "1.5.21"
+    kotlin("android") version "1.4.20"
+    kotlin("android.extensions") version "1.4.20"
 }
 buildscript {
     val kotlinVersion: String by project
@@ -14,7 +14,6 @@ buildscript {
         maven(url = "https://repo.eclipse.org/service/local/repositories/maven_central/content")
         mavenCentral()
         google()
-        jcenter()
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
@@ -24,6 +23,7 @@ buildscript {
         classpath("org.eclipse.keyple:keyple-gradle:0.2.+") { isChanging = true }
     }
 }
+apply(plugin = "org.eclipse.keyple")
 
 ///////////////////////////////////////////////////////////////////////////////
 //  APP CONFIGURATION
