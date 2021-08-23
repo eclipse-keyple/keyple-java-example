@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Build Plugin Android NFC Example') {
       steps { container('java-builder') {
-        sh 'cd ./sources/plugin-android-nfc && ./gradlew clean build --no-build-cache --info --stacktrace'
+        sh 'cd ./sources/Example_Plugin_Android_NFC && ./gradlew clean build --no-build-cache --info --stacktrace'
       } }
     }
   }
