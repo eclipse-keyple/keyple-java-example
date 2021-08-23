@@ -10,6 +10,7 @@ pipeline {
       steps { container('java-builder') {
         sh 'cd ./sources/Example_Plugin_Android_NFC && ./gradlew clean build --no-build-cache --info --stacktrace'
       } }
+    }
     stage('Build Example Plugin Android OMAPI') {
       steps { container('java-builder') {
         sh 'cd ./sources/Example_Plugin_Android_OMAPI && ./gradlew clean build --no-build-cache --info --stacktrace'
