@@ -6,6 +6,11 @@ pipeline {
   }
   agent { kubernetes { yaml javaBuilder('2.0') } }
   stages {
+    stage('Build Example Card Calypso') {
+      steps { container('java-builder') {
+        sh 'cd ./sources/Example_Card_Calypso && ./gradlew clean build --no-build-cache --info --stacktrace'
+      } }
+    }
     stage('Build Example Plugin Android NFC') {
       steps { container('java-builder') {
         sh 'cd ./sources/Example_Plugin_Android_NFC && ./gradlew clean build --no-build-cache --info --stacktrace'
