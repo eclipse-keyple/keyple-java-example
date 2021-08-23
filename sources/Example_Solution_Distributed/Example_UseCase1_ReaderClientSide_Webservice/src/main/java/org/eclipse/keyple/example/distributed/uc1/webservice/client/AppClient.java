@@ -14,9 +14,13 @@ package org.eclipse.keyple.example.distributed.uc1.webservice.client;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.eclipse.keyple.core.service.ConfigurableReader;
+import org.eclipse.keyple.core.service.ObservablePlugin;
 import org.eclipse.keyple.core.service.Plugin;
+import org.eclipse.keyple.core.service.PluginEvent;
 import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
+import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
+import org.eclipse.keyple.core.service.spi.PluginObserverSpi;
 import org.eclipse.keyple.core.util.ByteArrayUtil;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.distributed.LocalServiceClient;
@@ -113,12 +117,30 @@ public class AppClient {
         SmartCardServiceProvider.getService()
             .registerPlugin(StubPluginFactoryBuilder.builder().build());
 
+    // Add a fictive plugin observer in order to update automatically the reader list.
+    ((ObservablePlugin) plugin)
+        .setPluginObservationExceptionHandler(
+            new PluginObservationExceptionHandlerSpi() {
+              @Override
+              public void onPluginObservationError(String pluginName, Throwable e) {
+                // NOP
+              }
+            });
+    ((ObservablePlugin) plugin)
+        .addObserver(
+            new PluginObserverSpi() {
+              @Override
+              public void onPluginEvent(PluginEvent pluginEvent) {
+                // NOP
+              }
+            });
+
     // Plug the reader manually to the plugin.
     plugin.getExtension(StubPlugin.class).plugReader("stubReader", true, null);
 
     // sleep for a moment to let the readers being detected
     try {
-      Thread.sleep(2000);
+      Thread.sleep(1000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -133,7 +155,7 @@ public class AppClient {
             ContactlessCardCommonProtocol.ISO_14443_4.name());
 
     // Insert a stub card manually on the reader.
-    ((StubReader) reader).insertCard(getStubCard());
+    reader.getExtension(StubReader.class).insertCard(getStubCard());
 
     logger.info(
         "Client - Local reader was configured with STUB reader : {} with a card", reader.getName());
@@ -187,11 +209,11 @@ public class AppClient {
         .withPowerOnData(ByteArrayUtil.fromHex("3B8880010000000000718100F9"))
         .withProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
         /* Select Application */
-        .withSimulatedCommand("00A4 0400 05 AABBCCDDEE 00", "6A82")
+        .withSimulatedCommand("00A4040005AABBCCDDEE00", "6A82")
         /* Select Application */
         .withSimulatedCommand(
-            "00A4 0400 09 315449432E49434131 00",
-            "6F238409315449432E49434131A516BF0C13C708 0000000011223344 53070A3C23121410019000")
+            "00A4040009315449432E4943413100",
+            "6F238409315449432E49434131A516BF0C13C708000000001122334453070A3C23121410019000")
         /* Read Records - EnvironmentAndHolder (SFI=07)) */
         .withSimulatedCommand(
             "00B2013C00", "24B92848080000131A50001200000000000000000000000000000000009000")

@@ -3,23 +3,39 @@
 ///////////////////////////////////////////////////////////////////////////////
 plugins {
     java
+    id("com.diffplug.spotless") version "5.10.2"
     id("io.quarkus") version "1.8.1.Final"
 }
-
-///////////////////////////////////////////////////////////////////////////////
-//  TASKS CONFIGURATION
-///////////////////////////////////////////////////////////////////////////////
-val runExample by tasks.creating(Jar::class) {
-    group = "keyple"
-    dependsOn.add("quarkusDev")
+buildscript {
+    repositories {
+        mavenLocal()
+        maven(url = "https://repo.eclipse.org/service/local/repositories/maven_central/content")
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.eclipse.keyple:keyple-gradle:0.2.+") { isChanging = true }
+    }
 }
+apply(plugin = "org.eclipse.keyple")
 
 ///////////////////////////////////////////////////////////////////////////////
 //  APP CONFIGURATION
 ///////////////////////////////////////////////////////////////////////////////
-val quarkusPlatformGroupId: String by project
-val quarkusPlatformArtifactId: String by project
-val quarkusPlatformVersion: String by project
+repositories {
+    mavenLocal()
+    maven(url = "https://repo.eclipse.org/service/local/repositories/maven_central/content")
+    mavenCentral()
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
+    maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
+}
+
+val javaSourceLevel: String by project
+val javaTargetLevel: String by project
+java {
+    sourceCompatibility = JavaVersion.toVersion(javaSourceLevel)
+    targetCompatibility = JavaVersion.toVersion(javaTargetLevel)
+    println("Compiling Java $sourceCompatibility to Java $targetCompatibility.")
+}
 
 dependencies {
     /* Keyple dependencies */
@@ -42,4 +58,23 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-client")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//  TASKS CONFIGURATION
+///////////////////////////////////////////////////////////////////////////////
+tasks {
+    spotless {
+        java {
+            target("**/src/**/*.java")
+            licenseHeaderFile("${project.rootDir}/LICENSE_HEADER")
+            importOrder("java", "javax", "org", "com", "")
+            removeUnusedImports()
+            googleJavaFormat()
+        }
+    }
+}
+val runExample by tasks.creating(Jar::class) {
+    group = "keyple"
+    dependsOn.add("quarkusDev")
 }

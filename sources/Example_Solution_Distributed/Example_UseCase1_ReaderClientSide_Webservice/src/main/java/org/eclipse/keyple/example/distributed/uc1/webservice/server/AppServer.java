@@ -12,7 +12,9 @@
 package org.eclipse.keyple.example.distributed.uc1.webservice.server;
 
 import javax.enterprise.context.ApplicationScoped;
+import org.eclipse.keyple.core.service.ObservablePlugin;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
+import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.distributed.RemotePluginServerFactory;
 import org.eclipse.keyple.distributed.RemotePluginServerFactoryBuilder;
 
@@ -32,14 +34,22 @@ public class AppServer {
    */
   public void init() {
 
-    // Init the remote plugin observer.
-    RemotePluginServerObserver pluginObserver = new RemotePluginServerObserver();
-
     // Init the remote plugin factory.
     RemotePluginServerFactory factory =
         RemotePluginServerFactoryBuilder.builder(REMOTE_PLUGIN_NAME).withSyncNode().build();
 
     // Register the remote plugin to the smart card service using the factory.
-    SmartCardServiceProvider.getService().registerPlugin(factory);
+    ObservablePlugin plugin =
+        (ObservablePlugin) SmartCardServiceProvider.getService().registerPlugin(factory);
+
+    // Init the remote plugin observer.
+    plugin.setPluginObservationExceptionHandler(
+        new PluginObservationExceptionHandlerSpi() {
+          @Override
+          public void onPluginObservationError(String pluginName, Throwable e) {
+            // NOP
+          }
+        });
+    plugin.addObserver(new RemotePluginServerObserver());
   }
 }

@@ -18,8 +18,6 @@ buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         classpath("com.android.tools.build:gradle:4.1.3")
-        classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.4.32")
-        classpath("com.diffplug.spotless:spotless-plugin-gradle:5.14.0")
         classpath("org.eclipse.keyple:keyple-gradle:0.2.+") { isChanging = true }
     }
 }
