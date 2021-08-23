@@ -1,8 +1,8 @@
-# Keyple Java Plugin Android NFC
+# Keyple Java Plugin Android OMAPI
 
 ## Overview
 
-The **Keyple Java Plugin Android NFC** contains interfaces and classes to manage Android NFC readers within a Keyple application.
+The **Keyple Java Plugin Android OMAPI** contains interfaces and classes to manage Android OMAPI readers within a Keyple application.
 
 This library **should be imported explicitly** by the main application.
 
