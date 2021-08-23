@@ -6,6 +6,11 @@ pipeline {
   }
   agent { kubernetes { yaml javaBuilder('2.0') } }
   stages {
+    stage('Prepare settings') { steps { container('java-builder') {
+      script {
+        sh 'git lfs fetch && git lfs checkout'
+      }
+    } } }
     stage('Build Example Card Calypso') {
       steps { container('java-builder') {
         sh 'cd ./sources/Example_Card_Calypso && ./gradlew clean build --no-build-cache --info --stacktrace'
