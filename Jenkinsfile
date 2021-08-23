@@ -11,6 +11,21 @@ pipeline {
         sh 'cd ./sources/Example_Card_Calypso && ./gradlew clean build --no-build-cache --info --stacktrace'
       } }
     }
+    stage('Build Example Card Generic') {
+      steps { container('java-builder') {
+        sh 'cd ./sources/Example_Card_Generic && ./gradlew clean build --no-build-cache --info --stacktrace'
+      } }
+    }
+    stage('Build Example Service Resource') {
+      steps { container('java-builder') {
+        sh 'cd ./sources/Example_Service_Resource && ./gradlew clean build --no-build-cache --info --stacktrace'
+      } }
+    }
+    stage('Build Example Plugin PC/SC') {
+      steps { container('java-builder') {
+        sh 'cd ./sources/Example_Plugin_PCSC && ./gradlew clean build --no-build-cache --info --stacktrace'
+      } }
+    }
     stage('Build Example Plugin Android NFC') {
       steps { container('java-builder') {
         sh 'cd ./sources/Example_Plugin_Android_NFC && ./gradlew clean build --no-build-cache --info --stacktrace'
