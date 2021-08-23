@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case ‘generic 2’ – Scheduled Selection (PC/SC)</h1>
+ * <h1>Use Case Generic 2 – Scheduled Selection (PC/SC)</h1>
  *
  * <p>We demonstrate here the selection of a Calypso card using a scheduled scenario. The selection
  * operations are prepared in advance with the card selection manager and the Calypso extension

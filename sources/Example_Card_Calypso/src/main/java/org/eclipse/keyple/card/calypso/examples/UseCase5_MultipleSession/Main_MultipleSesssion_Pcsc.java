@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case ‘Calypso 5’ – Multiple sessions (PC/SC)</h1>
+ * <h1>Use Case Calypso 5 – Multiple sessions (PC/SC)</h1>
  *
  * <p>We demonstrate here a simple way to bypass the card modification buffer limitation by using
  * the multiple session mode.

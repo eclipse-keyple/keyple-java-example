@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case ‘Calypso 1’ – Explicit Selection Aid (PC/SC)</h1>
+ * <h1>Use Case Calypso 1 – Explicit Selection Aid (PC/SC)</h1>
  *
  * <p>We demonstrate here the direct selection of a Calypso card inserted in a reader. No
  * observation of the reader is implemented in this example, so the card must be present in the

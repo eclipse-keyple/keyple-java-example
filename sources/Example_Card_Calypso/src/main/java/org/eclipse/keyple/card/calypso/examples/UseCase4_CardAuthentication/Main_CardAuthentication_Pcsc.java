@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case ‘Calypso 4’ – Calypso Card authentication (PC/SC)</h1>
+ * <h1>Use Case Calypso 4 – Calypso Card authentication (PC/SC)</h1>
  *
  * <p>We demonstrate here the authentication of a Calypso card using a Secure Session in which a
  * file from the card is read. The read is certified by verifying the signature of the card by a

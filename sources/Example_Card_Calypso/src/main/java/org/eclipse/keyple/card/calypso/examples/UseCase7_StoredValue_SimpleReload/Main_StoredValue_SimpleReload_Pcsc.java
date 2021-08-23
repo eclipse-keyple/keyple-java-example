@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case ‘Calypso 7’ – Calypso Card Stored Value reloading (PC/SC)</h1>
+ * <h1>Use Case Calypso 7 – Calypso Card Stored Value reloading (PC/SC)</h1>
  *
  * <p>We demonstrate here the reloading of the Stored Value counter of a Calypso card.
  *

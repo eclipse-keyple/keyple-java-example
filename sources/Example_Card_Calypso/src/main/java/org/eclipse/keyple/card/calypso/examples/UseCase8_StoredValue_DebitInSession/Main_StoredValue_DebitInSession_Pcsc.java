@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case ‘Calypso 4’ – Calypso Card authentication (PC/SC)</h1>
+ * <h1>Use Case Calypso 4 – Calypso Card authentication (PC/SC)</h1>
  *
  * <p>We demonstrate here the debit of the Stored Value counter of a Calypso card.
  *
