@@ -43,17 +43,17 @@ pipeline {
     }
     stage('Build Example Distributed UseCase1 ReaderClientSide Webservice') {
       steps { container('java-builder') {
-        sh 'cd ./sources/Example_Distributed/Example_UseCase1_ReaderClientSide_Webservice && ./gradlew clean build --no-build-cache --info --stacktrace'
+        sh 'cd ./sources/Example_Distributed/Example_Distributed_UseCase1_ReaderClientSide_Webservice && ./gradlew clean build --no-build-cache --info --stacktrace'
       } }
     }
     stage('Build Example Distributed UseCase1 ReaderClientSide Websocket') {
       steps { container('java-builder') {
-        sh 'cd ./sources/Example_Distributed/Example_UseCase1_ReaderClientSide_Websocket && ./gradlew clean build --no-build-cache --info --stacktrace'
+        sh 'cd ./sources/Example_Distributed/Example_Distributed_UseCase1_ReaderClientSide_Websocket && ./gradlew clean build --no-build-cache --info --stacktrace'
       } }
     }
     stage('Build Example Distributed UseCase3 PoolReaderServerSide Webservice') {
       steps { container('java-builder') {
-        sh 'cd ./sources/Example_Distributed/Example_UseCase3_PoolReaderServerSide_Webservice && ./gradlew clean build --no-build-cache --info --stacktrace'
+        sh 'cd ./sources/Example_Distributed/Example_Distributed_UseCase3_PoolReaderServerSide_Webservice && ./gradlew clean build --no-build-cache --info --stacktrace'
       } }
     }
   }
