@@ -2,41 +2,15 @@
 //  GRADLE CONFIGURATION
 ///////////////////////////////////////////////////////////////////////////////
 plugins {
-    id("com.diffplug.spotless") version "5.10.2"
-    id("com.android.application") version "4.2.2"
-    kotlin("android") version "1.4.20"
-    kotlin("android.extensions") version "1.4.20"
+    id("com.android.application")
+    id("kotlin-android")
+    kotlin("android.extensions")
+    id("com.diffplug.spotless")
 }
-buildscript {
-    val kotlinVersion: String by project
-    repositories {
-        mavenLocal()
-        maven(url = "https://repo.eclipse.org/service/local/repositories/maven_central/content")
-        mavenCentral()
-        google()
-    }
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        classpath("com.android.tools.build:gradle:4.1.3")
-        classpath("org.eclipse.keyple:keyple-gradle:0.2.+") { isChanging = true }
-    }
-}
-apply(plugin = "org.eclipse.keyple")
 
 ///////////////////////////////////////////////////////////////////////////////
 //  APP CONFIGURATION
 ///////////////////////////////////////////////////////////////////////////////
-group = "org.eclipse.keyple"
-repositories {
-    mavenLocal()
-    maven(url = "https://repo.eclipse.org/service/local/repositories/maven_central/content")
-    mavenCentral()
-    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
-    maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
-    google()
-    jcenter()
-}
-
 val kotlinVersion: String by project
 val archivesBaseName: String by project
 android {
@@ -130,24 +104,4 @@ dependencies {
     androidTestImplementation("com.android.support.test:runner:1.0.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//  TASKS CONFIGURATION
-///////////////////////////////////////////////////////////////////////////////
-tasks {
-    spotless {
-        kotlin {
-            target("**/*.kt")
-            ktlint()
-            licenseHeaderFile("${project.rootDir}/LICENSE_HEADER")
-        }
-        java {
-            target("src/**/*.java")
-            licenseHeaderFile("${project.rootDir}/LICENSE_HEADER")
-            importOrder("java", "javax", "org", "com", "")
-            removeUnusedImports()
-            googleJavaFormat()
-        }
-    }
 }

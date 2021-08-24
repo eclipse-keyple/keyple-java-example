@@ -8,7 +8,7 @@ release/
 
 # Gradle
 .gradle/
-build*/
+build.gradle.kts/
 LICENSE_HEADER
 
 # Eclipse
