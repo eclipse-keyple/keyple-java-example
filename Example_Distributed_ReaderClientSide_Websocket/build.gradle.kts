@@ -57,7 +57,7 @@ dependencies {
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
     /* Others */
-    implementation("com.google.code.gson:gson:2.8.5")
+    implementation("com.google.code.gson:gson:2.8.8")
 }
 
 ///////////////////////////////////////////////////////////////////////////////

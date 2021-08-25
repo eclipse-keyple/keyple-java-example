@@ -28,19 +28,69 @@ of the Eclipse Public License v. 2.0 which is available at
 http://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
 
 SPDX-License-Identifier: EPL-2.0
-
-## Contributors
-
-* Pierre Terrée - API specification
-* Jean-Pierre Fortune - Keyple Core, Keyple Calypso, PCSC plugin and Stub plugin
-* Olivier Delcroix - Keyple Distributed and Android plugins
-* Florent Clairambault - Keyple Core
-* Paulo Barreto - Integration and Demo apps
-* Meddy Menzikoff - Android plugins and Examples
-* Andrei Cristea - Keyple Core, Keyple Distributed and Keyple Calypso
-* Youssef Amrani - Android plugins and demo apps
-* Brice Ruppen - DevOps
    
 ## Third-party Content
 
-No third-party content.
+Calypsonet Terminal Reader API (1.0.0)
+
+* License: [Eclipse Public License 2.0](http://www.eclipse.org/legal/epl-2.0)
+* Sources: https://github.com/calypsonet/calypsonet-terminal-reader-java-api
+
+Android Appcompat (1.2.0)
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Sources: https://github.com/androidx-releases/Appcompat
+
+Android Material (1.3.0)
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Project: https://material.io/
+
+Android ConstraintLayout (1.1.3)
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Sources: https://github.com/androidx-releases/ConstraintLayout
+
+Android Activity (1.2.1)
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Sources: https://github.com/androidx-releases/Activity
+
+Android Fragment (1.3.1)
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Sources: https://github.com/androidx-releases/Fragment
+
+Android Multidex
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Sources: https://developer.android.com/jetpack/androidx/releases/multidex
+
+Android Core Ktx (1.3.2)
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Project: https://developer.android.com/jetpack/androidx/releases/core
+
+Kotlin Standard Library (1.4.20)
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Sources: https://github.com/JetBrains/kotlin
+
+Kotlinx Coroutines core/android (1.3.3):
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+SLF4J API (1.7.32)
+
+* License: [MIT](https://spdx.org/licenses/MIT.html)
+* Project: http://www.slf4j.org
+
+Timber (4.7.1):
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Sources: https://github.com/JakeWharton/timber
+
+SLF4J Timber (3.1):
+
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+* Sources: https://github.com/arcao/slf4j-timber

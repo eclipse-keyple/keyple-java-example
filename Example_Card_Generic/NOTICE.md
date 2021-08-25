@@ -28,19 +28,15 @@ of the Eclipse Public License v. 2.0 which is available at
 http://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
 
 SPDX-License-Identifier: EPL-2.0
-
-## Contributors
-
-* Pierre Terrée - API specification
-* Jean-Pierre Fortune - Keyple Core, Keyple Calypso, PCSC plugin and Stub plugin
-* Olivier Delcroix - Keyple Distributed and Android plugins
-* Florent Clairambault - Keyple Core
-* Paulo Barreto - Integration and Demo apps
-* Meddy Menzikoff - Android plugins and Examples
-* Andrei Cristea - Keyple Core, Keyple Distributed and Keyple Calypso
-* Youssef Amrani - Android plugins and demo apps
-* Brice Ruppen - DevOps
    
 ## Third-party Content
 
-No third-party content.
+Calypsonet Terminal Reader API (1.0.0)
+
+* License: [Eclipse Public License 2.0](http://www.eclipse.org/legal/epl-2.0)
+* Sources: https://github.com/calypsonet/calypsonet-terminal-reader-java-api
+
+SLF4J Simple (1.7.32)
+
+* License: [MIT](https://spdx.org/licenses/MIT.html)
+* Project: http://www.slf4j.org

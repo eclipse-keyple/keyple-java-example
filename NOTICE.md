@@ -28,19 +28,7 @@ of the Eclipse Public License v. 2.0 which is available at
 http://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html
 
 SPDX-License-Identifier: EPL-2.0
-
-## Contributors
-
-* Pierre Terrée - API specification
-* Jean-Pierre Fortune - Keyple Core, Keyple Calypso, PCSC plugin and Stub plugin
-* Olivier Delcroix - Keyple Distributed and Android plugins
-* Florent Clairambault - Keyple Core
-* Paulo Barreto - Integration and Demo apps
-* Meddy Menzikoff - Android plugins and Examples
-* Andrei Cristea - Keyple Core, Keyple Distributed and Keyple Calypso
-* Youssef Amrani - Android plugins and demo apps
-* Brice Ruppen - DevOps
    
 ## Third-party Content
 
-No third-party content.
+See projects notices.
