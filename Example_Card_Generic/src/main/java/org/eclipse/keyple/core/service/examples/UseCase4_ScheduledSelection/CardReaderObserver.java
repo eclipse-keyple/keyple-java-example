@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * Implements the reader observation SPIs.<br>
  * A reader Observer to handle card events such as CARD_INSERTED, CARD_MATCHED, CARD_REMOVED
  *
- * @since 2.0.0
+ * @since 2.0.0.0
  */
 class CardReaderObserver
     implements CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
@@ -42,7 +42,7 @@ class CardReaderObserver
   /**
    * {@inheritDoc}
    *
-   * @since 2.0
+   * @since 2.0.0
    */
   @Override
   public void onReaderEvent(CardReaderEvent event) {
@@ -84,7 +84,7 @@ class CardReaderObserver
   /**
    * {@inheritDoc}
    *
-   * @since 2.0
+   * @since 2.0.0
    */
   @Override
   public void onReaderObservationError(String pluginName, String readerName, Throwable e) {

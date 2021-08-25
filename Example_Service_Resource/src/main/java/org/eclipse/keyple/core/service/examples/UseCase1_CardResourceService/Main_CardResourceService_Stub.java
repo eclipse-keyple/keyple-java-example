@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
  *
- * @since 2.0
+ * @since 2.0.0
  */
 public class Main_CardResourceService_Stub {
   private static final Logger logger = LoggerFactory.getLogger(Main_CardResourceService_Stub.class);

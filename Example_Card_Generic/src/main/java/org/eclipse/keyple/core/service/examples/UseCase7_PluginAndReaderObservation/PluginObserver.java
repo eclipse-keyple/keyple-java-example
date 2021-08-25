@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * Implements the plugin observation SPIs. A plugin Observer to handle reader events such as
  * READER_CONNECTED or READER_DISCONNECTED.
  *
- * @since 2.0
+ * @since 2.0.0
  */
 class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHandlerSpi {
 
@@ -41,7 +41,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
    * <p>Add an observer to all provided readers that are observable.
    *
    * @param initialReaders The readers connected before the plugin is observed.
-   * @since 2.0
+   * @since 2.0.0
    */
   PluginObserver(Set<Reader> initialReaders) {
     readerObserver = new ReaderObserver();
@@ -55,7 +55,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
   /**
    * {@inheritDoc}
    *
-   * @since 2.0
+   * @since 2.0.0
    */
   @Override
   public void onPluginEvent(PluginEvent event) {
@@ -109,7 +109,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
   /**
    * {@inheritDoc}
    *
-   * @since 2.0
+   * @since 2.0.0
    */
   @Override
   public void onPluginObservationError(String pluginName, Throwable e) {

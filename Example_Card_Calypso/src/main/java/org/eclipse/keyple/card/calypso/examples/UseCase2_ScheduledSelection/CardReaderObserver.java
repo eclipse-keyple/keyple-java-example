@@ -53,7 +53,7 @@ class CardReaderObserver
   /**
    * {@inheritDoc}
    *
-   * @since 2.0
+   * @since 2.0.0
    */
   @Override
   public void onReaderEvent(CardReaderEvent event) {
@@ -103,7 +103,7 @@ class CardReaderObserver
   /**
    * {@inheritDoc}
    *
-   * @since 2.0
+   * @since 2.0.0
    */
   @Override
   public void onReaderObservationError(String pluginName, String readerName, Throwable e) {
