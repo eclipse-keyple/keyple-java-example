@@ -32,10 +32,10 @@ You can run the example in dev mode:
 ## Packaging and running the application
 
 The application can be packaged using `./gradlew quarkusBuild`.
-It produces the `Example_Distributed_UseCase1_ReaderClientSide_Webservice-2.0.0-runner.jar` file in the `build` directory.
+It produces the `Example_Distributed_ReaderClientSide_Webservice-2.0.0-runner.jar` file in the `build` directory.
 Be aware that it is a uber-jar as the dependencies are copied inside the jar.
 
-The application is now runnable using `java -jar build/Example_Distributed_UseCase1_ReaderClientSide_Webservice-2.0.0-runner.jar`.
+The application is now runnable using `java -jar build/Example_Distributed_ReaderClientSide_Webservice-2.0.0-runner.jar`.
 
 ## About Quarkus
 

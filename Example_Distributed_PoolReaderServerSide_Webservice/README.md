@@ -32,10 +32,10 @@ For the matter of this example, the client app is included within the quarkus se
 ## Packaging and running the application
 
 The application can be packaged using `./gradlew quarkusBuild`.
-It produces the `Example_Distributed_UseCase3_PoolReaderClientSide_Webservice-2.0.0-runner.jar` file in the `build` directory.
+It produces the `Example_Distributed_PoolReaderServerSide_Webservice-2.0.0-runner.jar` file in the `build` directory.
 Be aware that it is a uber-jar as the dependencies are copied inside the jar.
 
-The application is now runnable using `java -jar build/Example_Distributed_UseCase3_PoolReaderClientSide_Webservice-2.0.0-runner.jar`.
+The application is now runnable using `java -jar build/Example_Distributed_PoolReaderServerSide_Webservice-2.0.0-runner.jar`.
 
 ## About Quarkus
 

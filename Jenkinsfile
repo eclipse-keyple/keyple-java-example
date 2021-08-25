@@ -41,19 +41,19 @@ pipeline {
         sh 'cd ./Example_Plugin_Android_OMAPI && ./gradlew clean build --no-build-cache --no-daemon --info --stacktrace'
       } }
     }
-    stage('Build Example Distributed UseCase1 ReaderClientSide Webservice') {
+    stage('Build Example Distributed PoolReaderServerSide Webservice') {
       steps { container('java-builder') {
-        sh 'cd ./Example_Distributed/Example_Distributed_UseCase1_ReaderClientSide_Webservice && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
+        sh 'cd ./Example_Distributed_PoolReaderServerSide_Webservice && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
       } }
     }
-    stage('Build Example Distributed UseCase1 ReaderClientSide Websocket') {
+    stage('Build Example Distributed ReaderClientSide Webservice') {
       steps { container('java-builder') {
-        sh 'cd ./Example_Distributed/Example_Distributed_UseCase1_ReaderClientSide_Websocket && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
+        sh 'cd ./Example_Distributed_ReaderClientSide_Webservice && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
       } }
     }
-    stage('Build Example Distributed UseCase3 PoolReaderServerSide Webservice') {
+    stage('Build Example Distributed ReaderClientSide Websocket') {
       steps { container('java-builder') {
-        sh 'cd ./Example_Distributed/Example_Distributed_UseCase3_PoolReaderServerSide_Webservice && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
+        sh 'cd ./Example_Distributed_ReaderClientSide_Websocket && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
       } }
     }
   }
