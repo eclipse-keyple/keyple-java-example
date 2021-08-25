@@ -13,7 +13,6 @@ buildscript {
         maven(url = "https://repo.eclipse.org/service/local/repositories/maven_central/content")
         mavenCentral()
         google()
-        jcenter()
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
@@ -21,6 +20,7 @@ buildscript {
         classpath("org.eclipse.keyple:keyple-gradle:0.2.+") { isChanging = true }
     }
 }
+apply(plugin = "org.eclipse.keyple")
 
 ///////////////////////////////////////////////////////////////////////////////
 //  APP CONFIGURATION
@@ -34,7 +34,6 @@ allprojects {
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
         google()
-        jcenter()
     }
 }
 
