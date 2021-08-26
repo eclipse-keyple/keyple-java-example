@@ -16,8 +16,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import org.eclipse.keyple.distributed.MessageDto;
-import org.eclipse.keyple.distributed.spi.SyncEndpointClientSpi;
 import org.eclipse.keyple.distributed.example.readerclientside.webservice.server.EndpointServer;
+import org.eclipse.keyple.distributed.spi.SyncEndpointClientSpi;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 /**

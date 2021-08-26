@@ -21,8 +21,8 @@ import org.eclipse.keyple.core.util.json.JsonUtil;
 import org.eclipse.keyple.distributed.AsyncNodeServer;
 import org.eclipse.keyple.distributed.MessageDto;
 import org.eclipse.keyple.distributed.RemotePluginServer;
-import org.eclipse.keyple.distributed.spi.AsyncEndpointServerSpi;
 import org.eclipse.keyple.distributed.example.readerclientside.websocket.client.EndpointClient;
+import org.eclipse.keyple.distributed.spi.AsyncEndpointServerSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

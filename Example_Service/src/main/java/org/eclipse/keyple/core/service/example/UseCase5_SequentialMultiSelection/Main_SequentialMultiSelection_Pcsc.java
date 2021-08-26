@@ -63,7 +63,8 @@ public class Main_SequentialMultiSelection_Pcsc {
     // return.
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
-    Reader reader = ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
+    Reader reader =
+        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
 
     // Get the generic card extension service
     GenericExtensionService cardExtension = GenericExtensionService.getInstance();
