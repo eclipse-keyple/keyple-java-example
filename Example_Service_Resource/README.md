@@ -1,5 +1,4 @@
-Getting Started - Card Resource Service example
----
+# Card Resource Service example
 
 Those examples make use of the Keyple Java Service Resource and the Keyple Java Card Generic extension. They demonstrate how to
 select card and how to observe plugins and readers.

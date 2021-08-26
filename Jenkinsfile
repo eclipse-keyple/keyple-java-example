@@ -11,14 +11,14 @@ pipeline {
         sh 'git lfs fetch && git lfs checkout'
       }
     } } }
+    stage('Build Example Service') {
+      steps { container('java-builder') {
+        sh 'cd ./Example_Service && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
+      } }
+    }
     stage('Build Example Card Calypso') {
       steps { container('java-builder') {
         sh 'cd ./Example_Card_Calypso && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
-      } }
-    }
-    stage('Build Example Card Generic') {
-      steps { container('java-builder') {
-        sh 'cd ./Example_Card_Generic && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
       } }
     }
     stage('Build Example Service Resource') {

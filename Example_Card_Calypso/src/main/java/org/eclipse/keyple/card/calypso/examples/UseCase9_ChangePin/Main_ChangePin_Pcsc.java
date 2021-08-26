@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case Calypso 9 – Calypso Card Verify PIN (PC/SC)</h1>
+ * <h1>Use Case Calypso 9 – Calypso Card Change PIN (PC/SC)</h1>
  *
  * <p>We demonstrate here the various operations around the PIN code checking.
  *

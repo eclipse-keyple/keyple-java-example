@@ -1,5 +1,4 @@
-Getting Started - PC/SC examples
----
+# Plugin PC/SC examples
 
 Those examples make use of the Keyple Java PC/SC Plugin to demonstrate its specific features.
 
