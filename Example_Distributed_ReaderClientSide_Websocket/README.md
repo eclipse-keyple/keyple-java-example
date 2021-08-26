@@ -2,7 +2,7 @@
 
 This projects aims at demonstrating how simple is the implementation of the asynchronous mode of the **Keyple Distributed** solution with a Web Socket protocol.
 This configuration allows a **server** application to control a smart card reader available on a **client** (e.g. Card reader).
-See the [developer guide](https://keyple.org/docs/developer-guide/distributed-application/#reader-client-side).
+See the developer guide on [keyple.org](https://keyple.org) for more details.
 
 The **local reader** is plugged on the client device which communicates with the server through a web socket.
 

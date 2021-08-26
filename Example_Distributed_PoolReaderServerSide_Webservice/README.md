@@ -2,7 +2,7 @@
 
 This project aims at demonstrating how simple is the implementation of the synchronous mode of the **Keyple Distributed** solution with a Web Service.
 This configuration allows a **client** application to control a **pool** of smart cards readers available on a **server** (e.g. HSM readers).
-See the [developer guide](https://keyple.org/docs/developer-guide/distributed-application/#reader-server-side) for more details.
+See the developer guide on [keyple.org](https://keyple.org) for more details.
 
 This example uses the keyple `StubPoolPlugin` that emulates a pool of smart card readers, allowing to allocate, release readers. Instead of a ``StubPoolPlugin``, you can configure any plugin that implements the interface ``ReaderPoolPlugin``.
 
