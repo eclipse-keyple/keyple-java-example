@@ -64,12 +64,12 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"), "exclude" to listOf("org.simalliance.openmobileapi.jar"))))
 
     //Keyple Common
-    implementation("org.calypsonet.terminal:calypsonet-terminal-reader-java-api:1.0.0-rc4")
-    implementation("org.eclipse.keyple:keyple-common-java-api:2.0.0-rc4")
-    implementation("org.eclipse.keyple:keyple-service-java-lib:2.0.0-rc5")
-    implementation("org.eclipse.keyple:keyple-card-generic-java-lib:2.0.0-rc4")
-    implementation("org.eclipse.keyple:keyple-plugin-android-omapi-java-lib:2.0.0-rc3")
-    implementation("org.eclipse.keyple:keyple-util-java-lib:2.0.0-rc4")
+    implementation("org.calypsonet.terminal:calypsonet-terminal-reader-java-api:1.0.+") { isChanging = true }
+    implementation("org.eclipse.keyple:keyple-common-java-api:2.0.+") { isChanging = true }
+    implementation("org.eclipse.keyple:keyple-service-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
+    implementation("org.eclipse.keyple:keyple-card-generic-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
+    implementation("org.eclipse.keyple:keyple-plugin-android-omapi-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
+    implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
 
     /*
     Android components
