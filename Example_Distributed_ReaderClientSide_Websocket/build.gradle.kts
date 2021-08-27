@@ -13,7 +13,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.eclipse.keyple:keyple-gradle:0.2.+") { isChanging = true }
+        classpath("org.eclipse.keyple:keyple-gradle:0.2.+")
     }
 }
 apply(plugin = "org.eclipse.keyple")
@@ -39,17 +39,17 @@ java {
 
 dependencies {
     /* Keyple dependencies */
-    implementation("org.calypsonet.terminal:calypsonet-terminal-reader-java-api:1.0.+") { isChanging = true }
-    implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-java-api:1.0.+") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-common-java-api:2.0.+") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-service-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-distributed-network-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-distributed-local-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-distributed-remote-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.0.0-SNAPSHOT") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
+    implementation("org.calypsonet.terminal:calypsonet-terminal-reader-java-api:1.0.0-rc4")
+    implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-java-api:1.0.0-rc3")
+    implementation("org.eclipse.keyple:keyple-common-java-api:2.0.0-rc4")
+    implementation("org.eclipse.keyple:keyple-service-java-lib:2.0.0-rc5")
+    implementation("org.eclipse.keyple:keyple-distributed-network-java-lib:2.0.0-rc4")
+    implementation("org.eclipse.keyple:keyple-distributed-local-java-lib:2.0.0-rc4")
+    implementation("org.eclipse.keyple:keyple-distributed-remote-java-lib:2.0.0-rc4")
+    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0-rc4")
+    implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.0.0-rc4")
+    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.0.0-rc4")
+    implementation("org.eclipse.keyple:keyple-util-java-lib:2.0.0-rc4")
     /* Quarkus */
     implementation(enforcedPlatform("io.quarkus:quarkus-universe-bom:1.8.1.Final"))
     implementation("io.quarkus:quarkus-resteasy")
