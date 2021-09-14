@@ -43,8 +43,6 @@ java {
     sourceCompatibility = JavaVersion.toVersion(javaSourceLevel)
     targetCompatibility = JavaVersion.toVersion(javaTargetLevel)
     println("Compiling Java $sourceCompatibility to Java $targetCompatibility.")
-    withJavadocJar()
-    withSourcesJar()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
