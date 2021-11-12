@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Added
+- Log the Calypso serial number in the examples of Example_Card_Calypso (issue [#5]).
 
 ## [2021-10-06]
 ### Added
@@ -36,5 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [unreleased]: https://github.com/eclipse/keyple-java-example/compare/2021-10-06...HEAD
 [2021-10-06]: https://github.com/eclipse/keyple-java-example/releases/tag/2021-10-06
+
+[#5]: https://github.com/eclipse/keyple-java-example/issues/5
 
 [eclipse/keyple#6]: https://github.com/eclipse/keyple/issues/6

@@ -23,6 +23,7 @@ import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerS
 import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.service.*;
+import org.eclipse.keyple.core.util.ByteArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +71,9 @@ class CardReaderObserver
         logger.info(
             "Observer notification: card selection was successful and produced the smart card = {}",
             calypsoCard);
+        logger.info(
+            "Calypso Serial Number = {}",
+            ByteArrayUtil.toHex(calypsoCard.getApplicationSerialNumber()));
         logger.info("Data read during the scheduled selection process:");
         logger.info(
             "File {}h, rec 1: FILE_CONTENT = {}",

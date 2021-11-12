@@ -122,6 +122,10 @@ public class Main_MultipleSesssion_Pcsc {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
+    logger.info(
+        "Calypso Serial Number = {}",
+        ByteArrayUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+
     // Create security settings that reference the same SAM profile requested from the card resource
     // service and enable the multiple session mode.
     CardResource samResource =

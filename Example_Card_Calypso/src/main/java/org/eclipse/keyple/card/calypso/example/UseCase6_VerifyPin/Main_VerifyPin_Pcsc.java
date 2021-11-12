@@ -28,6 +28,7 @@ import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
+import org.eclipse.keyple.core.util.ByteArrayUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,6 +130,10 @@ public class Main_VerifyPin_Pcsc {
     CalypsoCard calypsoCard = (CalypsoCard) selectionResult.getActiveSmartCard();
 
     logger.info("= SmartCard = {}", calypsoCard);
+
+    logger.info(
+        "Calypso Serial Number = {}",
+        ByteArrayUtil.toHex(calypsoCard.getApplicationSerialNumber()));
 
     // Create the card transaction manager in secure mode.
     CardTransactionManager cardTransaction =
