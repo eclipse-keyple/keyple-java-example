@@ -141,11 +141,13 @@ public class ConfigurationUtil {
     public void setupReader(Reader reader) {
       // Configure the reader with parameters suitable for contactless operations.
       try {
-        reader
-            .getExtension(PcscReader.class)
-            .setContactless(false)
-            .setIsoProtocol(PcscReader.IsoProtocol.T0)
-            .setSharingMode(PcscReader.SharingMode.SHARED);
+        if (reader instanceof PcscReader) {
+          reader
+              .getExtension(PcscReader.class)
+              .setContactless(false)
+              .setIsoProtocol(PcscReader.IsoProtocol.T0)
+              .setSharingMode(PcscReader.SharingMode.SHARED);
+        }
       } catch (Exception e) {
         logger.error("Exception raised while setting up the reader {}", reader.getName(), e);
       }

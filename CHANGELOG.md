@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - Log the Calypso serial number in the examples of Example_Card_Calypso (issue [#5]).
+- 4 Calypso examples using simulated smart cards (Stub) (issue [#7]).
 
 ## [2021-10-06]
 ### Added
@@ -40,5 +41,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [2021-10-06]: https://github.com/eclipse/keyple-java-example/releases/tag/2021-10-06
 
 [#5]: https://github.com/eclipse/keyple-java-example/issues/5
+[#7]: https://github.com/eclipse/keyple-java-example/issues/7
 
 [eclipse/keyple#6]: https://github.com/eclipse/keyple/issues/6
