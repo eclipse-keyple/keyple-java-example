@@ -15,8 +15,8 @@ import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoCardStubFactory;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
+import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
@@ -108,16 +108,16 @@ public class Main_ScheduledSelection_Stub {
     // Schedule the selection scenario, request notification only if the card matches the selection
     // case.
     cardSelectionManager.scheduleCardSelectionScenario(
-        (ObservableCardReader) cardReader,
+        (ObservableReader) cardReader,
         ObservableCardReader.DetectionMode.REPEATING,
         ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Create and add an observer for this reader
     CardReaderObserver cardReaderObserver =
         new CardReaderObserver(cardReader, cardSelectionManager);
-    ((ObservableCardReader) cardReader).setReaderObservationExceptionHandler(cardReaderObserver);
-    ((ObservableCardReader) cardReader).addObserver(cardReaderObserver);
-    ((ObservableCardReader) cardReader)
+    ((ObservableReader) cardReader).setReaderObservationExceptionHandler(cardReaderObserver);
+    ((ObservableReader) cardReader).addObserver(cardReaderObserver);
+    ((ObservableReader) cardReader)
         .startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
 
     logger.info(
@@ -127,7 +127,7 @@ public class Main_ScheduledSelection_Stub {
     Thread.sleep(100);
 
     logger.info("Insert stub card.");
-    cardReader.getExtension(StubReader.class).insertCard(CalypsoCardStubFactory.getStubSmartCard());
+    cardReader.getExtension(StubReader.class).insertCard(StubSmartCardFactory.getStubCard());
 
     /* Wait a while. */
     Thread.sleep(1000);
@@ -142,11 +142,4 @@ public class Main_ScheduledSelection_Stub {
 
     System.exit(0);
   }
-
-  /**
-   * This object is used to freeze the main thread while card operations are handle through the
-   * observers callbacks. A call to the notify() method would end the program (not demonstrated
-   * here).
-   */
-  private static final Object waitForEnd = new Object();
 }

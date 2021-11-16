@@ -15,8 +15,8 @@ import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoCardStubFactory;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
+import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.ByteArrayUtil;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
@@ -63,7 +63,7 @@ public class Main_ExplicitSelectionAid_Stub {
     Plugin plugin =
         smartCardService.registerPlugin(
             StubPluginFactoryBuilder.builder()
-                .withStubReader(CARD_READER_NAME, true, CalypsoCardStubFactory.getStubSmartCard())
+                .withStubReader(CARD_READER_NAME, true, StubSmartCardFactory.getStubCard())
                 .build());
 
     Reader cardReader = plugin.getReader(CARD_READER_NAME);

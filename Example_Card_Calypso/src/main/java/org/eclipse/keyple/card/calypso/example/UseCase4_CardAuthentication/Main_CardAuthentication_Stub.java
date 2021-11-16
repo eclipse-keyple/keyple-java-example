@@ -21,9 +21,8 @@ import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoCardStubFactory;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoSamStubFactory;
+import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardService;
@@ -81,8 +80,8 @@ public class Main_CardAuthentication_Stub {
     Plugin plugin =
         smartCardService.registerPlugin(
             StubPluginFactoryBuilder.builder()
-                .withStubReader(CARD_READER_NAME, true, CalypsoCardStubFactory.getStubSmartCard())
-                .withStubReader(SAM_READER_NAME, false, CalypsoSamStubFactory.getStubSmartCard())
+                .withStubReader(CARD_READER_NAME, true, StubSmartCardFactory.getStubCard())
+                .withStubReader(SAM_READER_NAME, false, StubSmartCardFactory.getStubSam())
                 .build());
 
     // Get the Calypso card extension service
