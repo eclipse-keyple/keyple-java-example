@@ -39,7 +39,6 @@ Each example can be run independently.
       been checked.
     * Implementations:
         * For PC/SC plugin: [`Main_Rev1Selection_Pcsc.java`]
-        * For Stub plugin: [`Main_Rev1Selection_Stub.java`]
 
 * Use Case Calypso 4 - Card Authentication (certified reading of a file
   record):  [UseCase4_CardAuthentication](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase4_CardAuthentication)

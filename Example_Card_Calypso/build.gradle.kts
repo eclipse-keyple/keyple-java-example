@@ -34,6 +34,7 @@ dependencies {
     implementation("org.eclipse.keyple:keyple-service-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-service-resource-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.0.0")
+    implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
     implementation ("org.slf4j:slf4j-simple:1.7.32")
