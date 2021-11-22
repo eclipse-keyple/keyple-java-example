@@ -4,11 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [2021-11-22]
 ### Added
 - Log of the Calypso serial number in the examples of Example_Card_Calypso (issue [#5]).
 - Main_ExplicitSelectionAid_Stub in Example_Card_Calypso (issue [#7]).
 - Main_ScheduledSelection_Stub in Example_Card_Calypso (issue [#7]).
 - Main_CardAuthentication_Stub in Example_Card_Calypso (issue [#7]).
+### Upgraded
+- "Keyple Service Resource Library" to version `2.0.1`
+- "Keyple Card Calypso Library" to version `2.0.1`
+- "Keyple Card Generic Library" to version `2.0.1`
 
 ## [2021-10-06]
 ### Added
@@ -38,8 +44,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-generic-java-lib:2.0.0
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
-
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2021-10-06...HEAD
+    
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2021-11-22...HEAD
+[2021-11-22]: https://github.com/eclipse/keyple-java-example/compare/2021-10-06...2021-11-22
 [2021-10-06]: https://github.com/eclipse/keyple-java-example/releases/tag/2021-10-06
 
 [#7]: https://github.com/eclipse/keyple-java-example/issues/7
