@@ -89,8 +89,7 @@ public class Main_ProtocolBasedSelection_Pcsc {
     // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
 
-    // Create a card selection using the generic card extension without specifying any filter
-    // (protocol/power-on data/DFName).
+    // Create a card selection using the generic card extension with protocol filter.
     CardSelection cardSelection =
         cardExtension.createCardSelection().filterByCardProtocol(MIFARE_CLASSIC);
 
