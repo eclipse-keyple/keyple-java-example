@@ -46,7 +46,7 @@ dependencies {
     implementation("org.eclipse.keyple:keyple-distributed-network-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-distributed-local-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-distributed-remote-java-lib:2.0.0")
-    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.1")
+    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.3")
     implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
