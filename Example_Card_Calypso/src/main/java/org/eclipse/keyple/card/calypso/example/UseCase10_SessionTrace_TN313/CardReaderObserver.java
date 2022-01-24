@@ -11,6 +11,9 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
+import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_INSERTED;
+import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_MATCHED;
+
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
@@ -23,13 +26,9 @@ import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.service.ObservableReader;
-import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.util.ByteArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_INSERTED;
-import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_MATCHED;
 
 /** A reader Observer handles card event such as CARD_INSERTED, CARD_MATCHED, CARD_REMOVED */
 class CardReaderObserver
@@ -39,15 +38,21 @@ class CardReaderObserver
   private final CardReader cardReader;
   private final CardSecuritySetting cardSecuritySetting;
   private final CardSelectionManager cardSelectionManager;
+  private final byte[] newEventRecord =
+      ByteArrayUtil.fromHex("8013C8EC55667788112233445566778811223344556677881122334455");
 
   /**
    * (package-private)<br>
    * Constructor.
-   *  @param cardReader The card reader.
+   *
+   * @param cardReader The card reader.
    * @param cardSelectionManager The card selection manager.
    * @param cardSecuritySetting The card security settings.
    */
-  CardReaderObserver(CardReader cardReader, CardSelectionManager cardSelectionManager, CardSecuritySetting  cardSecuritySetting) {
+  CardReaderObserver(
+      CardReader cardReader,
+      CardSelectionManager cardSelectionManager,
+      CardSecuritySetting cardSecuritySetting) {
     this.cardReader = cardReader;
     this.cardSelectionManager = cardSelectionManager;
     this.cardSecuritySetting = cardSecuritySetting;
@@ -62,25 +67,55 @@ class CardReaderObserver
   public void onReaderEvent(CardReaderEvent event) {
     switch (event.getType()) {
       case CARD_MATCHED:
-        // the selection has one target, get the result at index 0
-        CalypsoCard calypsoCard =
-            (CalypsoCard)
-                cardSelectionManager
-                    .parseScheduledCardSelectionsResponse(
-                        event.getScheduledCardSelectionsResponse())
-                    .getActiveSmartCard();
+        // read the current time used later to compute the transaction time
+        long timeStamp = System.currentTimeMillis();
+        try {
+          // the selection matched, get the resulting CalypsoCard
+          CalypsoCard calypsoCard =
+              (CalypsoCard)
+                  cardSelectionManager
+                      .parseScheduledCardSelectionsResponse(
+                          event.getScheduledCardSelectionsResponse())
+                      .getActiveSmartCard();
 
-        CardTransactionManager cardTransactionManager = CalypsoExtensionService.getInstance()
-                .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-                .prepareReadRecordFile(
-                        CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
-                .prepareReadRecordFile(
-                        CalypsoConstants.SFI_EVENT_LOG CalypsoConstants.RECORD_NUMBER_1)
-                .processOpening(WriteAccessLevel.DEBIT);
+          // create a transaction manager, open a Secure Session, read Environment, Event Log and
+          // Contract List.
+          CardTransactionManager cardTransactionManager =
+              CalypsoExtensionService.getInstance()
+                  .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+                  .prepareReadRecord(
+                      CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
+                  .prepareReadRecord(
+                      CalypsoConstants.SFI_EVENT_LOG, CalypsoConstants.RECORD_NUMBER_1)
+                  .prepareReadRecord(
+                      CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
+                  .processOpening(WriteAccessLevel.DEBIT);
 
-//        cardTransactionManager.pre
+          /*
+          Place for the analysis of the context and the list of contracts
+          */
 
-        logger.info("= #### End of the card processing.");
+          // read the elected contract
+          cardTransactionManager
+              .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
+              .processCardCommands();
+
+          /*
+          Place for the analysis of the contracts
+          */
+
+          // add an event record and close the Secure Session
+          cardTransactionManager
+              .prepareAppendRecord(CalypsoConstants.SFI_EVENT_LOG, newEventRecord)
+              .processClosing();
+
+          // display transaction time
+          logger.info(
+              "= #### Transaction succeeded. Execution time: {} ms.",
+              System.currentTimeMillis() - timeStamp);
+        } catch (Exception e) {
+          logger.error("= #### Transaction failed with exception: {}.", e.getMessage());
+        }
 
         break;
 
@@ -90,7 +125,7 @@ class CardReaderObserver
         break;
 
       case CARD_REMOVED:
-        logger.trace("There is no card inserted anymore. Return to the waiting state...");
+        logger.info("= #### Card removed.");
         break;
       default:
         break;

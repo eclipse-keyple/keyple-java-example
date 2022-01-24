@@ -11,6 +11,9 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
+import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.getCardReader;
+import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
+
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
@@ -28,14 +31,13 @@ import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.getCardReader;
-
 /**
  *
  *
  * <h1>Use Case Calypso 10 – Calypso Secure Session Trace - Technical Note #313 (PC/SC)</h1>
  *
- * <p>This an implementation of the Calypso Secure Session described the technical note #313 defining a typical usage of a Calypso card and allowing performances comparison.
+ * <p>This an implementation of the Calypso Secure Session described the technical note #313
+ * defining a typical usage of a Calypso card and allowing performances comparison.
  *
  * <h2>Scenario:</h2>
  *
@@ -62,17 +64,17 @@ public class Main_SessionTrace_TN313_Pcsc {
     // Get the instance of the SmartCardService (singleton pattern)
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
-    // Register the PcscPlugin with the SmartCardService, get the corresponding generic plugin in
-    // return.
+    // Register the PcscPlugin
     final Plugin plugin =
         smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
-    // Get the generic card extension service
+    // Get the Calypso card extension service
     CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
     smartCardService.checkCardExtension(cardExtension);
 
+    // Retrieve the card reader
     Reader cardReader = getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
 
     // Activate the ISO14443 card protocol.
@@ -81,7 +83,7 @@ public class Main_SessionTrace_TN313_Pcsc {
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ContactlessCardCommonProtocol.ISO_14443_4.name());
 
-    logger.info("=============== UseCase Generic #2: scheduled selection ==================");
+    logger.info("=============== UseCase Calypso #10: session trace TN313 ==================");
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
     // Get the core card selection manager.
@@ -106,16 +108,20 @@ public class Main_SessionTrace_TN313_Pcsc {
         ObservableCardReader.DetectionMode.REPEATING,
         ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
+    // Configure the card resource service for the targeted SAM.
+    setupCardResourceService(
+        plugin, ConfigurationUtil.SAM_READER_NAME_REGEX, CalypsoConstants.SAM_PROFILE_NAME);
+
     // Create security settings that reference the same SAM profile requested from the card resource
     // service.
     CardResource samResource =
-            CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
+        CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
     CardSecuritySetting cardSecuritySetting =
-            CalypsoExtensionService.getInstance()
-                    .createCardSecuritySetting()
-                    .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+        CalypsoExtensionService.getInstance()
+            .createCardSecuritySetting()
+            .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
-    // Create and add an observer for this reader
+    // Create and add a card observer for this reader
     CardReaderObserver cardReaderObserver =
         new CardReaderObserver(cardReader, cardSelectionManager, cardSecuritySetting);
 
