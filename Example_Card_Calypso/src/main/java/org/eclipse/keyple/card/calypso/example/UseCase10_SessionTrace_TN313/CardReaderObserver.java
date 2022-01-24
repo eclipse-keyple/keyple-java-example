@@ -111,21 +111,21 @@ class CardReaderObserver
 
           // display transaction time
           logger.info(
-              "= #### Transaction succeeded. Execution time: {} ms.",
+              "Transaction succeeded. Execution time: {} ms",
               System.currentTimeMillis() - timeStamp);
         } catch (Exception e) {
-          logger.error("= #### Transaction failed with exception: {}.", e.getMessage());
+          logger.error("Transaction failed with exception: {}", e.getMessage(), e);
         }
 
         break;
 
       case CARD_INSERTED:
         logger.error(
-            "CARD_INSERTED event: should not have occurred because of the MATCHED_ONLY selection mode chosen.");
+            "CARD_INSERTED event: should not have occurred because of the MATCHED_ONLY selection mode chosen");
         break;
 
       case CARD_REMOVED:
-        logger.info("= #### Card removed.");
+        logger.info("Card removed");
         break;
       default:
         break;
@@ -142,6 +142,6 @@ class CardReaderObserver
   /** {@inheritDoc} */
   @Override
   public void onReaderObservationError(String pluginName, String readerName, Throwable e) {
-    logger.error("An exception occurred in plugin '{}', reader '{}'.", pluginName, readerName, e);
+    logger.error("An exception occurred in plugin '{}', reader '{}'", pluginName, readerName, e);
   }
 }

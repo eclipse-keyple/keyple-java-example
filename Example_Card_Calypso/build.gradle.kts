@@ -61,4 +61,17 @@ tasks {
             googleJavaFormat()
         }
     }
+    register("fatJarTN313", Jar::class.java) {
+        archiveClassifier.set("TN313-fat")
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        manifest {
+            attributes("Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313.Main_SessionTrace_TN313_Pcsc")
+        }
+        from(configurations.runtimeClasspath.get()
+            .onEach { println("add from dependencies: ${it.name}") }
+            .map { if (it.isDirectory) it else zipTree(it) })
+        val sourcesMain = sourceSets.main.get()
+        sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
+        from(sourcesMain.output)
+    }
 }

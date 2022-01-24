@@ -43,10 +43,11 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *   <li>Schedule a selection scenario over an observable reader to target a specific card (here a
  *       Calypso card characterized by its AID) and including the reading of a file record.
+ *   <li>Initialize and start the SAM resource service.
  *   <li>Start the observation and wait for a card insertion.
  *   <li>Within the reader event handler:
  *       <ul>
- *         <li>Output collected card data (FCI and ATR).
+ *         <li>Do the TN313 transaction scenario.
  *         <li>Close the physical channel.
  *       </ul>
  * </ul>
@@ -57,8 +58,18 @@ import org.slf4j.LoggerFactory;
  */
 public class Main_SessionTrace_TN313_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
+  private static String cardReaderRegex = ConfigurationUtil.CARD_READER_NAME_REGEX;
+  private static String samReaderRegex = ConfigurationUtil.SAM_READER_NAME_REGEX;
+  private static String cardAid = CalypsoConstants.AID;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
+
+    parseCommandLine(args);
+
+    logger.info("Using parameters:");
+    logger.info("cardReaderRegex = {}", cardReaderRegex);
+    logger.info("samReaderRegex = {}", samReaderRegex);
+    logger.info("application AID = {}", cardAid);
 
     // Get the instance of the SmartCardService (singleton pattern)
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
@@ -74,7 +85,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     smartCardService.checkCardExtension(cardExtension);
 
     // Retrieve the card reader
-    Reader cardReader = getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    Reader cardReader = getCardReader(plugin, cardReaderRegex);
 
     // Activate the ISO14443 card protocol.
     ((ConfigurableReader) cardReader)
@@ -83,7 +94,7 @@ public class Main_SessionTrace_TN313_Pcsc {
             ContactlessCardCommonProtocol.ISO_14443_4.name());
 
     logger.info("=============== UseCase Calypso #10: session trace TN313 ==================");
-    logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
+    logger.info("Select application with AID = '{}'", cardAid);
 
     // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
@@ -95,7 +106,7 @@ public class Main_SessionTrace_TN313_Pcsc {
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
-            .filterByDfName(CalypsoConstants.AID);
+            .filterByDfName(cardAid);
 
     // Prepare the selection by adding the created Calypso selection to the card selection scenario.
     cardSelectionManager.prepareSelection(cardSelection);
@@ -108,8 +119,7 @@ public class Main_SessionTrace_TN313_Pcsc {
         ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Configure the card resource service for the targeted SAM.
-    setupCardResourceService(
-        plugin, ConfigurationUtil.SAM_READER_NAME_REGEX, CalypsoConstants.SAM_PROFILE_NAME);
+    setupCardResourceService(plugin, samReaderRegex, CalypsoConstants.SAM_PROFILE_NAME);
 
     // Create security settings that reference the same SAM profile requested from the card resource
     // service.
@@ -129,8 +139,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     ((ObservableCardReader) cardReader)
         .startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
 
-    logger.info(
-        "= #### Wait for a card. The default AID based selection to be processed as soon as the card is detected.");
+    logger.info("Wait for a card...");
 
     Scanner sc = new Scanner(System.in);
     logger.info("Press enter to exit...");
@@ -140,8 +149,52 @@ public class Main_SessionTrace_TN313_Pcsc {
     // unregister plugin
     smartCardService.unregisterPlugin(plugin.getName());
 
-    logger.info("Exit program.");
+    logger.info("Exit program");
 
     System.exit(0);
+  }
+
+  /**
+   * Analyses the command line and sets the specified parameters.
+   *
+   * @param args The command line arguments
+   */
+  private static void parseCommandLine(String[] args) {
+    // command line arguments analysis
+    if (args.length > 0) {
+      // at least one argument
+      for (String arg : args) {
+        if (arg.equals("-default")) {
+          break;
+        }
+        String[] argument = arg.split("=");
+        if (argument[0].equals("-cardReaderRegex")) {
+          cardReaderRegex = argument[1];
+        } else if (argument[0].equals("-samReaderRegex")) {
+          samReaderRegex = argument[1];
+        } else if (argument[0].equals("-aid")) {
+          cardAid = argument[1];
+        } else {
+          displayUsage();
+        }
+      }
+    } else {
+      displayUsage();
+    }
+  }
+
+  /** Displays the expected options */
+  private static void displayUsage() {
+    System.out.println("Available options:");
+    System.out.println(
+        " -cardReaderRegex=CARD_READER_REGEX regular expression matching the card reader name, ex. \"ASK Logo.*\"");
+    System.out.println(
+        " -samReaderRegex=SAM_READER_REGEX   regular expression matching the SAM reader name, ex. \"HID.*\"");
+    System.out.println(
+        " -aid=APPLICATION_AID               at least 5 hex bytes, ex. \"315449432E49434131\"");
+    System.out.println(" -default                           use default values,");
+    System.out.println(
+        "                                    is equivalent to -cardReaderRegex=.*ASK LoGO.*|.*Contactless.* -samReaderRegex=.*Identive.*|.*HID.* -aid=315449432E49434131");
+    System.exit(1);
   }
 }
