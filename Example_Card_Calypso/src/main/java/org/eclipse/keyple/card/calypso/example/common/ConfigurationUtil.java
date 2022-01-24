@@ -14,6 +14,7 @@ package org.eclipse.keyple.card.calypso.example.common;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.sam.CalypsoSamSelection;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.ConfigurableReader;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.Reader;
@@ -141,11 +142,12 @@ public class ConfigurationUtil {
     public void setupReader(Reader reader) {
       // Configure the reader with parameters suitable for contactless operations.
       try {
-        reader
-            .getExtension(PcscReader.class)
-            .setContactless(false)
-            .setIsoProtocol(PcscReader.IsoProtocol.T0)
-            .setSharingMode(PcscReader.SharingMode.SHARED);
+        KeypleReaderExtension readerExtension = reader.getExtension(KeypleReaderExtension.class);
+        if (readerExtension instanceof PcscReader)
+          ((PcscReader) readerExtension)
+              .setContactless(false)
+              .setIsoProtocol(PcscReader.IsoProtocol.T0)
+              .setSharingMode(PcscReader.SharingMode.SHARED);
       } catch (Exception e) {
         logger.error("Exception raised while setting up the reader {}", reader.getName(), e);
       }

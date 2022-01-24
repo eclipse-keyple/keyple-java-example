@@ -1,5 +1,5 @@
 /* **************************************************************************************
- * Copyright (c) 2020 Calypso Networks Association https://calypsonet.org/
+ * Copyright (c) 2022 Calypso Networks Association https://calypsonet.org/
  *
  * See the NOTICE file(s) distributed with this work for additional information
  * regarding copyright ownership.
@@ -30,7 +30,11 @@ import org.eclipse.keyple.core.util.ByteArrayUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** A reader Observer handles card event such as CARD_INSERTED, CARD_MATCHED, CARD_REMOVED */
+/**
+ * (package-private)
+ *
+ * <p>A reader Observer handles card event such as CARD_INSERTED, CARD_MATCHED, CARD_REMOVED
+ */
 class CardReaderObserver
     implements CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
 
@@ -58,11 +62,7 @@ class CardReaderObserver
     this.cardSecuritySetting = cardSecuritySetting;
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @since 2.0.0
-   */
+  /** {@inheritDoc} */
   @Override
   public void onReaderEvent(CardReaderEvent event) {
     switch (event.getType()) {
@@ -139,11 +139,7 @@ class CardReaderObserver
     }
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @since 2.0.0
-   */
+  /** {@inheritDoc} */
   @Override
   public void onReaderObservationError(String pluginName, String readerName, Throwable e) {
     logger.error("An exception occurred in plugin '{}', reader '{}'.", pluginName, readerName, e);

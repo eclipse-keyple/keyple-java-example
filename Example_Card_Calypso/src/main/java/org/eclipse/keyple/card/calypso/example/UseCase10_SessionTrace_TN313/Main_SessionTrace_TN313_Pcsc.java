@@ -1,5 +1,5 @@
 /* **************************************************************************************
- * Copyright (c) 2018 Calypso Networks Association https://calypsonet.org/
+ * Copyright (c) 2022 Calypso Networks Association https://calypsonet.org/
  *
  * See the NOTICE file(s) distributed with this work for additional information
  * regarding copyright ownership.
@@ -14,6 +14,7 @@ package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.getCardReader;
 import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
+import java.util.Scanner;
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
@@ -32,14 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- *
- * <h1>Use Case Calypso 10 – Calypso Secure Session Trace - Technical Note #313 (PC/SC)</h1>
+ * Use Case Calypso 10 – Calypso Secure Session Trace - Technical Note #313 (PC/SC)
  *
  * <p>This an implementation of the Calypso Secure Session described the technical note #313
  * defining a typical usage of a Calypso card and allowing performances comparison.
  *
- * <h2>Scenario:</h2>
+ * <p>Scenario:
  *
  * <ul>
  *   <li>Schedule a selection scenario over an observable reader to target a specific card (here a
@@ -59,7 +58,7 @@ import org.slf4j.LoggerFactory;
 public class Main_SessionTrace_TN313_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
 
-  public static void main(String[] args) throws InterruptedException {
+  public static void main(String[] args) throws Exception {
 
     // Get the instance of the SmartCardService (singleton pattern)
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
@@ -133,10 +132,10 @@ public class Main_SessionTrace_TN313_Pcsc {
     logger.info(
         "= #### Wait for a card. The default AID based selection to be processed as soon as the card is detected.");
 
-    // Wait indefinitely. CTRL-C to exit.
-    synchronized (waitForEnd) {
-      waitForEnd.wait();
-    }
+    Scanner sc = new Scanner(System.in);
+    logger.info("Press enter to exit...");
+    sc.nextLine();
+    logger.info("Exit in progress...");
 
     // unregister plugin
     smartCardService.unregisterPlugin(plugin.getName());
@@ -145,11 +144,4 @@ public class Main_SessionTrace_TN313_Pcsc {
 
     System.exit(0);
   }
-
-  /**
-   * This object is used to freeze the main thread while card operations are handle through the
-   * observers callbacks. A call to the notify() method would end the program (not demonstrated
-   * here).
-   */
-  private static final Object waitForEnd = new Object();
 }
