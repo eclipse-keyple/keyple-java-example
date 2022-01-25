@@ -66,9 +66,8 @@ public class Main_SessionTrace_TN313_Pcsc {
 
     parseCommandLine(args);
 
-    if (isVerbose) {
-      System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
-    }
+    System.setProperty(
+        org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, isVerbose ? "TRACE" : "INFO");
 
     logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
 
