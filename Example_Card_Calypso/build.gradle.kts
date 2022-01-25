@@ -29,15 +29,15 @@ repositories {
 }
 dependencies {
     implementation("org.calypsonet.terminal:calypsonet-terminal-reader-java-api:1.0.+") { isChanging = true }
-    implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-java-api:1.0.+") { isChanging = true }
+    implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-java-api:1.1.+") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.+") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-service-java-lib:2.0.1")
     implementation("org.eclipse.keyple:keyple-service-resource-java-lib:2.0.1")
     implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.0.0")
     implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.0.0")
-    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.3")
+    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.1.0-SNAPSHOT") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
-    implementation ("org.slf4j:slf4j-simple:1.7.32")
+    implementation("org.slf4j:slf4j-simple:1.7.32")
 }
 
 val javaSourceLevel: String by project
@@ -60,5 +60,18 @@ tasks {
             removeUnusedImports()
             googleJavaFormat()
         }
+    }
+    register("fatJarTN313", Jar::class.java) {
+        archiveClassifier.set("TN313-fat")
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        manifest {
+            attributes("Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313.Main_SessionTrace_TN313_Pcsc")
+        }
+        from(configurations.runtimeClasspath.get()
+            .onEach { println("add from dependencies: ${it.name}") }
+            .map { if (it.isDirectory) it else zipTree(it) })
+        val sourcesMain = sourceSets.main.get()
+        sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
+        from(sourcesMain.output)
     }
 }
