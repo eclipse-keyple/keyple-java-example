@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Added
+- Add Calypso example #10 for Session Trace TN313 (issue [#9]).
 
 ## [2021-12-20]
 ### Upgraded
@@ -60,6 +62,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [2021-11-22]: https://github.com/eclipse/keyple-java-example/compare/2021-10-06...2021-11-22
 [2021-10-06]: https://github.com/eclipse/keyple-java-example/releases/tag/2021-10-06
 
+[#9]: https://github.com/eclipse/keyple-java-example/issues/9
 [#7]: https://github.com/eclipse/keyple-java-example/issues/7
 [#5]: https://github.com/eclipse/keyple-java-example/issues/5
 
