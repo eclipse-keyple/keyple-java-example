@@ -26,6 +26,7 @@ import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
+import org.eclipse.keyple.core.util.ByteArrayUtil;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
@@ -52,24 +53,31 @@ import org.slf4j.LoggerFactory;
  *       </ul>
  * </ul>
  *
- * All results are logged with slf4j.
- *
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
 public class Main_SessionTrace_TN313_Pcsc {
-  private static final Logger logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
+  private static Logger logger;
   private static String cardReaderRegex = ConfigurationUtil.CARD_READER_NAME_REGEX;
   private static String samReaderRegex = ConfigurationUtil.SAM_READER_NAME_REGEX;
   private static String cardAid = CalypsoConstants.AID;
+  private static boolean isVerbose;
 
   public static void main(String[] args) {
 
     parseCommandLine(args);
 
+    if (isVerbose) {
+      System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
+    }
+
+    logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
+
+    logger.info("=============== UseCase Calypso #10: session trace TN313 ==================");
+
     logger.info("Using parameters:");
-    logger.info("cardReaderRegex = {}", cardReaderRegex);
-    logger.info("samReaderRegex = {}", samReaderRegex);
-    logger.info("application AID = {}", cardAid);
+    logger.info("  AID={}", cardAid);
+    logger.info("  CARD_READER_REGEX={}", cardReaderRegex);
+    logger.info("  SAM_READER_REGEX={}", samReaderRegex);
 
     // Get the instance of the SmartCardService (singleton pattern)
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
@@ -93,7 +101,6 @@ public class Main_SessionTrace_TN313_Pcsc {
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ContactlessCardCommonProtocol.ISO_14443_4.name());
 
-    logger.info("=============== UseCase Calypso #10: session trace TN313 ==================");
     logger.info("Select application with AID = '{}'", cardAid);
 
     // Get the core card selection manager.
@@ -142,7 +149,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     logger.info("Wait for a card...");
 
     Scanner sc = new Scanner(System.in);
-    logger.info("Press enter to exit...");
+    logger.info("Press ENTER to exit...");
     sc.nextLine();
     logger.info("Exit in progress...");
 
@@ -164,37 +171,50 @@ public class Main_SessionTrace_TN313_Pcsc {
     if (args.length > 0) {
       // at least one argument
       for (String arg : args) {
-        if (arg.equals("-default")) {
+        if (arg.equals("-d") || arg.equals("--default")) {
           break;
         }
+        if (arg.equals("-v") || arg.equals("--verbose")) {
+          isVerbose = true;
+          continue;
+        }
         String[] argument = arg.split("=");
-        if (argument[0].equals("-cardReaderRegex")) {
-          cardReaderRegex = argument[1];
-        } else if (argument[0].equals("-samReaderRegex")) {
-          samReaderRegex = argument[1];
-        } else if (argument[0].equals("-aid")) {
+        if (argument.length != 2) {
+          displayUsageAndExit();
+        }
+        if (argument[0].equals("-a") || argument[0].equals("--aid")) {
           cardAid = argument[1];
+          if (argument[1].length() < 10
+              || argument[1].length() > 32
+              || !ByteArrayUtil.isValidHexString(argument[1])) {
+            System.out.println("Invalid AID");
+            displayUsageAndExit();
+          }
+        } else if (argument[0].equals("-c") || argument[0].equals("--card")) {
+          cardReaderRegex = argument[1];
+        } else if (argument[0].equals("-s") || argument[0].equals("--sam")) {
+          samReaderRegex = argument[1];
         } else {
-          displayUsage();
+          displayUsageAndExit();
         }
       }
     } else {
-      displayUsage();
+      displayUsageAndExit();
     }
   }
 
   /** Displays the expected options */
-  private static void displayUsage() {
+  private static void displayUsageAndExit() {
     System.out.println("Available options:");
     System.out.println(
-        " -cardReaderRegex=CARD_READER_REGEX regular expression matching the card reader name, ex. \"ASK Logo.*\"");
+        " -d, --default                  use default values (is equivalent to -a=\"315449432E49434131\" -c=\".*ASK LoGO.*|.*Contactless.*\" -s=\".*Identive.*|.*HID.*\")");
     System.out.println(
-        " -samReaderRegex=SAM_READER_REGEX   regular expression matching the SAM reader name, ex. \"HID.*\"");
+        " -a, --aid=\"APPLICATION_AID\"    between 5 and 16 hex bytes (e.g. \"315449432E49434131\")");
     System.out.println(
-        " -aid=APPLICATION_AID               at least 5 hex bytes, ex. \"315449432E49434131\"");
-    System.out.println(" -default                           use default values,");
+        " -c, --card=\"CARD_READER_REGEX\" regular expression matching the card reader name (e.g. \"ASK Logo.*\")");
     System.out.println(
-        "                                    is equivalent to -cardReaderRegex=.*ASK LoGO.*|.*Contactless.* -samReaderRegex=.*Identive.*|.*HID.* -aid=315449432E49434131");
+        " -s, --sam=\"SAM_READER_REGEX\"   regular expression matching the SAM reader name (e.g. \"HID.*\")");
+    System.out.println(" -v, --verbose                  set the log level to TRACE");
     System.exit(1);
   }
 }
