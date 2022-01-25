@@ -32,6 +32,7 @@ import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.impl.SimpleLogger;
 
 /**
  * Use Case Calypso 10 – Calypso Secure Session Trace - Technical Note #313 (PC/SC)
@@ -66,8 +67,7 @@ public class Main_SessionTrace_TN313_Pcsc {
 
     parseCommandLine(args);
 
-    System.setProperty(
-        org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, isVerbose ? "TRACE" : "INFO");
+    System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, isVerbose ? "TRACE" : "INFO");
 
     logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
 
