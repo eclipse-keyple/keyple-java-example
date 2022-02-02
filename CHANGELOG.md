@@ -61,7 +61,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
     
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2021-12-20...HEAD
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-02-02...HEAD
+[2022-02-02]: https://github.com/eclipse/keyple-java-example/compare/2021-12-20...2022-02-02
 [2021-12-20]: https://github.com/eclipse/keyple-java-example/compare/2021-12-08...2021-12-20
 [2021-12-08]: https://github.com/eclipse/keyple-java-example/compare/2021-11-22...2021-12-08
 [2021-11-22]: https://github.com/eclipse/keyple-java-example/compare/2021-10-06...2021-11-22
