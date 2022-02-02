@@ -95,7 +95,7 @@ public class Main_ScheduledSelection_Pcsc {
             .acceptInvalidatedCard()
             .filterByCardProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
             .filterByDfName(CalypsoConstants.AID)
-            .prepareReadRecordFile(
+            .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1);
 
     // Prepare the selection by adding the created Calypso selection to the card selection scenario.

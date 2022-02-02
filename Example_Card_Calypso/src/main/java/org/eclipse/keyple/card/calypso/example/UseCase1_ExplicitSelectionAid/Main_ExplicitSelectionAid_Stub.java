@@ -100,7 +100,7 @@ public class Main_ExplicitSelectionAid_Stub {
             .createCardSelection()
             .filterByDfName(CalypsoConstants.AID)
             .acceptInvalidatedCard()
-            .prepareReadRecordFile(
+            .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1));
 
     // Actual card communication: run the selection scenario.

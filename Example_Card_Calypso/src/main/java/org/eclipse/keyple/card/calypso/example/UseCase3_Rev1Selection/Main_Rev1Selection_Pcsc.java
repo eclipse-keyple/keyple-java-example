@@ -103,7 +103,7 @@ public class Main_Rev1Selection_Pcsc {
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ContactlessCardCommonProtocol.INNOVATRON_B_PRIME_CARD.name())
-            .prepareReadRecordFile(
+            .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1));
 
     // Actual card communication: run the selection scenario.
@@ -128,7 +128,7 @@ public class Main_Rev1Selection_Pcsc {
 
     cardExtension
         .createCardTransactionWithoutSecurity(cardReader, calypsoCard)
-        .prepareReadRecordFile(CalypsoConstants.SFI_EVENT_LOG, 1)
+        .prepareReadRecord(CalypsoConstants.SFI_EVENT_LOG, 1)
         .prepareReleaseCardChannel()
         .processCardCommands();
 

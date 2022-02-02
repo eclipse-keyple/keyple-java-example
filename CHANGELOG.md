@@ -4,8 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [2022-02-02]
 ### Added
-- Add Calypso example #10 for Session Trace TN313 (issue [#9]).
+- Calypso example #10 for Session Trace TN313 (issue [#9]).
+### Upgraded
+- "Calypsonet Terminal Calypso API" to version `1.1.+`
+- "Keyple Card Calypso Library" to version `2.1.0`
 
 ## [2021-12-20]
 ### Upgraded

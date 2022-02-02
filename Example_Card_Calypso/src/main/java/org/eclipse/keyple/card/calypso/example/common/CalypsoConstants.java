@@ -35,7 +35,7 @@ public final class CalypsoConstants {
   public static final String AID = "315449432E49434131";
 
   // File structure
-  public static final int REC_SIZE = 29;
+  public static final int RECORD_SIZE = 29;
 
   public static final byte RECORD_NUMBER_1 = 1;
   public static final byte RECORD_NUMBER_2 = 2;

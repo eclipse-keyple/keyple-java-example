@@ -50,7 +50,7 @@ public class CalypsoTicketingServiceUtil {
         CalypsoExtensionService.getInstance()
             .createCardSelection()
             .filterByDfName(AID)
-            .prepareReadRecordFile(SFI_EnvironmentAndHolder, RECORD_NUMBER_1);
+            .prepareReadRecord(SFI_EnvironmentAndHolder, RECORD_NUMBER_1);
 
     // Prepare Card Selection
     CardSelectionManager cardSelectionManager =
@@ -94,7 +94,7 @@ public class CalypsoTicketingServiceUtil {
     CardTransactionManager cardTransactionManager =
         CalypsoExtensionService.getInstance()
             .createCardTransactionWithoutSecurity(reader, calypsoCard)
-            .prepareReadRecordFile(SFI_EventLog, RECORD_NUMBER_1)
+            .prepareReadRecord(SFI_EventLog, RECORD_NUMBER_1)
             .prepareReleaseCardChannel()
             .processCardCommands();
     logger.info("The reading of the EventLog has succeeded.");

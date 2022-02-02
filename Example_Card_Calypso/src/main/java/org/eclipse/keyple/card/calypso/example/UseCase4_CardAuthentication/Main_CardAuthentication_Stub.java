@@ -147,11 +147,14 @@ public class Main_CardAuthentication_Stub {
             .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     try {
-      // Performs file reads using the card transaction manager in non-secure mode.
+      // Performs file reads using the card transaction manager in secure mode.
       cardExtension
           .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-          .prepareReadRecordFile(
-              CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
+          .prepareReadRecords(
+              CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
+              CalypsoConstants.RECORD_NUMBER_1,
+              CalypsoConstants.RECORD_NUMBER_1,
+              CalypsoConstants.RECORD_SIZE)
           .processOpening(WriteAccessLevel.DEBIT)
           .prepareReleaseCardChannel()
           .processClosing();
