@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2022-04-06]
+### Added
+- PC/SC example #4 for "Transmit Control" mechanism (newly available since PcscPlugin 2.1.0).
+
 ## [2022-02-02]
 ### Added
 - Calypso example #10 for Session Trace TN313 (issue [#9]).
