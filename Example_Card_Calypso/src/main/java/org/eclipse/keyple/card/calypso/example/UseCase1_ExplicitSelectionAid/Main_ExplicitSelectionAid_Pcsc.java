@@ -20,7 +20,7 @@ import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
@@ -117,8 +117,7 @@ public class Main_ExplicitSelectionAid_Pcsc {
     logger.info("= SmartCard = {}", calypsoCard);
 
     logger.info(
-        "Calypso Serial Number = {}",
-        ByteArrayUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
 
     logger.info(
         "File SFI {}h, rec 1: FILE_CONTENT = {}",

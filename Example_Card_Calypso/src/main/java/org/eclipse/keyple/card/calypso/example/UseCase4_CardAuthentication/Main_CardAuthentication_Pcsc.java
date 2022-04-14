@@ -27,7 +27,7 @@ import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,8 +127,7 @@ public class Main_CardAuthentication_Pcsc {
     logger.info("= SmartCard = {}", calypsoCard);
 
     logger.info(
-        "Calypso Serial Number = {}",
-        ByteArrayUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
 
     // Create security settings that reference the same SAM profile requested from the card resource
     // service.

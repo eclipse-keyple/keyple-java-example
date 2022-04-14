@@ -19,7 +19,7 @@ import org.calypsonet.terminal.reader.selection.spi.CardSelection;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,8 +80,7 @@ public class CalypsoTicketingServiceUtil {
 
     // Retrieves the data read from the CalypsoCard updated during the transaction process.
     ElementaryFile efEnvironmentAndHolder = calypsoCard.getFileBySfi(SFI_EnvironmentAndHolder);
-    String environmentAndHolder =
-        ByteArrayUtil.toHex(efEnvironmentAndHolder.getData().getContent());
+    String environmentAndHolder = HexUtil.toHex(efEnvironmentAndHolder.getData().getContent());
 
     // Logs the result.
     logger.info("EnvironmentAndHolder file data: {}", environmentAndHolder);
@@ -103,7 +102,7 @@ public class CalypsoTicketingServiceUtil {
 
     // Retrieves the data read from the CalypsoCard updated during the transaction process.
     ElementaryFile efEventLog = calypsoCard.getFileBySfi(SFI_EventLog);
-    String eventLog = ByteArrayUtil.toHex(efEventLog.getData().getContent());
+    String eventLog = HexUtil.toHex(efEventLog.getData().getContent());
 
     // Logs the result.
     logger.info("EventLog file data: {}", eventLog);

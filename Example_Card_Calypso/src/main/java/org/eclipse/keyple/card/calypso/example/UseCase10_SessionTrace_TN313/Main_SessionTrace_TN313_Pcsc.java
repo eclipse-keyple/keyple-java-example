@@ -26,7 +26,7 @@ import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
@@ -185,7 +185,7 @@ public class Main_SessionTrace_TN313_Pcsc {
           cardAid = argument[1];
           if (argument[1].length() < 10
               || argument[1].length() > 32
-              || !ByteArrayUtil.isValidHexString(argument[1])) {
+              || !HexUtil.isValid(argument[1])) {
             System.out.println("Invalid AID");
             displayUsageAndExit();
           }

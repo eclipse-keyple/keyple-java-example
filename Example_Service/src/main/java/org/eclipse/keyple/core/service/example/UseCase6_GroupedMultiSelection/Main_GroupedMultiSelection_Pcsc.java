@@ -19,7 +19,7 @@ import org.eclipse.keyple.card.generic.GenericCardSelection;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,8 +114,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     for (Map.Entry<Integer, SmartCard> entry : cardSelectionsResult.getSmartCards().entrySet()) {
       SmartCard smartCard = entry.getValue();
       String powerOnData = smartCard.getPowerOnData();
-      String selectApplicationResponse =
-          ByteArrayUtil.toHex(smartCard.getSelectApplicationResponse());
+      String selectApplicationResponse = HexUtil.toHex(smartCard.getSelectApplicationResponse());
       String selectionIsActive =
           smartCard == cardSelectionsResult.getActiveSmartCard() ? "true" : "false";
       logger.info(

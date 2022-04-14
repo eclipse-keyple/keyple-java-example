@@ -11,7 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.common;
 
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.core.util.protocol.ContactCardCommonProtocol;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.stub.StubSmartCard;
@@ -22,7 +22,7 @@ public class StubSmartCardFactory {
   private static final String CARD_PROTOCOL = ContactlessCardCommonProtocol.ISO_14443_4.name();
   private static final StubSmartCard stubCard =
       StubSmartCard.builder()
-          .withPowerOnData(ByteArrayUtil.fromHex(CARD_POWER_ON_DATA))
+          .withPowerOnData(HexUtil.toByteArray(CARD_POWER_ON_DATA))
           .withProtocol(CARD_PROTOCOL)
           // select application
           .withSimulatedCommand(
@@ -45,7 +45,7 @@ public class StubSmartCardFactory {
   private static final String SAM_PROTOCOL = ContactCardCommonProtocol.ISO_7816_3_T0.name();
   private static final StubSmartCard stubSam =
       StubSmartCard.builder()
-          .withPowerOnData(ByteArrayUtil.fromHex(SAM_POWER_ON_DATA))
+          .withPowerOnData(HexUtil.toByteArray(SAM_POWER_ON_DATA))
           .withProtocol(SAM_PROTOCOL)
           // select diversifier
           .withSimulatedCommand("801400000800000000AABBCCDD", "9000")

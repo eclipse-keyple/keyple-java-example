@@ -14,7 +14,7 @@ package org.eclipse.keyple.distributed.example.poolreaderserverside.webservice.s
 import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.keyple.core.service.PoolPlugin;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.distributed.LocalServiceClient;
 import org.eclipse.keyple.distributed.LocalServiceServerFactory;
@@ -88,7 +88,7 @@ public class AppServer {
    */
   private StubSmartCard getStubCard() {
     return StubSmartCard.builder()
-        .withPowerOnData(ByteArrayUtil.fromHex("3B8880010000000000718100F9"))
+        .withPowerOnData(HexUtil.toByteArray("3B8880010000000000718100F9"))
         .withProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
         /* Select Application */
         .withSimulatedCommand("00A4040005AABBCCDDEE00", "6A82")

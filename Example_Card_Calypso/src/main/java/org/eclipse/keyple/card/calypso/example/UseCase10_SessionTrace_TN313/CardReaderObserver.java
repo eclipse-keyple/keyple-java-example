@@ -26,7 +26,7 @@ import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.service.ObservableReader;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ class CardReaderObserver
   private final CardSecuritySetting cardSecuritySetting;
   private final CardSelectionManager cardSelectionManager;
   private final byte[] newEventRecord =
-      ByteArrayUtil.fromHex("8013C8EC55667788112233445566778811223344556677881122334455");
+      HexUtil.toByteArray("8013C8EC55667788112233445566778811223344556677881122334455");
 
   /**
    * (package-private)<br>

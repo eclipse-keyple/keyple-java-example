@@ -19,7 +19,7 @@ import org.eclipse.keyple.core.service.resource.*;
 import org.eclipse.keyple.core.service.resource.spi.CardResourceProfileExtension;
 import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.core.util.protocol.ContactCardCommonProtocol;
 import org.eclipse.keyple.plugin.stub.StubPlugin;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
@@ -160,7 +160,7 @@ public class Main_CardResourceService_Stub {
               .getExtension(StubReader.class)
               .insertCard(
                   StubSmartCard.builder()
-                      .withPowerOnData(ByteArrayUtil.fromHex(ATR_CARD_A))
+                      .withPowerOnData(HexUtil.toByteArray(ATR_CARD_A))
                       .withProtocol(ContactCardCommonProtocol.ISO_7816_3_T0.name())
                       .build());
           break;
@@ -172,7 +172,7 @@ public class Main_CardResourceService_Stub {
               .getExtension(StubReader.class)
               .insertCard(
                   StubSmartCard.builder()
-                      .withPowerOnData(ByteArrayUtil.fromHex(ATR_CARD_B))
+                      .withPowerOnData(HexUtil.toByteArray(ATR_CARD_B))
                       .withProtocol(ContactCardCommonProtocol.ISO_7816_3_T0.name())
                       .build());
           break;

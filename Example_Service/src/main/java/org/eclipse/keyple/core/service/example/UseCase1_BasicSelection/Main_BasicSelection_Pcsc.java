@@ -19,7 +19,7 @@ import org.calypsonet.terminal.reader.selection.spi.SmartCard;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +107,7 @@ public class Main_BasicSelection_Pcsc {
     logger.info("= SmartCard = {}", smartCard);
 
     // Execute an APDU to get CPLC Data (cf. Global Platform Specification)
-    byte[] cplcApdu = ByteArrayUtil.fromHex("80CA9F7F00");
+    byte[] cplcApdu = HexUtil.toByteArray("80CA9F7F00");
 
     List<String> apduResponses =
         cardExtension

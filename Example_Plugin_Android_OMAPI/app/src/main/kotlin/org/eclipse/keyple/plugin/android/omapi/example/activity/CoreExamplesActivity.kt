@@ -24,7 +24,7 @@ import org.calypsonet.terminal.reader.selection.CardSelectionManager
 import org.eclipse.keyple.card.generic.GenericExtensionService
 import org.eclipse.keyple.core.service.Reader
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
-import org.eclipse.keyple.core.util.ByteArrayUtil
+import org.eclipse.keyple.core.util.HexUtil
 import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiPlugin
 import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiPluginFactoryProvider
 import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiReader
@@ -134,7 +134,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                     if (cardSelectionsResult.activeSmartCard != null) {
                         val matchedCard = cardSelectionsResult.activeSmartCard
                         addResultEvent("The selection of the card has succeeded.")
-                        addResultEvent("Application FCI = ${ByteArrayUtil.toHex(matchedCard.selectApplicationResponse)}")
+                        addResultEvent("Application FCI = ${HexUtil.toHex(matchedCard.selectApplicationResponse)}")
                         addResultEvent("End of the generic card processing.")
                     } else {
                         addResultEvent("The selection of the card has failed.")

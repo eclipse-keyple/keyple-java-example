@@ -18,7 +18,7 @@ import org.eclipse.keyple.card.generic.GenericCardSelection;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,8 +138,7 @@ public class Main_SequentialMultiSelection_Pcsc {
       SmartCard smartCard = cardSelectionsResult.getActiveSmartCard();
       logger.info("The card matched the selection {}.", index);
       String powerOnData = smartCard.getPowerOnData();
-      String selectApplicationResponse =
-          ByteArrayUtil.toHex(smartCard.getSelectApplicationResponse());
+      String selectApplicationResponse = HexUtil.toHex(smartCard.getSelectApplicationResponse());
       logger.info(
           "Selection status for case {}: \n\t\tpower-on data: {}\n\t\tSelect Application response: {}",
           index,

@@ -21,7 +21,7 @@ import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.core.service.spi.PluginObserverSpi;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
+import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.distributed.LocalServiceClient;
 import org.eclipse.keyple.distributed.LocalServiceClientFactory;
@@ -208,7 +208,7 @@ public class AppClient {
    */
   private StubSmartCard getStubCard() {
     return StubSmartCard.builder()
-        .withPowerOnData(ByteArrayUtil.fromHex("3B8880010000000000718100F9"))
+        .withPowerOnData(HexUtil.toByteArray("3B8880010000000000718100F9"))
         .withProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
         /* Select Application */
         .withSimulatedCommand("00A4040005AABBCCDDEE00", "6A82")

@@ -31,7 +31,7 @@ import org.eclipse.keyple.core.service.ConfigurableReader
 import org.eclipse.keyple.core.service.ObservableReader
 import org.eclipse.keyple.core.service.Reader
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
-import org.eclipse.keyple.core.util.ByteArrayUtil
+import org.eclipse.keyple.core.util.HexUtil
 import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcPlugin
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcPluginFactoryProvider
@@ -161,7 +161,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                                 val selectedCard = cardSelectionManager.parseScheduledCardSelectionsResponse(event.scheduledCardSelectionsResponse).activeSmartCard
                                 if (selectedCard != null) {
                                     addResultEvent("Observer notification: the selection of the card has succeeded. End of the card processing.")
-                                    addResultEvent("Application FCI = ${ByteArrayUtil.toHex(selectedCard.selectApplicationResponse)}")
+                                    addResultEvent("Application FCI = ${HexUtil.toHex(selectedCard.selectApplicationResponse)}")
                                 } else {
                                     addResultEvent("The selection of the card has failed. Should not have occurred due to the MATCHED_ONLY selection mode.")
                                 }
@@ -244,7 +244,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                     if (cardSelectionsResult.activeSmartCard != null) {
                         val matchedCard = cardSelectionsResult.activeSmartCard
                         addResultEvent("The selection of the card has succeeded.")
-                        addResultEvent("Application FCI = ${ByteArrayUtil.toHex(matchedCard.selectApplicationResponse)}")
+                        addResultEvent("Application FCI = ${HexUtil.toHex(matchedCard.selectApplicationResponse)}")
                         addResultEvent("End of the generic card processing.")
                     } else {
                         addResultEvent("The selection of the card has failed.")
