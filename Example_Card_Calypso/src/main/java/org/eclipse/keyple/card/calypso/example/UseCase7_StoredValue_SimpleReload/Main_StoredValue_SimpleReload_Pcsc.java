@@ -132,7 +132,8 @@ public class Main_StoredValue_SimpleReload_Pcsc {
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+            .setControlSamResource(
+                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     try {
       // Performs file reads using the card transaction manager in non-secure mode.
@@ -141,7 +142,7 @@ public class Main_StoredValue_SimpleReload_Pcsc {
           cardExtension
               .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
               .prepareSvGet(SvOperation.RELOAD, SvAction.DO)
-              .processCardCommands();
+              .processCommands();
 
       // Display the current SV status
       logger.info("Current SV status (SV Get for RELOAD):");
@@ -155,7 +156,7 @@ public class Main_StoredValue_SimpleReload_Pcsc {
 
       // Execute the command and close the communication after
       cardTransaction.prepareReleaseCardChannel();
-      cardTransaction.processCardCommands();
+      cardTransaction.processCommands();
 
     } finally {
       try {

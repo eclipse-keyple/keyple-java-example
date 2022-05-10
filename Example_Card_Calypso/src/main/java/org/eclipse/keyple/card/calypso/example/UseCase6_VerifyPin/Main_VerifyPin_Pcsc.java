@@ -18,7 +18,6 @@ import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionException;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
@@ -150,7 +149,7 @@ public class Main_VerifyPin_Pcsc {
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard())
+            .setControlSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard())
             .setPinVerificationCipheringKey(
                 CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KIF,
                 CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KVC);
@@ -171,10 +170,9 @@ public class Main_VerifyPin_Pcsc {
       cardTransaction.processOpening(WriteAccessLevel.DEBIT);
       try {
         cardTransaction.processVerifyPin(CalypsoConstants.PIN_KO);
-      } catch (CardTransactionException ex) {
+      } catch (Exception ex) {
         logger.error("PIN Exception: {}", ex.getMessage());
       }
-      cardTransaction.processCancel();
       // log the current counter value (should be 2)
       logger.error("Remaining attempts #3: {}", calypsoCard.getPinAttemptRemaining());
 

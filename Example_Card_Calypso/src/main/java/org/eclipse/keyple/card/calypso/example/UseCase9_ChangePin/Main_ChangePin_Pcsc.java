@@ -140,7 +140,7 @@ public class Main_ChangePin_Pcsc {
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard())
+            .setControlSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard())
             .setPinVerificationCipheringKey(
                 CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KIF,
                 CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KVC)

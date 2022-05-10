@@ -44,7 +44,15 @@ class CardReaderObserver
   private final CardSelectionManager cardSelectionManager;
   private final byte[] newEventRecord =
       HexUtil.toByteArray("8013C8EC55667788112233445566778811223344556677881122334455");
-
+  public static final String ANSI_RESET = "\u001B[0m";
+  public static final String ANSI_BLACK = "\u001B[30m";
+  public static final String ANSI_RED = "\u001B[31m";
+  public static final String ANSI_GREEN = "\u001B[32m";
+  public static final String ANSI_YELLOW = "\u001B[33m";
+  public static final String ANSI_BLUE = "\u001B[34m";
+  public static final String ANSI_PURPLE = "\u001B[35m";
+  public static final String ANSI_CYAN = "\u001B[36m";
+  public static final String ANSI_WHITE = "\u001B[37m";
   /**
    * (package-private)<br>
    * Constructor.
@@ -69,6 +77,7 @@ class CardReaderObserver
       case CARD_MATCHED:
         // read the current time used later to compute the transaction time
         long timeStamp = System.currentTimeMillis();
+        CardTransactionManager cardTransactionManager = null;
         try {
           // the selection matched, get the resulting CalypsoCard
           CalypsoCard calypsoCard =
@@ -80,7 +89,7 @@ class CardReaderObserver
 
           // create a transaction manager, open a Secure Session, read Environment, Event Log and
           // Contract List.
-          CardTransactionManager cardTransactionManager =
+          cardTransactionManager =
               CalypsoExtensionService.getInstance()
                   .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
                   .prepareReadRecord(
@@ -98,7 +107,7 @@ class CardReaderObserver
           // read the elected contract
           cardTransactionManager
               .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
-              .processCardCommands();
+              .processCommands();
 
           /*
           Place for the analysis of the contracts
@@ -111,10 +120,13 @@ class CardReaderObserver
 
           // display transaction time
           logger.info(
-              "Transaction succeeded. Execution time: {} ms",
-              System.currentTimeMillis() - timeStamp);
+              "{}Transaction succeeded. Execution time: {} ms{}",
+              ANSI_GREEN,
+              System.currentTimeMillis() - timeStamp,
+              ANSI_RESET);
         } catch (Exception e) {
-          logger.error("Transaction failed with exception: {}", e.getMessage(), e);
+          logger.error(
+              "{}Transaction failed with exception: {}{}", ANSI_RED, e.getMessage(), ANSI_RESET);
         }
 
         break;
