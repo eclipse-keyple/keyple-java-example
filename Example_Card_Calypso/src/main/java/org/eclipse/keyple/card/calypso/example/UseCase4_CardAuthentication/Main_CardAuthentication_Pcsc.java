@@ -136,7 +136,8 @@ public class Main_CardAuthentication_Pcsc {
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+            .setControlSamResource(
+                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     try {
       // Performs file reads using the card transaction manager in secure mode.

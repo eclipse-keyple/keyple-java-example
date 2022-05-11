@@ -32,7 +32,7 @@ dependencies {
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.+") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-service-java-lib:2.0.1")
     implementation("org.eclipse.keyple:keyple-card-generic-java-lib:2.0.2")
-    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.0.0")
+    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.0-SNAPSHOT") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
     implementation ("org.slf4j:slf4j-simple:1.7.32")
 }

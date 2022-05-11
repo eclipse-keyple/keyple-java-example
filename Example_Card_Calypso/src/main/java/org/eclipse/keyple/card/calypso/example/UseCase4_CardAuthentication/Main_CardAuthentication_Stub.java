@@ -70,7 +70,6 @@ public class Main_CardAuthentication_Stub {
   public static void main(String[] args) {
     final String CARD_READER_NAME = "Stub card reader";
     final String SAM_READER_NAME = "Stub SAM reader";
-    ;
 
     // Get the instance of the SmartCardService (singleton pattern)
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
@@ -143,7 +142,8 @@ public class Main_CardAuthentication_Stub {
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+            .setControlSamResource(
+                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     try {
       // Performs file reads using the card transaction manager in secure mode.

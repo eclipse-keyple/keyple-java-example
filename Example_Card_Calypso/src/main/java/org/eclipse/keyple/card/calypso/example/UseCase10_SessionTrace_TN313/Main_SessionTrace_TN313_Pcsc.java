@@ -57,7 +57,6 @@ import org.slf4j.impl.SimpleLogger;
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
 public class Main_SessionTrace_TN313_Pcsc {
-  private static Logger logger;
   private static String cardReaderRegex = ConfigurationUtil.CARD_READER_NAME_REGEX;
   private static String samReaderRegex = ConfigurationUtil.SAM_READER_NAME_REGEX;
   private static String cardAid = CalypsoConstants.AID;
@@ -69,7 +68,7 @@ public class Main_SessionTrace_TN313_Pcsc {
 
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, isVerbose ? "TRACE" : "INFO");
 
-    logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
+    Logger logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
 
     logger.info("=============== UseCase Calypso #10: session trace TN313 ==================");
 
@@ -134,7 +133,8 @@ public class Main_SessionTrace_TN313_Pcsc {
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setSamResource(samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+            .setControlSamResource(
+                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     // Create and add a card observer for this reader
     CardReaderObserver cardReaderObserver =
@@ -206,7 +206,11 @@ public class Main_SessionTrace_TN313_Pcsc {
   private static void displayUsageAndExit() {
     System.out.println("Available options:");
     System.out.println(
-        " -d, --default                  use default values (is equivalent to -a=\"315449432E49434131\" -c=\".*ASK LoGO.*|.*Contactless.*\" -s=\".*Identive.*|.*HID.*\")");
+        String.format(
+            " -d, --default                  use default values (is equivalent to -a=\"%s\" -c=\"%s\" -s=\"%s\")",
+            CalypsoConstants.AID,
+            ConfigurationUtil.CARD_READER_NAME_REGEX,
+            ConfigurationUtil.SAM_READER_NAME_REGEX));
     System.out.println(
         " -a, --aid=\"APPLICATION_AID\"    between 5 and 16 hex bytes (e.g. \"315449432E49434131\")");
     System.out.println(
@@ -214,6 +218,8 @@ public class Main_SessionTrace_TN313_Pcsc {
     System.out.println(
         " -s, --sam=\"SAM_READER_REGEX\"   regular expression matching the SAM reader name (e.g. \"HID.*\")");
     System.out.println(" -v, --verbose                  set the log level to TRACE");
+    System.out.println(
+        "PC/SC protocol is set to `\"ANY\" ('*') for the SAM reader, \"T1\" ('T=1') for the card reader.");
     System.exit(1);
   }
 }

@@ -38,7 +38,7 @@ public class ConfigurationUtil {
   // These two regular expressions can be modified to fit the names of the readers used to run these
   // examples.
   public static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
-  public static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*";
+  public static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
 
   /**
    * (private)<br>
@@ -146,7 +146,7 @@ public class ConfigurationUtil {
         if (readerExtension instanceof PcscReader)
           ((PcscReader) readerExtension)
               .setContactless(false)
-              .setIsoProtocol(PcscReader.IsoProtocol.T0)
+              .setIsoProtocol(PcscReader.IsoProtocol.ANY)
               .setSharingMode(PcscReader.SharingMode.SHARED);
       } catch (Exception e) {
         logger.error("Exception raised while setting up the reader {}", reader.getName(), e);

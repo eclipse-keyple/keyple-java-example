@@ -129,7 +129,7 @@ public class Main_Rev1Selection_Pcsc {
         .createCardTransactionWithoutSecurity(cardReader, calypsoCard)
         .prepareReadRecord(CalypsoConstants.SFI_EVENT_LOG, 1)
         .prepareReleaseCardChannel()
-        .processCardCommands();
+        .processCommands();
 
     logger.info(
         "File {}h, rec 1: FILE_CONTENT = {}",
