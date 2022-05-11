@@ -13,7 +13,6 @@ package org.eclipse.keyple.distributed.example.readerclientside.websocket.server
 
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.card.ElementaryFile;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.spi.CardSelection;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -35,6 +34,8 @@ public class CalypsoTicketingServiceUtil {
   public static final byte RECORD_NUMBER_1 = 1;
   public static final byte SFI_EnvironmentAndHolder = (byte) 0x07;
   public static final byte SFI_EventLog = (byte) 0x08;
+
+  private CalypsoTicketingServiceUtil() {}
 
   /**
    * Prepare a Selection object ready to select Calypso card and read environment file
@@ -92,12 +93,11 @@ public class CalypsoTicketingServiceUtil {
     // transaction has been processed.
     // Actual Card communication: send the prepared read order, then close the channel with
     // the Card.
-    CardTransactionManager cardTransactionManager =
-        CalypsoExtensionService.getInstance()
-            .createCardTransactionWithoutSecurity(reader, calypsoCard)
-            .prepareReadRecord(SFI_EventLog, RECORD_NUMBER_1)
-            .prepareReleaseCardChannel()
-            .processCardCommands();
+    CalypsoExtensionService.getInstance()
+        .createCardTransactionWithoutSecurity(reader, calypsoCard)
+        .prepareReadRecord(SFI_EventLog, RECORD_NUMBER_1)
+        .prepareReleaseCardChannel()
+        .processCommands();
     logger.info("The reading of the EventLog has succeeded.");
 
     // Retrieves the data read from the CalypsoCard updated during the transaction process.
