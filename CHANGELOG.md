@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Changed
+- Removal of the use of deprecated methods
+### Upgraded
+- "Calypsonet Terminal Calypso API" to version `1.2.+`
+- "Keyple Card Calypso Library" to version `2.2.0`
 
 ## [2022-04-06]
 ### Added
