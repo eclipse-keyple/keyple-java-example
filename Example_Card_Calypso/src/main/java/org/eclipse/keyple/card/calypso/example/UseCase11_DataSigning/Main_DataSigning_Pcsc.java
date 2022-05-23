@@ -53,8 +53,6 @@ import org.slf4j.LoggerFactory;
  * All results are logged with slf4j.
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
- *
- * @since 2.0.0
  */
 public class Main_DataSigning_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_DataSigning_Pcsc.class);
@@ -62,12 +60,12 @@ public class Main_DataSigning_Pcsc {
   public static final String READER_NAME_REGEX = ".*Ident.*";
   private static final byte KIF_BASIC = (byte) 0xEC;
   private static final byte KVC_BASIC = (byte) 0x85;
-  private static final String KIF_BASIC_STR = String.format("%02X", KIF_BASIC);
-  private static final String KVC_BASIC_STR = String.format("%02X", KVC_BASIC);
+  private static final String KIF_BASIC_STR = HexUtil.toHex(KIF_BASIC);
+  private static final String KVC_BASIC_STR = HexUtil.toHex(KVC_BASIC);
   private static final byte KIF_TRACEABLE = (byte) 0x2B;
   private static final byte KVC_TRACEABLE = (byte) 0x19;
-  private static final String KIF_TRACEABLE_STR = String.format("%02X", KIF_TRACEABLE);
-  private static final String KVC_TRACEABLE_STR = String.format("%02X", KVC_TRACEABLE);
+  private static final String KIF_TRACEABLE_STR = HexUtil.toHex(KIF_TRACEABLE);
+  private static final String KVC_TRACEABLE_STR = HexUtil.toHex(KVC_TRACEABLE);
   public static final String DATA_TO_SIGN = "00112233445566778899AABBCCDDEEFF";
 
   public static void main(String[] args) {

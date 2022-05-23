@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Upgraded
 - "Calypsonet Terminal Calypso API" to version `1.2.+`
 - "Keyple Card Calypso Library" to version `2.2.0`
+### Added
+- Calypso example #11 for Data signing (issue [#15]).
 
 ## [2022-04-06]
 ### Added
@@ -77,6 +79,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [2021-11-22]: https://github.com/eclipse/keyple-java-example/compare/2021-10-06...2021-11-22
 [2021-10-06]: https://github.com/eclipse/keyple-java-example/releases/tag/2021-10-06
 
+[#15]: https://github.com/eclipse/keyple-java-example/issues/15
 [#9]: https://github.com/eclipse/keyple-java-example/issues/9
 [#7]: https://github.com/eclipse/keyple-java-example/issues/7
 [#5]: https://github.com/eclipse/keyple-java-example/issues/5
