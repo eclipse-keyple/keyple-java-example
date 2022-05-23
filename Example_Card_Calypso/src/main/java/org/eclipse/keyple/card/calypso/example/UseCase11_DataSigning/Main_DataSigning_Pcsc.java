@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ *
  * <h1>Use Case Calypso 11 – Calypso Card data signing (PC/SC)</h1>
  *
  * <p>We demonstrate here how to generate and verify data signature.
@@ -43,8 +44,10 @@ import org.slf4j.LoggerFactory;
  *   <li>Sets up the card resource service to provide a Calypso SAM (C1).
  *   <li>The card resource service is configured and started to observe the connection/disconnection
  *       of readers and the insertion/removal of cards.
- *   <li>A command line menu allows you to take and release a SAM resource and select a signature process.
- *   <li>The log and console printouts show the operation of the card resource service and the signature processes results.
+ *   <li>A command line menu allows you to take and release a SAM resource and select a signature
+ *       process.
+ *   <li>The log and console printouts show the operation of the card resource service and the
+ *       signature processes results.
  * </ul>
  *
  * All results are logged with slf4j.
@@ -175,7 +178,7 @@ public class Main_DataSigning_Pcsc {
           logger.info(
               "Verifying: data='{}', signature='{}' with the key {}/{}",
               DATA_TO_SIGN,
-                  signatureHex,
+              signatureHex,
               KIF_BASIC_STR,
               KVC_BASIC_STR);
           BasicSignatureVerificationData basicSignatureVerificationData =
