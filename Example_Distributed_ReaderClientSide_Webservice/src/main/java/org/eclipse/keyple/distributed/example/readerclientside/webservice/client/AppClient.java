@@ -22,7 +22,6 @@ import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.core.service.spi.PluginObserverSpi;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.distributed.LocalServiceClient;
 import org.eclipse.keyple.distributed.LocalServiceClientFactory;
 import org.eclipse.keyple.distributed.LocalServiceClientFactoryBuilder;
@@ -42,6 +41,7 @@ public class AppClient {
 
   private static final Logger logger = LoggerFactory.getLogger(AppClient.class);
   private static final String LOCAL_SERVICE_NAME = "LOCAL_SERVICE_#1";
+  public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
 
   /** The endpoint client */
   @Inject @RestClient EndpointClient endpointClient;
@@ -149,10 +149,7 @@ public class AppClient {
     reader = plugin.getReader("stubReader");
 
     // Activates the protocol ISO_14443_4 on the reader.
-    ((ConfigurableReader) reader)
-        .activateProtocol(
-            ContactlessCardCommonProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+    ((ConfigurableReader) reader).activateProtocol(ISO_CARD_PROTOCOL, ISO_CARD_PROTOCOL);
 
     // Insert a stub card manually on the reader.
     reader.getExtension(StubReader.class).insertCard(getStubCard());
@@ -191,9 +188,7 @@ public class AppClient {
 
     // Activates the protocol ISO_14443_4 on the reader.
     ((ConfigurableReader) reader)
-        .activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+        .activateProtocol(PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
 
     logger.info(
         "Client - Local reader was configured with PCSC reader : {} with a card", reader.getName());
@@ -207,7 +202,7 @@ public class AppClient {
   private StubSmartCard getStubCard() {
     return StubSmartCard.builder()
         .withPowerOnData(HexUtil.toByteArray("3B8880010000000000718100F9"))
-        .withProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
+        .withProtocol(ISO_CARD_PROTOCOL)
         /* Select Application */
         .withSimulatedCommand("00A4040005AABBCCDDEE00", "6A82")
         /* Select Application */

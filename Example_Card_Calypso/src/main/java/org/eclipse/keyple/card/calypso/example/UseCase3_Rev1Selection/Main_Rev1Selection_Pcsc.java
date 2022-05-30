@@ -21,7 +21,6 @@ import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
@@ -73,7 +72,7 @@ public class Main_Rev1Selection_Pcsc {
     ((ConfigurableReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.INNOVATRON_B_PRIME_CARD.name(),
-            ContactlessCardCommonProtocol.INNOVATRON_B_PRIME_CARD.name());
+            ConfigurationUtil.INNOVATRON_CARD_PROTOCOL);
 
     // Get the Calypso card extension service
     CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
@@ -102,7 +101,7 @@ public class Main_Rev1Selection_Pcsc {
         cardExtension
             .createCardSelection()
             .acceptInvalidatedCard()
-            .filterByCardProtocol(ContactlessCardCommonProtocol.INNOVATRON_B_PRIME_CARD.name())
+            .filterByCardProtocol(ConfigurationUtil.INNOVATRON_CARD_PROTOCOL)
             .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1));
 

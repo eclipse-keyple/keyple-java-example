@@ -14,9 +14,9 @@ package org.eclipse.keyple.core.service.example.UseCase7_PluginAndReaderObservat
 import java.util.Set;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.eclipse.keyple.core.service.*;
+import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.core.service.spi.PluginObserverSpi;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
@@ -132,7 +132,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
     ((ConfigurableReader) reader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
   }
 
   /**

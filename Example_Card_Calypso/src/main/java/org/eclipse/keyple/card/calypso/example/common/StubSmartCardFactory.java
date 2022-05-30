@@ -12,18 +12,15 @@
 package org.eclipse.keyple.card.calypso.example.common;
 
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactCardCommonProtocol;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.stub.StubSmartCard;
 
 /** Factory for a Calypso Card emulation via a smart card stub */
 public class StubSmartCardFactory {
   private static final String CARD_POWER_ON_DATA = "3B888001000000009171710098";
-  private static final String CARD_PROTOCOL = ContactlessCardCommonProtocol.ISO_14443_4.name();
   private static final StubSmartCard stubCard =
       StubSmartCard.builder()
           .withPowerOnData(HexUtil.toByteArray(CARD_POWER_ON_DATA))
-          .withProtocol(CARD_PROTOCOL)
+          .withProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
           // select application
           .withSimulatedCommand(
               "00A4040009315449432E4943413100",
@@ -42,11 +39,10 @@ public class StubSmartCardFactory {
           .build();
 
   private static final String SAM_POWER_ON_DATA = "3B3F9600805A0080C120000012345678829000";
-  private static final String SAM_PROTOCOL = ContactCardCommonProtocol.ISO_7816_3_T0.name();
   private static final StubSmartCard stubSam =
       StubSmartCard.builder()
           .withPowerOnData(HexUtil.toByteArray(SAM_POWER_ON_DATA))
-          .withProtocol(SAM_PROTOCOL)
+          .withProtocol(ConfigurationUtil.SAM_PROTOCOL)
           // select diversifier
           .withSimulatedCommand("801400000800000000AABBCCDD", "9000")
           // get challenge

@@ -32,7 +32,6 @@ import org.eclipse.keyple.core.service.ObservableReader
 import org.eclipse.keyple.core.service.Reader
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
 import org.eclipse.keyple.core.util.HexUtil
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcPlugin
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcPluginFactoryProvider
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcReader
@@ -64,7 +63,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
             addObserver(this@CoreExamplesActivity)
 
             // with this protocol settings we activate the nfc for ISO1443_4 protocol
-            (this as ConfigurableReader).activateProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name, ContactlessCardCommonProtocol.ISO_14443_4.name)
+            (this as ConfigurableReader).activateProtocol(AndroidNfcSupportedProtocols.ISO_14443_4.name, "ISO_14443_4_CARD")
             reader = this
         }
     }

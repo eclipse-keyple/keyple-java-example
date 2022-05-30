@@ -16,10 +16,10 @@ import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
+import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,9 +69,7 @@ public class Main_ExplicitSelectionAid_Stub {
     Reader cardReader = plugin.getReader(CARD_READER_NAME);
 
     ((ConfigurableReader) cardReader)
-        .activateProtocol(
-            ContactlessCardCommonProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+        .activateProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL, ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Get the Calypso card extension service
     CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();

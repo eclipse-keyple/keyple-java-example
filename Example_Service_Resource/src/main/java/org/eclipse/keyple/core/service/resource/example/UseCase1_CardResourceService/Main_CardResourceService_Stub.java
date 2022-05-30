@@ -20,7 +20,6 @@ import org.eclipse.keyple.core.service.resource.spi.CardResourceProfileExtension
 import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactCardCommonProtocol;
 import org.eclipse.keyple.plugin.stub.StubPlugin;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.stub.StubReader;
@@ -62,6 +61,7 @@ public class Main_CardResourceService_Stub {
   public static final String RESOURCE_B = "RESOURCE_B";
   public static final String READER_NAME_REGEX_A = ".*_A";
   public static final String READER_NAME_REGEX_B = ".*_B";
+  public static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
   public static void main(String[] args) throws InterruptedException {
 
@@ -161,7 +161,7 @@ public class Main_CardResourceService_Stub {
               .insertCard(
                   StubSmartCard.builder()
                       .withPowerOnData(HexUtil.toByteArray(ATR_CARD_A))
-                      .withProtocol(ContactCardCommonProtocol.ISO_7816_3_T0.name())
+                      .withProtocol(SAM_PROTOCOL)
                       .build());
           break;
         case '2':
@@ -173,7 +173,7 @@ public class Main_CardResourceService_Stub {
               .insertCard(
                   StubSmartCard.builder()
                       .withPowerOnData(HexUtil.toByteArray(ATR_CARD_B))
-                      .withProtocol(ContactCardCommonProtocol.ISO_7816_3_T0.name())
+                      .withProtocol(SAM_PROTOCOL)
                       .build());
           break;
         case '4':
@@ -249,10 +249,7 @@ public class Main_CardResourceService_Stub {
     public void setupReader(Reader reader) {
       // Configure the reader with parameters suitable for contactless operations.
       try {
-        ((ConfigurableReader) reader)
-            .activateProtocol(
-                ContactCardCommonProtocol.ISO_7816_3_T0.name(),
-                ContactCardCommonProtocol.ISO_7816_3_T0.name());
+        ((ConfigurableReader) reader).activateProtocol(SAM_PROTOCOL, SAM_PROTOCOL);
       } catch (Exception e) {
         logger.error("Exception raised while setting up the reader {}", reader.getName(), e);
       }

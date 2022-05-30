@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [2022-05-30]
 ### Changed
 - Removal of the use of deprecated methods.
 ### Upgraded
 - "Calypsonet Terminal Calypso API" to version `1.2.+`
 - "Keyple Card Calypso Library" to version `2.2.0`
+- "Keyple Util Library" to version `2.1.0`
 ### Added
 - Calypso example #11 for Data signing (issue [#15]).
 
@@ -72,7 +75,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
     
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-02-02...HEAD
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-05-30...HEAD
+[2022-05-30]: https://github.com/eclipse/keyple-java-example/compare/2022-04-06...2022-05-30
+[2022-04-06]: https://github.com/eclipse/keyple-java-example/compare/2022-02-02...2022-04-06
 [2022-02-02]: https://github.com/eclipse/keyple-java-example/compare/2021-12-20...2022-02-02
 [2021-12-20]: https://github.com/eclipse/keyple-java-example/compare/2021-12-08...2021-12-20
 [2021-12-08]: https://github.com/eclipse/keyple-java-example/compare/2021-11-22...2021-12-08

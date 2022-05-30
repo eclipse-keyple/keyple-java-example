@@ -14,7 +14,6 @@ package org.eclipse.keyple.core.service.example.common;
 import org.eclipse.keyple.core.service.ConfigurableReader;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.Reader;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 public class ConfigurationUtil {
   public static final String AID_EMV_PPSE = "325041592E5359532E4444463031";
   public static final String AID_KEYPLE_PREFIX = "315449432E";
+  public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationUtil.class);
 
   // Common reader identifiers
@@ -64,8 +64,7 @@ public class ConfigurationUtil {
             .setIsoProtocol(PcscReader.IsoProtocol.T1)
             .setSharingMode(PcscReader.SharingMode.SHARED);
         reader.activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
         logger.info("Card reader, plugin; {}, name: {}", plugin.getName(), reader.getName());
         return reader;
       }

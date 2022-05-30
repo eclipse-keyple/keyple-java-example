@@ -16,6 +16,7 @@ import org.calypsonet.terminal.calypso.sam.CalypsoSamSelection;
 import org.calypsonet.terminal.calypso.transaction.*;
 import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.*;
@@ -23,9 +24,9 @@ import org.eclipse.keyple.core.service.resource.spi.CardResourceProfileExtension
 import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -277,8 +278,7 @@ public class Main_DataSigning_Pcsc {
       try {
         ((ConfigurableReader) reader)
             .activateProtocol(
-                ContactCardCommonProtocol.ISO_7816_3_T0.name(),
-                ContactCardCommonProtocol.ISO_7816_3_T0.name());
+                PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
         KeypleReaderExtension readerExtension = reader.getExtension(KeypleReaderExtension.class);
         if (readerExtension instanceof PcscReader)
           ((PcscReader) readerExtension)

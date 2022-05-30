@@ -15,7 +15,6 @@ import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.keyple.core.service.PoolPlugin;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.distributed.LocalServiceClient;
 import org.eclipse.keyple.distributed.LocalServiceServerFactory;
 import org.eclipse.keyple.distributed.LocalServiceServerFactoryBuilder;
@@ -29,6 +28,7 @@ public class AppServer {
 
   private static final Logger logger = LoggerFactory.getLogger(AppServer.class);
   public static final String LOCAL_SERVICE_NAME = "LOCAL_SERVICE_#1";
+  public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
 
   private PoolPlugin poolPlugin;
 
@@ -89,7 +89,7 @@ public class AppServer {
   private StubSmartCard getStubCard() {
     return StubSmartCard.builder()
         .withPowerOnData(HexUtil.toByteArray("3B8880010000000000718100F9"))
-        .withProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
+        .withProtocol(ISO_CARD_PROTOCOL)
         /* Select Application */
         .withSimulatedCommand("00A4040005AABBCCDDEE00", "6A82")
         /* Select Application */

@@ -19,7 +19,6 @@ import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,7 @@ public class CalypsoTicketingServiceUtil {
   public static final byte RECORD_NUMBER_1 = 1;
   public static final byte SFI_EnvironmentAndHolder = (byte) 0x07;
   public static final byte SFI_EventLog = (byte) 0x08;
+  public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
 
   private CalypsoTicketingServiceUtil() {}
 
@@ -51,7 +51,7 @@ public class CalypsoTicketingServiceUtil {
     CardSelection cardSelection =
         CalypsoExtensionService.getInstance()
             .createCardSelection()
-            .filterByCardProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
+            .filterByCardProtocol(ISO_CARD_PROTOCOL)
             .filterByDfName(AID)
             .prepareReadRecord(SFI_EnvironmentAndHolder, RECORD_NUMBER_1);
 

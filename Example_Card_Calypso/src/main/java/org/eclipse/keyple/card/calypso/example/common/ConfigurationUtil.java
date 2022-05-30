@@ -21,7 +21,6 @@ import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.resource.*;
 import org.eclipse.keyple.core.service.resource.spi.CardResourceProfileExtension;
 import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
@@ -39,6 +38,9 @@ public class ConfigurationUtil {
   // examples.
   public static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
   public static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  public static final String SAM_PROTOCOL = "ISO_7816_3_T0";
+  public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+  public static final String INNOVATRON_CARD_PROTOCOL = "INNOVATRON_B_PRIME_CARD";
 
   /**
    * (private)<br>
@@ -67,7 +69,7 @@ public class ConfigurationUtil {
             .setSharingMode(PcscReader.SharingMode.SHARED);
         reader.activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
         logger.info("Card reader, plugin; {}, name: {}", plugin.getName(), reader.getName());
         return reader;
       }

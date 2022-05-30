@@ -27,7 +27,6 @@ import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
@@ -97,7 +96,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     ((ConfigurableReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     logger.info("Select application with AID = '{}'", cardAid);
 
@@ -110,7 +109,7 @@ public class Main_SessionTrace_TN313_Pcsc {
         cardExtension
             .createCardSelection()
             .acceptInvalidatedCard()
-            .filterByCardProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
+            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(cardAid);
 
     // Prepare the selection by adding the created Calypso selection to the card selection scenario.

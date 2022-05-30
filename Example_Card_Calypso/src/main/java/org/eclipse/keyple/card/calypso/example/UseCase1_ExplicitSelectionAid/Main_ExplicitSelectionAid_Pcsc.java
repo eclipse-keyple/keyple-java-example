@@ -21,7 +21,6 @@ import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
@@ -69,7 +68,7 @@ public class Main_ExplicitSelectionAid_Pcsc {
     ((ConfigurableReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Get the Calypso card extension service
     CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();

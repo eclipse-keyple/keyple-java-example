@@ -17,7 +17,6 @@ import org.calypsonet.terminal.reader.selection.spi.CardSelection;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
@@ -68,7 +67,7 @@ public class Main_ScheduledSelection_Pcsc {
     ((ConfigurableReader) reader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Get the generic card extension service
     GenericExtensionService cardExtension = GenericExtensionService.getInstance();
@@ -88,7 +87,7 @@ public class Main_ScheduledSelection_Pcsc {
     CardSelection cardSelection =
         cardExtension
             .createCardSelection()
-            .filterByCardProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
+            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(ConfigurationUtil.AID_EMV_PPSE);
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.

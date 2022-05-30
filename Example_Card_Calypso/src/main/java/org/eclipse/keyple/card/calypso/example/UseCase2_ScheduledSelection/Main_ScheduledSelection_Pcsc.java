@@ -20,7 +20,6 @@ import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
@@ -79,7 +78,7 @@ public class Main_ScheduledSelection_Pcsc {
     ((ConfigurableReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     logger.info("=============== UseCase Generic #2: scheduled selection ==================");
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
@@ -93,7 +92,7 @@ public class Main_ScheduledSelection_Pcsc {
         cardExtension
             .createCardSelection()
             .acceptInvalidatedCard()
-            .filterByCardProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
+            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(CalypsoConstants.AID)
             .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1);

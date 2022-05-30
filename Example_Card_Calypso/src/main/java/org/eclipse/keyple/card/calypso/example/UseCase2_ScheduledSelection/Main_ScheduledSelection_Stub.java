@@ -16,9 +16,9 @@ import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
+import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.util.protocol.ContactlessCardCommonProtocol;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.stub.StubReader;
 import org.slf4j.Logger;
@@ -81,9 +81,7 @@ public class Main_ScheduledSelection_Stub {
 
     // Activate the ISO14443 card protocol.
     ((ConfigurableReader) cardReader)
-        .activateProtocol(
-            ContactlessCardCommonProtocol.ISO_14443_4.name(),
-            ContactlessCardCommonProtocol.ISO_14443_4.name());
+        .activateProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL, ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     logger.info("=============== UseCase Generic #2: scheduled selection ==================");
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
@@ -97,7 +95,7 @@ public class Main_ScheduledSelection_Stub {
         cardExtension
             .createCardSelection()
             .acceptInvalidatedCard()
-            .filterByCardProtocol(ContactlessCardCommonProtocol.ISO_14443_4.name())
+            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(CalypsoConstants.AID)
             .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1);
