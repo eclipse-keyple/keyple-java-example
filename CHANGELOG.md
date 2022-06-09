@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [2022-06-09]
 ### Fixed
 - Removal of the unused Jacoco plugin for compiling Android applications that had an unwanted side effect when the application was launched (stacktrace with warnings).
 
@@ -77,7 +79,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
     
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-05-30...HEAD
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-06-09...HEAD
+[2022-06-09]: https://github.com/eclipse/keyple-java-example/compare/2022-05-30...2022-06-09
 [2022-05-30]: https://github.com/eclipse/keyple-java-example/compare/2022-04-06...2022-05-30
 [2022-04-06]: https://github.com/eclipse/keyple-java-example/compare/2022-02-02...2022-04-06
 [2022-02-02]: https://github.com/eclipse/keyple-java-example/compare/2021-12-20...2022-02-02
