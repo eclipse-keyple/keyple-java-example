@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [2022-06-09]
 ### Fixed
 - Removal of the unused Jacoco plugin for compiling Android applications that had an unwanted side effect when the application was launched (stacktrace with warnings).
+### Upgraded
+- "Keyple Plugin Android NFC Library" to version `2.0.1`
+- "Keyple Plugin Android OMAPI Library" to version `2.0.1`
 
 ## [2022-05-30]
 ### Changed
