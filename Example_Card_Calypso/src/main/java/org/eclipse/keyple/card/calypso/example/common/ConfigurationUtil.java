@@ -15,14 +15,12 @@ import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.sam.CalypsoSamSelection;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.common.KeypleReaderExtension;
-import org.eclipse.keyple.core.service.ConfigurableReader;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.resource.*;
 import org.eclipse.keyple.core.service.resource.spi.CardResourceProfileExtension;
 import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,29 +47,20 @@ public class ConfigurationUtil {
   private ConfigurationUtil() {}
 
   /**
-   * Retrieves the first available reader in the provided plugin whose name matches the provided
-   * regular expression.
+   * Retrieves the name of the first available reader in the provided plugin whose name matches the
+   * provided regular expression.
    *
    * @param plugin The plugin to which the reader belongs.
    * @param readerNameRegex A regular expression matching the targeted reader.
-   * @return A not null reference.
+   * @return The name of the found reader.
    * @throws IllegalStateException If the reader is not found.
+   * @since 2.0.0
    */
-  public static Reader getCardReader(Plugin plugin, String readerNameRegex) {
+  public static String getCardReaderName(Plugin plugin, String readerNameRegex) {
     for (String readerName : plugin.getReaderNames()) {
       if (readerName.matches(readerNameRegex)) {
-        ConfigurableReader reader = (ConfigurableReader) plugin.getReader(readerName);
-        // Configure the reader with parameters suitable for contactless operations.
-        reader
-            .getExtension(PcscReader.class)
-            .setContactless(true)
-            .setIsoProtocol(PcscReader.IsoProtocol.T1)
-            .setSharingMode(PcscReader.SharingMode.SHARED);
-        reader.activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
-        logger.info("Card reader, plugin; {}, name: {}", plugin.getName(), reader.getName());
-        return reader;
+        logger.info("Card reader, plugin; {}, name: {}", plugin.getName(), readerName);
+        return readerName;
       }
     }
     throw new IllegalStateException(

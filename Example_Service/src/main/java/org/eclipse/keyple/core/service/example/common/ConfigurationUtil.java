@@ -11,11 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.common;
 
-import org.eclipse.keyple.core.service.ConfigurableReader;
 import org.eclipse.keyple.core.service.Plugin;
-import org.eclipse.keyple.core.service.Reader;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +40,8 @@ public class ConfigurationUtil {
   private ConfigurationUtil() {}
 
   /**
-   * Retrieves the name of the first available reader in the provided plugin whose name matches the provided
-   * regular expression.
+   * Retrieves the name of the first available reader in the provided plugin whose name matches the
+   * provided regular expression.
    *
    * @param plugin The plugin to which the reader belongs.
    * @param readerNameRegex A regular expression matching the targeted reader.

@@ -79,10 +79,10 @@ public class Main_DataSigning_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
     // Create a SAM resource extension expecting a SAM having power-on data matching the regex
     CalypsoSamSelection samSelection =

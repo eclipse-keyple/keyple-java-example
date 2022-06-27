@@ -72,10 +72,10 @@ public class Main_ScheduledSelection_Stub {
                 .build());
 
     // Get the generic card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
     Reader cardReader = plugin.getReader(CARD_READER_NAME);
 
@@ -92,7 +92,7 @@ public class Main_ScheduledSelection_Stub {
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
     CalypsoCardSelection cardSelection =
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)

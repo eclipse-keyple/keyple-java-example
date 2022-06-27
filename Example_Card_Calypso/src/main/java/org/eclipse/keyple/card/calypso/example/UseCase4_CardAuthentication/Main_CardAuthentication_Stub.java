@@ -84,10 +84,10 @@ public class Main_CardAuthentication_Stub {
                 .build());
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
     // Get and setup the card reader
     Reader cardReader = plugin.getReader(CARD_READER_NAME);
@@ -112,7 +112,7 @@ public class Main_CardAuthentication_Stub {
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByDfName(CalypsoConstants.AID));
@@ -147,7 +147,7 @@ public class Main_CardAuthentication_Stub {
 
     try {
       // Performs file reads using the card transaction manager in secure mode.
-      cardExtension
+      calypsoCardService
           .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
           .prepareReadRecords(
               CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,

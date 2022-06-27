@@ -72,10 +72,10 @@ public class Main_ExplicitSelectionAid_Stub {
         .activateProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL, ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
     logger.info(
         "=============== UseCase Calypso #1: AID based explicit selection ==================");
@@ -94,7 +94,7 @@ public class Main_ExplicitSelectionAid_Stub {
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .filterByDfName(CalypsoConstants.AID)
             .acceptInvalidatedCard()

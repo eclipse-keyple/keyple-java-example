@@ -11,13 +11,14 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.getCardReader;
 import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
 import java.util.Scanner;
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -28,6 +29,7 @@ import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,16 +86,21 @@ public class Main_SessionTrace_TN313_Pcsc {
         smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
-    // Retrieve the card reader
-    Reader cardReader = getCardReader(plugin, cardReaderRegex);
+    // Get the contactless reader whose name matches the provided regex
+    String pcscContactlessReaderName = ConfigurationUtil.getCardReaderName(plugin, cardReaderRegex);
+    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
 
-    // Activate the ISO14443 card protocol.
-    ((ConfigurableReader) cardReader)
+    // Configure the reader with parameters suitable for contactless operations.
+    ((PcscReader) cardReader)
+        .setContactless(true)
+        .setIsoProtocol(PcscReader.IsoProtocol.T1)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
@@ -106,7 +113,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
     CalypsoCardSelection cardSelection =
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)

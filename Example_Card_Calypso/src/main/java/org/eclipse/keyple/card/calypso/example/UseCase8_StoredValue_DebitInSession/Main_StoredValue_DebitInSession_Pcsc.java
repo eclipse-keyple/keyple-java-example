@@ -11,7 +11,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase8_StoredValue_DebitInSession;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.getCardReader;
 import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
@@ -21,6 +20,8 @@ import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
 import org.calypsonet.terminal.calypso.transaction.SvAction;
 import org.calypsonet.terminal.calypso.transaction.SvOperation;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -31,6 +32,8 @@ import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,14 +76,25 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
-    // Get and setup the card reader
-    // We suppose here, we use a ASK LoGO contactless PC/SC reader as card reader.
-    Reader cardReader = getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    // Get the contactless reader whose name matches the provided regex
+    String pcscContactlessReaderName =
+        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
+
+    // Configure the reader with parameters suitable for contactless operations.
+    ((PcscReader) cardReader)
+        .setContactless(true)
+        .setIsoProtocol(PcscReader.IsoProtocol.T1)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) cardReader)
+        .activateProtocol(
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Configure the card resource service to provide an adequate SAM for future secure operations.
     // We suppose here, we use a Identive contact PC/SC reader as card reader.
@@ -103,7 +117,7 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByDfName(CalypsoConstants.AID));
@@ -139,7 +153,7 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     try {
       // Performs file reads using the card transaction manager in non-secure mode.
       CardTransactionManager cardTransaction =
-          cardExtension
+          calypsoCardService
               .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
               .prepareSvGet(SvOperation.DEBIT, SvAction.DO)
               .processOpening(WriteAccessLevel.DEBIT);

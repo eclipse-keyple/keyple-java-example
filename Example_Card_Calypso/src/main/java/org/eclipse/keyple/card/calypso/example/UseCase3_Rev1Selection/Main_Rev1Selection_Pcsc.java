@@ -11,9 +11,9 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase3_Rev1Selection;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.getCardReader;
-
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -22,6 +22,7 @@ import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,18 +68,26 @@ public class Main_Rev1Selection_Pcsc {
     // return.
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
-    Reader cardReader = getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    // Get the contactless reader whose name matches the provided regex
+    String pcscContactlessReaderName =
+        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
 
-    ((ConfigurableReader) cardReader)
+    // Configure the reader with parameters suitable for contactless operations.
+    ((PcscReader) cardReader)
+        .setContactless(true)
+        .setIsoProtocol(PcscReader.IsoProtocol.T1)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) cardReader)
         .activateProtocol(
-            PcscSupportedContactlessProtocol.INNOVATRON_B_PRIME_CARD.name(),
-            ConfigurationUtil.INNOVATRON_CARD_PROTOCOL);
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
     logger.info("=============== UseCase Calypso #3: selection of a rev1 card ==================");
     logger.info("= Card Reader  NAME = {}", cardReader.getName());
@@ -98,7 +107,7 @@ public class Main_Rev1Selection_Pcsc {
     // scenario. No AID is defined, only the card protocol will be used to define the selection
     // case.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ConfigurationUtil.INNOVATRON_CARD_PROTOCOL)
@@ -124,7 +133,7 @@ public class Main_Rev1Selection_Pcsc {
 
     // Performs file reads using the card transaction manager in non-secure mode.
 
-    cardExtension
+    calypsoCardService
         .createCardTransactionWithoutSecurity(cardReader, calypsoCard)
         .prepareReadRecord(CalypsoConstants.SFI_EVENT_LOG, 1)
         .prepareReleaseCardChannel()
