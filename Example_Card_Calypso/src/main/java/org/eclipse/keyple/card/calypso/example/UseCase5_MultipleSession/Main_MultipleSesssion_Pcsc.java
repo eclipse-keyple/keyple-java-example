@@ -86,7 +86,8 @@ public class Main_MultipleSesssion_Pcsc {
     CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
 
     // Configure the reader with parameters suitable for contactless operations.
-    ((PcscReader) cardReader)
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);

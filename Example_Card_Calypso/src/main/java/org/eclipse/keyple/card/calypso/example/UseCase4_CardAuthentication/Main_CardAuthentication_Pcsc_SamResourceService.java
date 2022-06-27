@@ -9,9 +9,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ************************************************************************************** */
-package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
+package org.eclipse.keyple.card.calypso.example.UseCase4_CardAuthentication;
 
+import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
+
+import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
+import org.calypsonet.terminal.calypso.sam.CalypsoSam;
+import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
+import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
 import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
@@ -20,6 +26,8 @@ import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
+import org.eclipse.keyple.core.service.resource.CardResource;
+import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
@@ -30,30 +38,36 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case Calypso 1 – Explicit Selection Aid (PC/SC)</h1>
+ * <h1>Use Case Calypso 4 – Calypso Card authentication (PC/SC)</h1>
  *
- * <p>We demonstrate here the direct selection of a Calypso card inserted in a reader. No
- * observation of the reader is implemented in this example, so the card must be present in the
- * reader before the program is launched.
+ * <p>We demonstrate here the authentication of a Calypso card using a Secure Session in which a
+ * file from the card is read. The read is certified by verifying the signature of the card by a
+ * Calypso SAM.
+ *
+ * <p>Two readers are required for this example: a contactless reader for the Calypso Card, a
+ * contact reader for the Calypso SAM.
  *
  * <h2>Scenario:</h2>
  *
  * <ul>
+ *   <li>Sets up the card resource service to provide a Calypso SAM (C1).
  *   <li>Checks if an ISO 14443-4 card is in the reader, enables the card selection manager.
  *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
- *       an AID-based application selection scenario, including reading a file record.
- *   <li>Output the collected data (FCI, ATR and file record content).
+ *       an AID-based application selection scenario.
+ *   <li>Creates a {@link CardTransactionManager} using {@link CardSecuritySetting} referencing the
+ *       SAM profile defined in the card resource service.
+ *   <li>Read a file record in Secure Session.
  * </ul>
  *
  * All results are logged with slf4j.
  *
- * <p>Any unexpected behavior will result in a runtime exceptions.
+ * <p>Any unexpected behavior will result in runtime exceptions.
  *
  * @since 2.0.0
  */
-public class Main_ExplicitSelectionAid_Pcsc {
+public class Main_CardAuthentication_Pcsc_SamResourceService {
   private static final Logger logger =
-      LoggerFactory.getLogger(Main_ExplicitSelectionAid_Pcsc.class);
+      LoggerFactory.getLogger(Main_CardAuthentication_Pcsc_SamResourceService.class);
 
   public static void main(String[] args) {
 
@@ -86,8 +100,13 @@ public class Main_ExplicitSelectionAid_Pcsc {
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
 
+    // Configure the card resource service to provide an adequate SAM for future secure operations.
+    // We suppose here, we use a Identive contact PC/SC reader as card reader.
+    setupCardResourceService(
+        plugin, ConfigurationUtil.SAM_READER_NAME_REGEX, CalypsoConstants.SAM_PROFILE_NAME);
+
     logger.info(
-        "=============== UseCase Calypso #1: AID based explicit selection ==================");
+        "=============== UseCase Calypso #4: Calypso card authentication ==================");
 
     // Check if a card is present in the reader
     if (!cardReader.isCardPresent()) {
@@ -105,10 +124,8 @@ public class Main_ExplicitSelectionAid_Pcsc {
     cardSelectionManager.prepareSelection(
         calypsoCardService
             .createCardSelection()
-            .filterByDfName(CalypsoConstants.AID)
             .acceptInvalidatedCard()
-            .prepareReadRecord(
-                CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1));
+            .filterByDfName(CalypsoConstants.AID));
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -117,7 +134,7 @@ public class Main_ExplicitSelectionAid_Pcsc {
     // Check the selection result.
     if (selectionResult.getActiveSmartCard() == null) {
       throw new IllegalStateException(
-          "The selection of the application '" + CalypsoConstants.AID + "' failed.");
+          "The selection of the application " + CalypsoConstants.AID + " failed.");
     }
 
     // Get the SmartCard resulting of the selection.
@@ -128,8 +145,40 @@ public class Main_ExplicitSelectionAid_Pcsc {
     logger.info(
         "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
 
+    // Create security settings that reference the same SAM profile requested from the card resource
+    // service.
+    CardResource samResource =
+        CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
+    CardSecuritySetting cardSecuritySetting =
+        CalypsoExtensionService.getInstance()
+            .createCardSecuritySetting()
+            .setControlSamResource(
+                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+
+    try {
+      // Performs file reads using the card transaction manager in secure mode.
+      calypsoCardService
+          .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+          .prepareReadRecords(
+              CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
+              CalypsoConstants.RECORD_NUMBER_1,
+              CalypsoConstants.RECORD_NUMBER_1,
+              CalypsoConstants.RECORD_SIZE)
+          .processOpening(WriteAccessLevel.DEBIT)
+          .prepareReleaseCardChannel()
+          .processClosing();
+    } finally {
+      try {
+        CardResourceServiceProvider.getService().releaseCardResource(samResource);
+      } catch (RuntimeException e) {
+        logger.error("Error during the card resource release: {}", e.getMessage(), e);
+      }
+    }
+
     logger.info(
-        "File SFI {}h, rec 1: FILE_CONTENT = {}",
+        "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
+    logger.info(
+        "File {}h, rec 1: FILE_CONTENT = {}",
         String.format("%02X", CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER),
         calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
 

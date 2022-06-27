@@ -78,7 +78,8 @@ public class Main_ProtocolBasedSelection_Pcsc {
     CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
 
     // Configure the reader with parameters suitable for contactless operations.
-    ((PcscReader) cardReader)
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
@@ -86,7 +87,7 @@ public class Main_ProtocolBasedSelection_Pcsc {
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
-    ((ConfigurableReader) cardReader)
+    ((ConfigurableCardReader) cardReader)
         .activateProtocol(PcscSupportedContactlessProtocol.MIFARE_CLASSIC.name(), MIFARE_CLASSIC);
 
     logger.info(

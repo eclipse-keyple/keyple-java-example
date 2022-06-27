@@ -17,6 +17,7 @@ import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_MATCHED;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.CardReaderEvent;
+import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
@@ -98,7 +99,7 @@ class CardReaderObserver
 
       // Informs the underlying layer of the end of the card processing, in order to manage the
       // removal sequence.
-      ((ObservableReader) (reader)).finalizeCardProcessing();
+      ((ObservableCardReader) (reader)).finalizeCardProcessing();
     }
   }
 

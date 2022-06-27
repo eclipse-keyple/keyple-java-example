@@ -12,6 +12,8 @@
 package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
 
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -66,9 +68,9 @@ public class Main_ExplicitSelectionAid_Stub {
                 .withStubReader(CARD_READER_NAME, true, StubSmartCardFactory.getStubCard())
                 .build());
 
-    Reader cardReader = plugin.getReader(CARD_READER_NAME);
+    CardReader cardReader = plugin.getReader(CARD_READER_NAME);
 
-    ((ConfigurableReader) cardReader)
+    ((ConfigurableCardReader) cardReader)
         .activateProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL, ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Get the Calypso card extension service

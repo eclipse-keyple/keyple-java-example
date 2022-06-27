@@ -74,14 +74,15 @@ public class Main_Rev1Selection_Pcsc {
     CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
 
     // Configure the reader with parameters suitable for contactless operations.
-    ((PcscReader) cardReader)
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
     ((ConfigurableCardReader) cardReader)
         .activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
+            PcscSupportedContactlessProtocol.INNOVATRON_B_PRIME_CARD.name(),
+            ConfigurationUtil.INNOVATRON_CARD_PROTOCOL);
 
     // Get the Calypso card extension service
     CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();

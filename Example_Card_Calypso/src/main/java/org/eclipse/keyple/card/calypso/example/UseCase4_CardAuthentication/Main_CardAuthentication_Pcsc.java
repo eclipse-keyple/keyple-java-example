@@ -11,8 +11,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase4_CardAuthentication;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
-
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
@@ -25,12 +23,13 @@ import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
-import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.service.resource.CardResource;
-import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
+import org.eclipse.keyple.core.service.Plugin;
+import org.eclipse.keyple.core.service.SmartCardService;
+import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +49,12 @@ import org.slf4j.LoggerFactory;
  * <h2>Scenario:</h2>
  *
  * <ul>
- *   <li>Sets up the card resource service to provide a Calypso SAM (C1).
  *   <li>Checks if an ISO 14443-4 card is in the reader, enables the card selection manager.
+ *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
  *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
  *       an AID-based application selection scenario.
  *   <li>Creates a {@link CardTransactionManager} using {@link CardSecuritySetting} referencing the
- *       SAM profile defined in the card resource service.
+ *       selected SAM.
  *   <li>Read a file record in Secure Session.
  * </ul>
  *
@@ -84,30 +83,42 @@ public class Main_CardAuthentication_Pcsc {
     smartCardService.checkCardExtension(calypsoCardService);
 
     // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName =
+    String pcscContactlessCardReaderName =
         ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
+    CardReader calypsoCardReader = plugin.getReader(pcscContactlessCardReaderName);
 
     // Configure the reader with parameters suitable for contactless operations.
-    ((PcscReader) cardReader)
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactlessCardReaderName)
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
-    ((ConfigurableCardReader) cardReader)
+
+    ((ConfigurableCardReader) calypsoCardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
 
-    // Configure the card resource service to provide an adequate SAM for future secure operations.
-    // We suppose here, we use a Identive contact PC/SC reader as card reader.
-    setupCardResourceService(
-        plugin, ConfigurationUtil.SAM_READER_NAME_REGEX, CalypsoConstants.SAM_PROFILE_NAME);
+    // Get the contact reader dedicated for Calypso SAM whose name matches the provided regex
+    String pcscContactSamReaderName =
+        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
+    CardReader calypsoSamReader = plugin.getReader(pcscContactSamReaderName);
+
+    // Configure the Calypso SAM reader with parameters suitable for contactless operations.
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactSamReaderName)
+        .setContactless(false)
+        .setIsoProtocol(PcscReader.IsoProtocol.T0)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) calypsoSamReader)
+        .activateProtocol(
+            PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
 
     logger.info(
         "=============== UseCase Calypso #4: Calypso card authentication ==================");
 
     // Check if a card is present in the reader
-    if (!cardReader.isCardPresent()) {
+    if (!calypsoCardReader.isCardPresent()) {
       throw new IllegalStateException("No card is present in the reader.");
     }
 
@@ -115,6 +126,23 @@ public class Main_CardAuthentication_Pcsc {
 
     // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+
+    // Create a SAM selection using the Calypso card extension.
+    cardSelectionManager.prepareSelection(calypsoCardService.createSamSelection());
+
+    // SAM communication: run the selection scenario.
+    CardSelectionResult samSelectionResult =
+        cardSelectionManager.processCardSelectionScenario(calypsoSamReader);
+
+    // Check the selection result.
+    if (samSelectionResult.getActiveSmartCard() == null) {
+      throw new IllegalStateException("The selection of the SAM failed.");
+    }
+
+    // Get the Calypso SAM SmartCard resulting of the selection.
+    CalypsoSam calypsoSam = (CalypsoSam) samSelectionResult.getActiveSmartCard();
+
+    logger.info("= SmartCard = {}", calypsoSam);
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
@@ -127,7 +155,7 @@ public class Main_CardAuthentication_Pcsc {
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
-        cardSelectionManager.processCardSelectionScenario(cardReader);
+        cardSelectionManager.processCardSelectionScenario(calypsoCardReader);
 
     // Check the selection result.
     if (selectionResult.getActiveSmartCard() == null) {
@@ -143,20 +171,16 @@ public class Main_CardAuthentication_Pcsc {
     logger.info(
         "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
 
-    // Create security settings that reference the same SAM profile requested from the card resource
-    // service.
-    CardResource samResource =
-        CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
+    // Create security settings that reference the SAM
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setControlSamResource(
-                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+            .setControlSamResource(calypsoSamReader, calypsoSam);
 
     try {
       // Performs file reads using the card transaction manager in secure mode.
       calypsoCardService
-          .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+          .createCardTransaction(calypsoCardReader, calypsoCard, cardSecuritySetting)
           .prepareReadRecords(
               CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
               CalypsoConstants.RECORD_NUMBER_1,
@@ -166,11 +190,15 @@ public class Main_CardAuthentication_Pcsc {
           .prepareReleaseCardChannel()
           .processClosing();
     } finally {
-      try {
-        CardResourceServiceProvider.getService().releaseCardResource(samResource);
-      } catch (RuntimeException e) {
-        logger.error("Error during the card resource release: {}", e.getMessage(), e);
-      }
+      //      try {
+      //        calypsoCardService
+      //            .createSamTransaction(
+      //                calypsoSamReader, calypsoSam, calypsoCardService.createSamSecuritySetting())
+      //            .prepareReleaseCardChannel()
+      //            .processCommands();
+      //      } catch (RuntimeException e) {
+      //        logger.error("Error during the card resource release: {}", e.getMessage(), e);
+      //      }
     }
 
     logger.info(

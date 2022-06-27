@@ -18,13 +18,13 @@ import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.Plugin;
-import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.service.resource.CardResource;
@@ -90,7 +90,7 @@ public class Main_CardAuthentication_Stub {
     smartCardService.checkCardExtension(calypsoCardService);
 
     // Get and setup the card reader
-    Reader cardReader = plugin.getReader(CARD_READER_NAME);
+    CardReader cardReader = plugin.getReader(CARD_READER_NAME);
 
     // Configure the card resource service to provide an adequate SAM for future secure operations.
     setupCardResourceService(plugin, SAM_READER_NAME, CalypsoConstants.SAM_PROFILE_NAME);

@@ -12,6 +12,7 @@
 package org.eclipse.keyple.core.service.example.UseCase7_PluginAndReaderObservation;
 
 import java.util.Set;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
@@ -46,7 +47,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
   PluginObserver(Set<Reader> initialReaders) {
     readerObserver = new ReaderObserver();
     for (Reader reader : initialReaders) {
-      if (reader instanceof ObservableReader) {
+      if (reader instanceof ObservableCardReader) {
         addObserver(reader);
       }
     }
@@ -129,7 +130,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
         .setSharingMode(PcscReader.SharingMode.SHARED);
 
     // Activate the ISO14443 card protocol.
-    ((ConfigurableReader) reader)
+    ((ConfigurableCardReader) reader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
