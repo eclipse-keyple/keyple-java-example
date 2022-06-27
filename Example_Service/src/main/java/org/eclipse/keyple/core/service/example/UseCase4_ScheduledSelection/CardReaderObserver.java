@@ -12,6 +12,7 @@
 package org.eclipse.keyple.core.service.example.UseCase4_ScheduledSelection;
 
 import org.calypsonet.terminal.reader.CardReaderEvent;
+import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.spi.SmartCard;
 import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
@@ -31,11 +32,12 @@ class CardReaderObserver
     implements CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
 
   private static final Logger logger = LoggerFactory.getLogger(CardReaderObserver.class);
-  private final Reader reader;
+  private final ObservableCardReader observableCardReader;
   private final CardSelectionManager cardSelectionManager;
 
-  CardReaderObserver(Reader reader, CardSelectionManager cardSelectionManager) {
-    this.reader = reader;
+  CardReaderObserver(
+      ObservableCardReader observableCardReader, CardSelectionManager cardSelectionManager) {
+    this.observableCardReader = observableCardReader;
     this.cardSelectionManager = cardSelectionManager;
   }
 
@@ -76,8 +78,7 @@ class CardReaderObserver
 
       // Informs the underlying layer of the end of the card processing, in order to manage the
       // removal sequence.
-
-      ((ObservableReader) (reader)).finalizeCardProcessing();
+      observableCardReader.finalizeCardProcessing();
     }
   }
 

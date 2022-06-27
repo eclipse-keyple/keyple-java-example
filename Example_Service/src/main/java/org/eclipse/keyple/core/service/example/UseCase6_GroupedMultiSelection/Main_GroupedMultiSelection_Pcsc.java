@@ -12,6 +12,8 @@
 package org.eclipse.keyple.core.service.example.UseCase6_GroupedMultiSelection;
 
 import java.util.Map;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.calypsonet.terminal.reader.selection.spi.SmartCard;
@@ -21,6 +23,8 @@ import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,19 +67,33 @@ public class Main_GroupedMultiSelection_Pcsc {
     // return.
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
-    Reader reader =
-        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
     // Get the generic card extension service
-    GenericExtensionService cardExtension = GenericExtensionService.getInstance();
+    GenericExtensionService genericCardService = GenericExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(genericCardService);
+
+    // Get the contactless reader whose name matches the provided regex
+    String pcscContactlessReaderName =
+        ConfigurationUtil.getCardReaderName(
+            plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
+    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
+
+    // Configure the reader with parameters suitable for contactless operations.
+    ((PcscReader) cardReader)
+        .setContactless(true)
+        .setIsoProtocol(PcscReader.IsoProtocol.T1)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) cardReader)
+        .activateProtocol(
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     logger.info(
         "=============== UseCase Generic #6: Grouped selections based on an AID prefix ==================");
 
     // Check if a card is present in the reader
-    if (!reader.isCardPresent()) {
+    if (!cardReader.isCardPresent()) {
       throw new IllegalStateException("No card is present in the reader.");
     }
 
@@ -90,7 +108,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     // physical channel open
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        genericCardService
             .createCardSelection()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
             .setFileOccurrence(GenericCardSelection.FileOccurrence.FIRST));
@@ -99,7 +117,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     // physical channel after
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        genericCardService
             .createCardSelection()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
             .setFileOccurrence(GenericCardSelection.FileOccurrence.NEXT));
@@ -108,7 +126,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     cardSelectionManager.prepareReleaseChannel();
 
     CardSelectionResult cardSelectionsResult =
-        cardSelectionManager.processCardSelectionScenario(reader);
+        cardSelectionManager.processCardSelectionScenario(cardReader);
 
     // log the result
     for (Map.Entry<Integer, SmartCard> entry : cardSelectionsResult.getSmartCards().entrySet()) {

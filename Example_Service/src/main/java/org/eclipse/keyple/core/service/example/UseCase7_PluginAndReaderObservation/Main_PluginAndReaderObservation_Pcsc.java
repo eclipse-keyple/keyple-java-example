@@ -51,7 +51,9 @@ public class Main_PluginAndReaderObservation_Pcsc {
 
     // Register the PcscPlugin with the SmartCardService, get the corresponding generic plugin in
     // return.
-    Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
+    ObservablePlugin plugin =
+        (ObservablePlugin)
+            smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // We add an observer to each plugin (only one in this example) the readers observers will be
     // added dynamically upon plugin events notification. Nevertheless, here we provide the plugin
@@ -59,8 +61,8 @@ public class Main_PluginAndReaderObservation_Pcsc {
     // observer.
     logger.info("Add observer PLUGINNAME = {}", plugin.getName());
     PluginObserver pluginObserver = new PluginObserver(plugin.getReaders());
-    ((ObservablePlugin) plugin).setPluginObservationExceptionHandler(pluginObserver);
-    ((ObservablePlugin) plugin).addObserver(pluginObserver);
+    plugin.setPluginObservationExceptionHandler(pluginObserver);
+    plugin.addObserver(pluginObserver);
 
     logger.info("Wait for reader or card insertion/removal");
 
