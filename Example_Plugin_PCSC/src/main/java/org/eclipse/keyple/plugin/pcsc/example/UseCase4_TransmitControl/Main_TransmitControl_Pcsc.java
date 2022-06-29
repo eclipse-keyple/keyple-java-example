@@ -11,6 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.pcsc.example.UseCase4_TransmitControl;
 
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.CardReaderEvent;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
@@ -75,10 +76,10 @@ public class Main_TransmitControl_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the contactless reader (we assume that a SpringCard Puck One reader is connected)
-    ObservableReader reader = null;
-    for (Reader r : plugin.getReaders()) {
+    ObservableCardReader reader = null;
+    for (CardReader r : plugin.getReaders()) {
       if (r.getName().toLowerCase().contains("contactless")) {
-        reader = (ObservableReader) r;
+        reader = (ObservableCardReader) r;
       }
     }
 
@@ -86,7 +87,7 @@ public class Main_TransmitControl_Pcsc {
       throw new IllegalStateException("Reader not found");
     }
 
-    PcscReader pcscReader = reader.getExtension(PcscReader.class);
+    PcscReader pcscReader = plugin.getReaderExtension(PcscReader.class, reader.getName());
 
     // Change the LED color to yellow when no card is connected
     for (int i = 0; i < 3; i++) {
@@ -177,7 +178,7 @@ public class Main_TransmitControl_Pcsc {
         if (event.getType() != CardReaderEvent.Type.CARD_REMOVED) {
           // indicates the end of the card processing
           // (not needed for a removal event)
-          ((ObservableReader)
+          ((ObservableCardReader)
                   SmartCardServiceProvider.getService()
                       .getPlugins()
                       .iterator()

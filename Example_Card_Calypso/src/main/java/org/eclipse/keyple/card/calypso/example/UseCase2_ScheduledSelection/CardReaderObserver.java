@@ -60,7 +60,6 @@ class CardReaderObserver
   public void onReaderEvent(CardReaderEvent event) {
     switch (event.getType()) {
       case CARD_MATCHED:
-        // the selection has one target, get the result at index 0
         CalypsoCard calypsoCard =
             (CalypsoCard)
                 cardSelectionManager

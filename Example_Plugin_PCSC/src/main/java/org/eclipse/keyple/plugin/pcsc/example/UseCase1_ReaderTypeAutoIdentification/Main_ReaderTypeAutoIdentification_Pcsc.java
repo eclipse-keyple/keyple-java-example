@@ -12,6 +12,8 @@
 package org.eclipse.keyple.plugin.pcsc.example.UseCase1_ReaderTypeAutoIdentification;
 
 import java.util.Set;
+
+import org.calypsonet.terminal.reader.CardReader;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardService;
@@ -40,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p><strong>Note #1:</strong> not all applications need to know what type of reader it is. This
  * parameter is only required if the application or card extension intends to call the {@link
- * Reader#isContactless()} method.
+ * CardReader#isContactless()} method.
  *
  * <p><strong>Note #2:</strong>: the Keyple Calypso Card extension requires this knowledge.
  *
@@ -77,7 +79,7 @@ public class Main_ReaderTypeAutoIdentification_Pcsc {
     Set<Reader> readers = plugin.getReaders();
 
     // Log the type of each reader
-    for (Reader reader : readers) {
+    for (CardReader reader : readers) {
       logger.info(
           "The reader '{}' is a '{}' type",
           reader.getName(),

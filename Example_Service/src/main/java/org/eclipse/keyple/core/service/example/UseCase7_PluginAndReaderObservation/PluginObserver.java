@@ -12,8 +12,11 @@
 package org.eclipse.keyple.core.service.example.UseCase7_PluginAndReaderObservation;
 
 import java.util.Set;
+
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
+import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
@@ -44,9 +47,9 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
    * @param initialReaders The readers connected before the plugin is observed.
    * @since 2.0.0
    */
-  PluginObserver(Set<Reader> initialReaders) {
+  PluginObserver(Set<CardReader> initialReaders) {
     readerObserver = new ReaderObserver();
-    for (Reader reader : initialReaders) {
+    for (CardReader reader : initialReaders) {
       if (reader instanceof ObservableCardReader) {
         addObserver(reader);
       }
@@ -62,7 +65,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
   public void onPluginEvent(PluginEvent event) {
     for (String readerName : event.getReaderNames()) {
       // We retrieve the reader object from its name.
-      Reader reader =
+      CardReader reader =
           SmartCardServiceProvider.getService()
               .getPlugin(event.getPluginName())
               .getReader(readerName);
@@ -83,7 +86,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
           // Configure the reader with parameters suitable for contactless operations.
           setupReader(reader);
 
-          if (reader instanceof ObservableReader) {
+          if (reader instanceof ObservableCardReader) {
             addObserver(reader);
           }
           break;
@@ -94,9 +97,9 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
           // observer attached to this reader before the list update.
           logger.info("Reader removed. READERNAME = {}", readerName);
 
-          if (reader instanceof ObservableReader) {
+          if (reader instanceof ObservableCardReader) {
             logger.info("Clear observers of READERNAME = {}", readerName);
-            ((ObservableReader) reader).clearObservers();
+            ((ObservableCardReader) reader).clearObservers();
           }
           break;
 
@@ -120,17 +123,27 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
   /**
    * Configure the reader to handle ISO14443-4 contactless cards
    *
-   * @param reader The reader.
+   * @param cardReader The reader.
    */
-  private void setupReader(Reader reader) {
-    reader
-        .getExtension(PcscReader.class)
-        .setContactless(true)
-        .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
+  private void setupReader(CardReader cardReader) {
+
+    try {
+      KeypleReaderExtension readerExtension =
+              SmartCardServiceProvider.getService()
+                      .getPlugin(cardReader)
+                      .getReaderExtension(KeypleReaderExtension.class, cardReader.getName());
+      if (readerExtension instanceof PcscReader) {
+        ((PcscReader) readerExtension)
+                .setContactless(true)
+                .setIsoProtocol(PcscReader.IsoProtocol.T1)
+                .setSharingMode(PcscReader.SharingMode.SHARED);
+      }
+    } catch (Exception e) {
+      logger.error("Exception raised while setting up the reader {}", cardReader.getName(), e);
+    }
 
     // Activate the ISO14443 card protocol.
-    ((ConfigurableCardReader) reader)
+    ((ConfigurableCardReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
@@ -141,10 +154,10 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
    *
    * @param reader An observable reader
    */
-  private void addObserver(Reader reader) {
+  private void addObserver(CardReader reader) {
     logger.info("Add observer READERNAME = {}", reader.getName());
-    ((ObservableReader) reader).setReaderObservationExceptionHandler(readerObserver);
-    ((ObservableReader) reader).addObserver(readerObserver);
-    ((ObservableReader) reader).startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
+    ((ObservableCardReader) reader).setReaderObservationExceptionHandler(readerObserver);
+    ((ObservableCardReader) reader).addObserver(readerObserver);
+    ((ObservableCardReader) reader).startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
   }
 }

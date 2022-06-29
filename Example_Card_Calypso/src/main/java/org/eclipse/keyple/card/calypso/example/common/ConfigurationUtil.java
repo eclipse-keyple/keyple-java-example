@@ -13,10 +13,11 @@ package org.eclipse.keyple.card.calypso.example.common;
 
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.sam.CalypsoSamSelection;
+import org.calypsonet.terminal.reader.CardReader;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.Plugin;
-import org.eclipse.keyple.core.service.Reader;
+import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.service.resource.*;
 import org.eclipse.keyple.core.service.resource.spi.CardResourceProfileExtension;
 import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
@@ -130,17 +131,21 @@ public class ConfigurationUtil {
 
     /** {@inheritDoc} */
     @Override
-    public void setupReader(Reader reader) {
+    public void setupReader(CardReader cardReader) {
       // Configure the reader with parameters suitable for contactless operations.
       try {
-        KeypleReaderExtension readerExtension = reader.getExtension(KeypleReaderExtension.class);
-        if (readerExtension instanceof PcscReader)
+        KeypleReaderExtension readerExtension =
+            SmartCardServiceProvider.getService()
+                .getPlugin(cardReader)
+                .getReaderExtension(KeypleReaderExtension.class, cardReader.getName());
+        if (readerExtension instanceof PcscReader) {
           ((PcscReader) readerExtension)
-              .setContactless(false)
-              .setIsoProtocol(PcscReader.IsoProtocol.ANY)
-              .setSharingMode(PcscReader.SharingMode.SHARED);
+                  .setContactless(false)
+                  .setIsoProtocol(PcscReader.IsoProtocol.ANY)
+                  .setSharingMode(PcscReader.SharingMode.SHARED);
+        }
       } catch (Exception e) {
-        logger.error("Exception raised while setting up the reader {}", reader.getName(), e);
+        logger.error("Exception raised while setting up the reader {}", cardReader.getName(), e);
       }
     }
   }
