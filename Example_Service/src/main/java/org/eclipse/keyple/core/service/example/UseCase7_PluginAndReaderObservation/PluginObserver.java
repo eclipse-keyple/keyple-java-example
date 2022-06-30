@@ -12,7 +12,6 @@
 package org.eclipse.keyple.core.service.example.UseCase7_PluginAndReaderObservation;
 
 import java.util.Set;
-
 import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
@@ -129,14 +128,14 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
 
     try {
       KeypleReaderExtension readerExtension =
-              SmartCardServiceProvider.getService()
-                      .getPlugin(cardReader)
-                      .getReaderExtension(KeypleReaderExtension.class, cardReader.getName());
+          SmartCardServiceProvider.getService()
+              .getPlugin(cardReader)
+              .getReaderExtension(KeypleReaderExtension.class, cardReader.getName());
       if (readerExtension instanceof PcscReader) {
         ((PcscReader) readerExtension)
-                .setContactless(true)
-                .setIsoProtocol(PcscReader.IsoProtocol.T1)
-                .setSharingMode(PcscReader.SharingMode.SHARED);
+            .setContactless(true)
+            .setIsoProtocol(PcscReader.IsoProtocol.T1)
+            .setSharingMode(PcscReader.SharingMode.SHARED);
       }
     } catch (Exception e) {
       logger.error("Exception raised while setting up the reader {}", cardReader.getName(), e);
@@ -158,6 +157,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
     logger.info("Add observer READERNAME = {}", reader.getName());
     ((ObservableCardReader) reader).setReaderObservationExceptionHandler(readerObserver);
     ((ObservableCardReader) reader).addObserver(readerObserver);
-    ((ObservableCardReader) reader).startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
+    ((ObservableCardReader) reader)
+        .startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
   }
 }

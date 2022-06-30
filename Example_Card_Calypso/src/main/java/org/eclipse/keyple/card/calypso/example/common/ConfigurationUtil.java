@@ -140,9 +140,9 @@ public class ConfigurationUtil {
                 .getReaderExtension(KeypleReaderExtension.class, cardReader.getName());
         if (readerExtension instanceof PcscReader) {
           ((PcscReader) readerExtension)
-                  .setContactless(false)
-                  .setIsoProtocol(PcscReader.IsoProtocol.ANY)
-                  .setSharingMode(PcscReader.SharingMode.SHARED);
+              .setContactless(false)
+              .setIsoProtocol(PcscReader.IsoProtocol.ANY)
+              .setSharingMode(PcscReader.SharingMode.SHARED);
         }
       } catch (Exception e) {
         logger.error("Exception raised while setting up the reader {}", cardReader.getName(), e);

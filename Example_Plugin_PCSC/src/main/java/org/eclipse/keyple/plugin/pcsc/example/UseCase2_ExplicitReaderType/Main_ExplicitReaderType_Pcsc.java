@@ -12,7 +12,6 @@
 package org.eclipse.keyple.plugin.pcsc.example.UseCase2_ExplicitReaderType;
 
 import java.util.Set;
-
 import org.calypsonet.terminal.reader.CardReader;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.Reader;

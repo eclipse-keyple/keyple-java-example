@@ -15,8 +15,6 @@ import org.calypsonet.terminal.reader.CardReaderEvent;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
-import org.eclipse.keyple.core.service.ObservableReader;
-import org.eclipse.keyple.core.service.ReaderEvent;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.slf4j.Logger;
@@ -37,7 +35,8 @@ class ReaderObserver implements CardReaderObserverSpi, CardReaderObservationExce
   @Override
   public void onReaderEvent(CardReaderEvent event) {
     /* just log the event */
-    String pluginName = smartCardService.getPlugin(smartCardService.getReader(event.getReaderName())).getName();
+    String pluginName =
+        smartCardService.getPlugin(smartCardService.getReader(event.getReaderName())).getName();
     logger.info(
         "Event: PLUGINNAME = {}, READERNAME = {}, EVENT = {}",
         pluginName,
@@ -46,9 +45,7 @@ class ReaderObserver implements CardReaderObserverSpi, CardReaderObservationExce
 
     if (event.getType() != CardReaderEvent.Type.CARD_REMOVED) {
       ((ObservableCardReader)
-              (smartCardService
-                  .getPlugin(pluginName)
-                  .getReader(event.getReaderName())))
+              (smartCardService.getPlugin(pluginName).getReader(event.getReaderName())))
           .finalizeCardProcessing();
     }
   }
