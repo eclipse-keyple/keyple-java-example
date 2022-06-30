@@ -12,6 +12,8 @@
 package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -72,15 +74,15 @@ public class Main_ScheduledSelection_Stub {
                 .build());
 
     // Get the generic card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
-    Reader cardReader = plugin.getReader(CARD_READER_NAME);
+    CardReader cardReader = plugin.getReader(CARD_READER_NAME);
 
     // Activate the ISO14443 card protocol.
-    ((ConfigurableReader) cardReader)
+    ((ConfigurableCardReader) cardReader)
         .activateProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL, ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     logger.info("=============== UseCase Generic #2: scheduled selection ==================");
@@ -92,7 +94,7 @@ public class Main_ScheduledSelection_Stub {
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
     CalypsoCardSelection cardSelection =
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
@@ -106,16 +108,16 @@ public class Main_ScheduledSelection_Stub {
     // Schedule the selection scenario, request notification only if the card matches the selection
     // case.
     cardSelectionManager.scheduleCardSelectionScenario(
-        (ObservableReader) cardReader,
+        (ObservableCardReader) cardReader,
         ObservableCardReader.DetectionMode.REPEATING,
         ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Create and add an observer for this reader
     CardReaderObserver cardReaderObserver =
         new CardReaderObserver(cardReader, cardSelectionManager);
-    ((ObservableReader) cardReader).setReaderObservationExceptionHandler(cardReaderObserver);
-    ((ObservableReader) cardReader).addObserver(cardReaderObserver);
-    ((ObservableReader) cardReader)
+    ((ObservableCardReader) cardReader).setReaderObservationExceptionHandler(cardReaderObserver);
+    ((ObservableCardReader) cardReader).addObserver(cardReaderObserver);
+    ((ObservableCardReader) cardReader)
         .startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
 
     logger.info(
@@ -125,13 +127,15 @@ public class Main_ScheduledSelection_Stub {
     Thread.sleep(100);
 
     logger.info("Insert stub card.");
-    cardReader.getExtension(StubReader.class).insertCard(StubSmartCardFactory.getStubCard());
+    plugin
+        .getReaderExtension(StubReader.class, CARD_READER_NAME)
+        .insertCard(StubSmartCardFactory.getStubCard());
 
     /* Wait a while. */
     Thread.sleep(1000);
 
     logger.info("Remove stub card.");
-    cardReader.getExtension(StubReader.class).removeCard();
+    plugin.getReaderExtension(StubReader.class, CARD_READER_NAME).removeCard();
 
     // unregister plugin
     smartCardService.unregisterPlugin(plugin.getName());

@@ -13,11 +13,11 @@ package org.eclipse.keyple.distributed.example.readerclientside.websocket.client
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import org.eclipse.keyple.core.service.ConfigurableReader;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.eclipse.keyple.core.service.ObservablePlugin;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.PluginEvent;
-import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.core.service.spi.PluginObserverSpi;
@@ -52,7 +52,7 @@ public class AppClient {
   private Plugin plugin;
 
   /** The local reader */
-  private Reader reader;
+  private CardReader reader;
 
   /**
    * Initialize the client components :
@@ -151,10 +151,10 @@ public class AppClient {
     reader = plugin.getReader("stubReader");
 
     // Activates the protocol ISO_14443_4 on the reader.
-    ((ConfigurableReader) reader).activateProtocol(ISO_CARD_PROTOCOL, ISO_CARD_PROTOCOL);
+    ((ConfigurableCardReader) reader).activateProtocol(ISO_CARD_PROTOCOL, ISO_CARD_PROTOCOL);
 
     // Insert a stub card manually on the reader.
-    reader.getExtension(StubReader.class).insertCard(getStubCard());
+    plugin.getReaderExtension(StubReader.class, reader.getName()).insertCard(getStubCard());
 
     logger.info(
         "Client - Local reader was configured with STUB reader : {} with a card", reader.getName());
@@ -186,10 +186,12 @@ public class AppClient {
     }
 
     // Sets PCSC specific configuration to handle contactless.
-    reader.getExtension(PcscReader.class).setIsoProtocol(PcscReader.IsoProtocol.T1);
+    plugin
+        .getReaderExtension(PcscReader.class, reader.getName())
+        .setIsoProtocol(PcscReader.IsoProtocol.T1);
 
     // Activates the protocol ISO_14443_4 on the reader.
-    ((ConfigurableReader) reader)
+    ((ConfigurableCardReader) reader)
         .activateProtocol(PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
 
     logger.info(

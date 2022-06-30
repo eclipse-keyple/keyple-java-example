@@ -11,6 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.UseCase4_ScheduledSelection;
 
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.spi.CardSelection;
@@ -18,6 +19,7 @@ import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,20 +62,29 @@ public class Main_ScheduledSelection_Pcsc {
     // return.
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
-    Reader reader =
-        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
+    // Get the generic card extension service
+    GenericExtensionService genericCardService = GenericExtensionService.getInstance();
 
-    // Activate the ISO14443 card protocol.
-    ((ConfigurableReader) reader)
+    // Verify that the extension's API level is consistent with the current service.
+    smartCardService.checkCardExtension(genericCardService);
+
+    // Get the contactless reader whose name matches the provided regex
+    String pcscContactlessReaderName =
+        ConfigurationUtil.getCardReaderName(
+            plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
+    ObservableCardReader observableCardReader =
+        (ObservableCardReader) plugin.getReader(pcscContactlessReaderName);
+
+    // Configure the reader with parameters suitable for contactless operations.
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
+        .setContactless(true)
+        .setIsoProtocol(PcscReader.IsoProtocol.T1)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) observableCardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
-
-    // Get the generic card extension service
-    GenericExtensionService cardExtension = GenericExtensionService.getInstance();
-
-    // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
 
     logger.info(
         "=============== UseCase Generic #4: scheduled AID based selection ==================");
@@ -85,7 +96,7 @@ public class Main_ScheduledSelection_Pcsc {
 
     // Create a card selection using the generic card extension.
     CardSelection cardSelection =
-        cardExtension
+        genericCardService
             .createCardSelection()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(ConfigurationUtil.AID_EMV_PPSE);
@@ -94,16 +105,17 @@ public class Main_ScheduledSelection_Pcsc {
     cardSelectionManager.prepareSelection(cardSelection);
 
     // Schedule the selection scenario.
-    cardSelectionManager.scheduleCardSelectionScenario(
-        (ObservableReader) reader,
-        ObservableCardReader.DetectionMode.REPEATING,
-        ObservableCardReader.NotificationMode.MATCHED_ONLY);
+    //    cardSelectionManager.scheduleCardSelectionScenario(
+    //        (ObservableReader) reader,
+    //        ObservableCardReader.DetectionMode.REPEATING,
+    //        ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Create and add an observer
-    CardReaderObserver cardReaderObserver = new CardReaderObserver(reader, cardSelectionManager);
-    ((ObservableReader) reader).setReaderObservationExceptionHandler(cardReaderObserver);
-    ((ObservableReader) reader).addObserver(cardReaderObserver);
-    ((ObservableReader) reader).startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
+    CardReaderObserver cardReaderObserver =
+        new CardReaderObserver(observableCardReader, cardSelectionManager);
+    observableCardReader.setReaderObservationExceptionHandler(cardReaderObserver);
+    observableCardReader.addObserver(cardReaderObserver);
+    observableCardReader.startCardDetection(ObservableCardReader.DetectionMode.REPEATING);
 
     logger.info(
         "= #### Wait for a card. The AID based selection scenario will be processed as soon as a card is detected.");
@@ -123,7 +135,7 @@ public class Main_ScheduledSelection_Pcsc {
 
   /**
    * This object is used to freeze the main thread while card operations are handle through the
-   * observers callbacks. A call to the notify() method would end the program (not demonstrated
+   * observers callbacks. A call to the "notify()" method would end the program (not demonstrated
    * here).
    */
   private static final Object waitForEnd = new Object();

@@ -15,10 +15,10 @@ import java.util.SortedSet;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.core.service.PoolPlugin;
-import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.distributed.RemotePluginClientFactory;
 import org.eclipse.keyple.distributed.RemotePoolPluginClientFactoryBuilder;
@@ -67,7 +67,7 @@ public class AppClient {
     SortedSet<String> groupReferences = poolRemotePlugin.getReaderGroupReferences();
 
     // Allocates a remote reader.
-    Reader remoteReader = poolRemotePlugin.allocateReader(groupReferences.first());
+    CardReader remoteReader = poolRemotePlugin.allocateReader(groupReferences.first());
 
     // Execute a ticketing transaction :
     // 1. perform a remote explicit selection

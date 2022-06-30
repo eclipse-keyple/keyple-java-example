@@ -11,9 +11,9 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.getCardReader;
-
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -21,6 +21,7 @@ import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,15 +68,23 @@ public class Main_ScheduledSelection_Pcsc {
         smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the generic card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
-    Reader cardReader = getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    // Get the contactless reader whose name matches the provided regex
+    String pcscContactlessReaderName =
+        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
 
-    // Activate the ISO14443 card protocol.
-    ((ConfigurableReader) cardReader)
+    // Configure the reader with parameters suitable for contactless operations.
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
+        .setContactless(true)
+        .setIsoProtocol(PcscReader.IsoProtocol.T1)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
@@ -89,7 +98,7 @@ public class Main_ScheduledSelection_Pcsc {
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
     CalypsoCardSelection cardSelection =
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
@@ -133,7 +142,7 @@ public class Main_ScheduledSelection_Pcsc {
 
   /**
    * This object is used to freeze the main thread while card operations are handle through the
-   * observers callbacks. A call to the notify() method would end the program (not demonstrated
+   * observers callbacks. A call to the "notify()" method would end the program (not demonstrated
    * here).
    */
   private static final Object waitForEnd = new Object();

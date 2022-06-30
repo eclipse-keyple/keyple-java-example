@@ -12,6 +12,8 @@
 package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
 
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -66,16 +68,16 @@ public class Main_ExplicitSelectionAid_Stub {
                 .withStubReader(CARD_READER_NAME, true, StubSmartCardFactory.getStubCard())
                 .build());
 
-    Reader cardReader = plugin.getReader(CARD_READER_NAME);
+    CardReader cardReader = plugin.getReader(CARD_READER_NAME);
 
-    ((ConfigurableReader) cardReader)
+    ((ConfigurableCardReader) cardReader)
         .activateProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL, ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
     logger.info(
         "=============== UseCase Calypso #1: AID based explicit selection ==================");
@@ -94,7 +96,7 @@ public class Main_ExplicitSelectionAid_Stub {
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .filterByDfName(CalypsoConstants.AID)
             .acceptInvalidatedCard()
@@ -116,12 +118,13 @@ public class Main_ExplicitSelectionAid_Stub {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
-    logger.info(
-        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+    String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
+    logger.info("Calypso Serial Number = {}", csn);
 
+    String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(
         "File SFI {}h, rec 1: FILE_CONTENT = {}",
-        String.format("%02X", CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER),
+        sfiEnvHolder,
         calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
 
     logger.info("= #### End of the Calypso card processing.");

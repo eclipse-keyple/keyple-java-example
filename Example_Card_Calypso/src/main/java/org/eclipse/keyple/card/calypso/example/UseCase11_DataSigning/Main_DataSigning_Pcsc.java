@@ -14,6 +14,8 @@ package org.eclipse.keyple.card.calypso.example.UseCase11_DataSigning;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.sam.CalypsoSamSelection;
 import org.calypsonet.terminal.calypso.transaction.*;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
@@ -79,10 +81,10 @@ public class Main_DataSigning_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
     // Create a SAM resource extension expecting a SAM having power-on data matching the regex
     CalypsoSamSelection samSelection =
@@ -259,8 +261,8 @@ public class Main_DataSigning_Pcsc {
   }
 
   /**
-   * Reader configurator used by the card resource service to setup the SAM reader with the required
-   * settings.
+   * Reader configurator used by the card resource service to set up the SAM reader with the
+   * required settings.
    */
   private static class ReaderConfigurator implements ReaderConfiguratorSpi {
     private static final Logger logger = LoggerFactory.getLogger(ReaderConfigurator.class);
@@ -273,13 +275,16 @@ public class Main_DataSigning_Pcsc {
 
     /** {@inheritDoc} */
     @Override
-    public void setupReader(Reader reader) {
+    public void setupReader(CardReader reader) {
       // Configure the reader with parameters suitable for contactless operations.
       try {
-        ((ConfigurableReader) reader)
+        ((ConfigurableCardReader) reader)
             .activateProtocol(
                 PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
-        KeypleReaderExtension readerExtension = reader.getExtension(KeypleReaderExtension.class);
+        KeypleReaderExtension readerExtension =
+            SmartCardServiceProvider.getService()
+                .getPlugin(reader)
+                .getReaderExtension(KeypleReaderExtension.class, reader.getName());
         if (readerExtension instanceof PcscReader)
           ((PcscReader) readerExtension)
               .setContactless(false)

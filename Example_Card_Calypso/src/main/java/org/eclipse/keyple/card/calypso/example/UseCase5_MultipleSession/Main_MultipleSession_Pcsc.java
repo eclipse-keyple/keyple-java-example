@@ -11,7 +11,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase5_MultipleSession;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.getCardReader;
 import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
@@ -19,6 +18,8 @@ import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -29,6 +30,8 @@ import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +62,8 @@ import org.slf4j.LoggerFactory;
  *
  * @since 2.0.0
  */
-public class Main_MultipleSesssion_Pcsc {
-  private static final Logger logger = LoggerFactory.getLogger(Main_MultipleSesssion_Pcsc.class);
+public class Main_MultipleSession_Pcsc {
+  private static final Logger logger = LoggerFactory.getLogger(Main_MultipleSession_Pcsc.class);
 
   public static void main(String[] args) {
 
@@ -72,17 +75,29 @@ public class Main_MultipleSesssion_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
-    // Get and setup the card reader
-    // We suppose here, we use a ASK LoGO contactless PC/SC reader as card reader.
-    Reader cardReader = getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    // Get the contactless reader whose name matches the provided regex
+    String pcscContactlessReaderName =
+        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
+
+    // Configure the reader with parameters suitable for contactless operations.
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
+        .setContactless(true)
+        .setIsoProtocol(PcscReader.IsoProtocol.T1)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) cardReader)
+        .activateProtocol(
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Configure the card resource service to provide an adequate SAM for future secure operations.
-    // We suppose here, we use a Identive contact PC/SC reader as card reader.
+    // We suppose here, we use an Identive contact PC/SC reader as card reader.
     setupCardResourceService(
         plugin, ConfigurationUtil.SAM_READER_NAME_REGEX, CalypsoConstants.SAM_PROFILE_NAME);
 
@@ -102,7 +117,7 @@ public class Main_MultipleSesssion_Pcsc {
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByDfName(CalypsoConstants.AID));
@@ -122,8 +137,8 @@ public class Main_MultipleSesssion_Pcsc {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
-    logger.info(
-        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+    String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
+    logger.info("Calypso Serial Number = {}", csn);
 
     // Create security settings that reference the same SAM profile requested from the card resource
     // service and enable the multiple session mode.
@@ -138,7 +153,7 @@ public class Main_MultipleSesssion_Pcsc {
     try {
       // Performs file reads using the card transaction manager in non-secure mode.
       CardTransactionManager cardTransaction =
-          cardExtension.createCardTransaction(cardReader, calypsoCard, cardSecuritySetting);
+          calypsoCardService.createCardTransaction(cardReader, calypsoCard, cardSecuritySetting);
 
       cardTransaction.processOpening(WriteAccessLevel.DEBIT);
 

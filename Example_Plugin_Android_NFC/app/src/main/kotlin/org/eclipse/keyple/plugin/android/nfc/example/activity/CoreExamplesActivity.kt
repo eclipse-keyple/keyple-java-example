@@ -23,13 +23,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.calypsonet.terminal.reader.CardCommunicationException
+import org.calypsonet.terminal.reader.CardReader
 import org.calypsonet.terminal.reader.CardReaderEvent
+import org.calypsonet.terminal.reader.ConfigurableCardReader
 import org.calypsonet.terminal.reader.ObservableCardReader
 import org.calypsonet.terminal.reader.ReaderCommunicationException
 import org.eclipse.keyple.card.generic.GenericExtensionService
-import org.eclipse.keyple.core.service.ConfigurableReader
-import org.eclipse.keyple.core.service.ObservableReader
-import org.eclipse.keyple.core.service.Reader
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
 import org.eclipse.keyple.core.util.HexUtil
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcPlugin
@@ -45,7 +44,7 @@ import timber.log.Timber
  */
 class CoreExamplesActivity : AbstractExampleActivity() {
 
-    private lateinit var reader: Reader
+    private lateinit var reader: CardReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,12 +57,12 @@ class CoreExamplesActivity : AbstractExampleActivity() {
         /**
          * Configure Nfc Reader
          */
-        with(plugin.getReader(AndroidNfcReader.READER_NAME) as ObservableReader) {
+        with(plugin.getReader(AndroidNfcReader.READER_NAME) as ObservableCardReader) {
             setReaderObservationExceptionHandler(this@CoreExamplesActivity)
             addObserver(this@CoreExamplesActivity)
 
             // with this protocol settings we activate the nfc for ISO1443_4 protocol
-            (this as ConfigurableReader).activateProtocol(AndroidNfcSupportedProtocols.ISO_14443_4.name, "ISO_14443_4_CARD")
+            (this as ConfigurableCardReader).activateProtocol(AndroidNfcSupportedProtocols.ISO_14443_4.name, "ISO_14443_4_CARD")
             reader = this
         }
     }
@@ -86,7 +85,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
 
                 Timber.d("Handle ACTION TECH intent")
                 // notify reader that card detection has been launched
-                (reader as ObservableReader).startCardDetection(ObservableCardReader.DetectionMode.SINGLESHOT)
+                (reader as ObservableCardReader).startCardDetection(ObservableCardReader.DetectionMode.SINGLESHOT)
                 initFromBackgroundTextView()
                 (reader as AndroidNfcReader).processIntent(intent)
                 configureUseCase1ExplicitSelectionAid()
@@ -95,7 +94,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                     drawerLayout.openDrawer(GravityCompat.START)
                 }
                 // enable detection
-                (reader as ObservableReader).startCardDetection(ObservableCardReader.DetectionMode.SINGLESHOT)
+                (reader as ObservableCardReader).startCardDetection(ObservableCardReader.DetectionMode.SINGLESHOT)
             }
         } catch (e: IOException) {
             showAlertDialog(e)
@@ -109,7 +108,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
         when (item.itemId) {
             R.id.usecase2 -> {
                 clearEvents()
-                (reader as ObservableReader).startCardDetection(ObservableCardReader.DetectionMode.REPEATING)
+                (reader as ObservableCardReader).startCardDetection(ObservableCardReader.DetectionMode.REPEATING)
                 configureUseCase2DefaultSelectionNotification()
             }
         }
@@ -119,7 +118,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
     private fun configureUseCase2DefaultSelectionNotification() {
         addHeaderEvent("UseCase Generic #2: AID based default selection")
 
-        with(reader as ObservableReader) {
+        with(reader as ObservableCardReader) {
 
             addHeaderEvent("Reader  NAME = $name")
 
@@ -149,7 +148,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
              */
             cardSelectionManager.prepareSelection(cardSelection)
 
-            cardSelectionManager.scheduleCardSelectionScenario(reader as ObservableReader, ObservableCardReader.DetectionMode.REPEATING, ObservableCardReader.NotificationMode.MATCHED_ONLY)
+            cardSelectionManager.scheduleCardSelectionScenario(reader as ObservableCardReader, ObservableCardReader.DetectionMode.REPEATING, ObservableCardReader.NotificationMode.MATCHED_ONLY)
 
             useCase = object : UseCase {
                 override fun onEventUpdate(event: CardReaderEvent) {
@@ -164,12 +163,12 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                                 } else {
                                     addResultEvent("The selection of the card has failed. Should not have occurred due to the MATCHED_ONLY selection mode.")
                                 }
-                                (reader as ObservableReader).finalizeCardProcessing()
+                                (reader as ObservableCardReader).finalizeCardProcessing()
                             }
 
                             CardReaderEvent.Type.CARD_INSERTED -> {
                                 addResultEvent("CARD_INSERTED event: should not have occurred due to the MATCHED_ONLY selection mode.")
-                                (reader as ObservableReader).finalizeCardProcessing()
+                                (reader as ObservableCardReader).finalizeCardProcessing()
                             }
 
                             CardReaderEvent.Type.CARD_REMOVED -> {
@@ -188,7 +187,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
     private fun configureUseCase1ExplicitSelectionAid() {
         addHeaderEvent("UseCase Generic #1: Explicit AID selection")
 
-        with(reader as ObservableReader) {
+        with(reader as ObservableCardReader) {
             addHeaderEvent("Reader  NAME = $name")
 
             if (isCardPresent) {
@@ -229,7 +228,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                 /**
                  * Provide the Reader with the selection operation to be processed when a card is inserted.
                  */
-                cardSelectionManager.scheduleCardSelectionScenario(reader as ObservableReader, ObservableCardReader.DetectionMode.SINGLESHOT, ObservableCardReader.NotificationMode.MATCHED_ONLY)
+                cardSelectionManager.scheduleCardSelectionScenario(reader as ObservableCardReader, ObservableCardReader.DetectionMode.SINGLESHOT, ObservableCardReader.NotificationMode.MATCHED_ONLY)
 
                 /**
                  * We won't be listening for event update within this use case
@@ -248,7 +247,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                     } else {
                         addResultEvent("The selection of the card has failed.")
                     }
-                    (reader as ObservableReader).finalizeCardProcessing()
+                    (reader as ObservableCardReader).finalizeCardProcessing()
                 } catch (e: CardCommunicationException) {
                     addResultEvent("Error: ${e.message}")
                 } catch (e: ReaderCommunicationException) {

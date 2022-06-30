@@ -18,13 +18,13 @@ import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.Plugin;
-import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.service.resource.CardResource;
@@ -84,13 +84,13 @@ public class Main_CardAuthentication_Stub {
                 .build());
 
     // Get the Calypso card extension service
-    CalypsoExtensionService cardExtension = CalypsoExtensionService.getInstance();
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
 
     // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(cardExtension);
+    smartCardService.checkCardExtension(calypsoCardService);
 
-    // Get and setup the card reader
-    Reader cardReader = plugin.getReader(CARD_READER_NAME);
+    // Get and set up the card reader
+    CardReader cardReader = plugin.getReader(CARD_READER_NAME);
 
     // Configure the card resource service to provide an adequate SAM for future secure operations.
     setupCardResourceService(plugin, SAM_READER_NAME, CalypsoConstants.SAM_PROFILE_NAME);
@@ -112,7 +112,7 @@ public class Main_CardAuthentication_Stub {
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        cardExtension
+        calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByDfName(CalypsoConstants.AID));
@@ -132,8 +132,8 @@ public class Main_CardAuthentication_Stub {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
-    logger.info(
-        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+    String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
+    logger.info("Calypso Serial Number = {}", csn);
 
     // Create security settings that reference the same SAM profile requested from the card resource
     // service.
@@ -147,7 +147,7 @@ public class Main_CardAuthentication_Stub {
 
     try {
       // Performs file reads using the card transaction manager in secure mode.
-      cardExtension
+      calypsoCardService
           .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
           .prepareReadRecords(
               CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
@@ -167,9 +167,11 @@ public class Main_CardAuthentication_Stub {
 
     logger.info(
         "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
+
+    String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(
         "File {}h, rec 1: FILE_CONTENT = {}",
-        String.format("%02X", CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER),
+        sfiEnvHolder,
         calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
 
     logger.info("= #### End of the Calypso card processing.");

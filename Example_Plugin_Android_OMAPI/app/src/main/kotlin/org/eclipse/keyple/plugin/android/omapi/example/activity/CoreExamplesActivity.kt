@@ -19,10 +19,10 @@ import kotlinx.android.synthetic.main.activity_core_examples.drawerLayout
 import kotlinx.android.synthetic.main.activity_core_examples.eventRecyclerView
 import kotlinx.android.synthetic.main.activity_core_examples.toolbar
 import org.calypsonet.terminal.reader.CardCommunicationException
+import org.calypsonet.terminal.reader.CardReader
 import org.calypsonet.terminal.reader.ReaderCommunicationException
 import org.calypsonet.terminal.reader.selection.CardSelectionManager
 import org.eclipse.keyple.card.generic.GenericExtensionService
-import org.eclipse.keyple.core.service.Reader
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
 import org.eclipse.keyple.core.util.HexUtil
 import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiPlugin
@@ -33,7 +33,7 @@ import org.eclipse.keyple.plugin.android.omapi.example.util.CalypsoClassicInfo
 
 class CoreExamplesActivity : AbstractExampleActivity() {
 
-    private lateinit var reader: Reader
+    private lateinit var reader: CardReader
     private lateinit var cardSelectionManager: CardSelectionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +75,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
     private fun configureUseCase1ExplicitSelectionAid() {
         addHeaderEvent("UseCase Generic #1: Explicit AID selection")
 
-        with(reader as Reader) {
+        with(reader) {
             addHeaderEvent("Reader  NAME = $name")
 
             if (isCardPresent) {

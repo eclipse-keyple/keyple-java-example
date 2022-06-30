@@ -11,6 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.pcsc.example.UseCase3_ChangeProtocolRules;
 
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.calypsonet.terminal.reader.selection.spi.CardSelection;
@@ -71,14 +73,14 @@ public class Main_ChangeProtocolRules_Pcsc {
                 .build());
 
     // Get the first available reader (we assume that a single contactless reader is connected)
-    Reader reader = plugin.getReaders().iterator().next();
+    CardReader reader = plugin.getReaders().iterator().next();
 
-    ((ConfigurableReader) reader)
+    ((ConfigurableCardReader) reader)
         .activateProtocol(READER_PROTOCOL_MIFARE_CLASSIC_4_K, CARD_PROTOCOL_MIFARE_CLASSIC_4_K);
 
     // Configure the reader for contactless operations
-    reader
-        .getExtension(PcscReader.class)
+    plugin
+        .getReaderExtension(PcscReader.class, reader.getName())
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);

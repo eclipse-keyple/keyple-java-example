@@ -13,10 +13,10 @@ package org.eclipse.keyple.distributed.example.readerclientside.websocket.server
 
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.card.ElementaryFile;
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.spi.CardSelection;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class CalypsoTicketingServiceUtil {
    * @param reader local reader where the smartcard is inserted
    * @return content of the event log file in Hexadecimal
    */
-  public static String readEventLog(CalypsoCard calypsoCard, Reader reader) {
+  public static String readEventLog(CalypsoCard calypsoCard, CardReader reader) {
 
     // Execute calypso session from a card selection
     logger.info(

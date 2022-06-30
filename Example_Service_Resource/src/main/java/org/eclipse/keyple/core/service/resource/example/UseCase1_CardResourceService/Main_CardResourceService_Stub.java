@@ -11,6 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.resource.example.UseCase1_CardResourceService;
 
+import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.eclipse.keyple.card.generic.GenericCardSelection;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
@@ -144,9 +146,6 @@ public class Main_CardResourceService_Stub {
     // sleep for a moment to let the readers being detected
     Thread.sleep(2000);
 
-    Reader readerA = plugin.getReader(READER_A);
-    Reader readerB = plugin.getReader(READER_B);
-
     logger.info("= #### Connect/disconnect readers, insert/remove cards, watch the log.");
 
     boolean loop = true;
@@ -156,8 +155,8 @@ public class Main_CardResourceService_Stub {
       char c = getInput();
       switch (c) {
         case '1':
-          readerA
-              .getExtension(StubReader.class)
+          plugin
+              .getReaderExtension(StubReader.class, READER_A)
               .insertCard(
                   StubSmartCard.builder()
                       .withPowerOnData(HexUtil.toByteArray(ATR_CARD_A))
@@ -165,11 +164,11 @@ public class Main_CardResourceService_Stub {
                       .build());
           break;
         case '2':
-          readerA.getExtension(StubReader.class).removeCard();
+          plugin.getReaderExtension(StubReader.class, READER_A).removeCard();
           break;
         case '3':
-          readerB
-              .getExtension(StubReader.class)
+          plugin
+              .getReaderExtension(StubReader.class, READER_B)
               .insertCard(
                   StubSmartCard.builder()
                       .withPowerOnData(HexUtil.toByteArray(ATR_CARD_B))
@@ -177,7 +176,7 @@ public class Main_CardResourceService_Stub {
                       .build());
           break;
         case '4':
-          readerB.getExtension(StubReader.class).removeCard();
+          plugin.getReaderExtension(StubReader.class, READER_B).removeCard();
           break;
         case '5':
           cardResourceA = cardResourceService.getCardResource(RESOURCE_A);
@@ -232,8 +231,8 @@ public class Main_CardResourceService_Stub {
   }
 
   /**
-   * Reader configurator used by the card resource service to setup the SAM reader with the required
-   * settings.
+   * Reader configurator used by the card resource service to set up the SAM reader with the
+   * required settings.
    */
   private static class ReaderConfigurator implements ReaderConfiguratorSpi {
     private static final Logger logger = LoggerFactory.getLogger(ReaderConfigurator.class);
@@ -246,10 +245,10 @@ public class Main_CardResourceService_Stub {
 
     /** {@inheritDoc} */
     @Override
-    public void setupReader(Reader reader) {
+    public void setupReader(CardReader reader) {
       // Configure the reader with parameters suitable for contactless operations.
       try {
-        ((ConfigurableReader) reader).activateProtocol(SAM_PROTOCOL, SAM_PROTOCOL);
+        ((ConfigurableCardReader) reader).activateProtocol(SAM_PROTOCOL, SAM_PROTOCOL);
       } catch (Exception e) {
         logger.error("Exception raised while setting up the reader {}", reader.getName(), e);
       }

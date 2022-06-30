@@ -39,7 +39,7 @@ public class Main {
     @Inject private AppClient appClient;
 
     @Override
-    public int run(String... args) throws Exception {
+    public int run(String... args) {
 
       LOGGER.info("Server app init...");
       appServer.init();

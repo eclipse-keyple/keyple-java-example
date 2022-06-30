@@ -52,7 +52,7 @@ public class EndpointClient implements AsyncEndpointClientSpi {
   @Override
   public void openSession(String sessionId) {
     try {
-      // Try to open a new session with the server and transmits the provided session id as an URI
+      // Try to open a new session with the server and transmits the provided session id as a URI
       // parameter in order to access it asynchronously on the "onOpen" method.
       WebSocketContainer container = ContainerProvider.getWebSocketContainer();
       container.connectToServer(this, new URI(URI + "?" + sessionId));
