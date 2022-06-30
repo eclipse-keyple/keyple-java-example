@@ -168,8 +168,8 @@ public class Main_CardAuthentication_Pcsc {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
-    logger.info(
-        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+    String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
+    logger.info("Calypso Serial Number = {}", csn);
 
     // Create security settings that reference the SAM
     CardSecuritySetting cardSecuritySetting =
@@ -203,9 +203,11 @@ public class Main_CardAuthentication_Pcsc {
 
     logger.info(
         "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
+
+    String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(
         "File {}h, rec 1: FILE_CONTENT = {}",
-        String.format("%02X", CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER),
+        sfiEnvHolder,
         calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
 
     logger.info("= #### End of the Calypso card processing.");

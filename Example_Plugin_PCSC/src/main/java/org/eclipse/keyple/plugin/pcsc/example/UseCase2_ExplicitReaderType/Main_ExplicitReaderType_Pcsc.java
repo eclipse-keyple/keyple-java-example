@@ -11,10 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.pcsc.example.UseCase2_ExplicitReaderType;
 
-import java.util.Set;
 import org.calypsonet.terminal.reader.CardReader;
 import org.eclipse.keyple.core.service.Plugin;
-import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
@@ -65,17 +63,14 @@ public class Main_ExplicitReaderType_Pcsc {
     // identification (see use case 1), get the corresponding generic plugin in return.
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
-    // Get all connected readers
-    Set<Reader> readers = plugin.getReaders();
-
-    // Set the contactless type to all readers through the specific method provided by PC/SC
-    // reader's extension.
-    for (CardReader reader : readers) {
+    // Set the contactless type to all connected readers through the specific method provided by
+    // PC/SC reader's extension.
+    for (CardReader reader : plugin.getReaders()) {
       plugin.getReaderExtension(PcscReader.class, reader.getName()).setContactless(true);
     }
 
-    // Log the type of each reader
-    for (CardReader reader : readers) {
+    // Log the type of each connected reader
+    for (CardReader reader : plugin.getReaders()) {
       logger.info(
           "The reader '{}' is a '{}' type",
           reader.getName(),

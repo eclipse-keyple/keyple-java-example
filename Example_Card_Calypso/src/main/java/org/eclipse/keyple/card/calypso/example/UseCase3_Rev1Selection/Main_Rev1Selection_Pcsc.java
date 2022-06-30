@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
  * <p>No AID is used here, the reading of the card data is done without any prior card selection
  * command as defined in the ISO standard.
  *
- * <p>The card selection (in the Keyple sensein the Keyple sense, i.e. retained to continue
- * processing) is based on the protocol.
+ * <p>The card selection (in the Keyple sense, i.e. retained to continue processing) is based on the
+ * protocol.
  *
  * <h2>Scenario:</h2>
  *
@@ -129,8 +129,8 @@ public class Main_Rev1Selection_Pcsc {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
-    logger.info(
-        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+    String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
+    logger.info("Calypso Serial Number = {}", csn);
 
     // Performs file reads using the card transaction manager in non-secure mode.
 
@@ -140,13 +140,16 @@ public class Main_Rev1Selection_Pcsc {
         .prepareReleaseCardChannel()
         .processCommands();
 
+    String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(
         "File {}h, rec 1: FILE_CONTENT = {}",
-        String.format("%02X", CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER),
+        sfiEnvHolder,
         calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
+
+    String sfiEventLog = HexUtil.toHex(CalypsoConstants.SFI_EVENT_LOG);
     logger.info(
         "File {}h, rec 1: FILE_CONTENT = {}",
-        String.format("%02X", CalypsoConstants.SFI_EVENT_LOG),
+        sfiEventLog,
         calypsoCard.getFileBySfi(CalypsoConstants.SFI_EVENT_LOG));
 
     logger.info("= #### End of the Calypso card processing.");

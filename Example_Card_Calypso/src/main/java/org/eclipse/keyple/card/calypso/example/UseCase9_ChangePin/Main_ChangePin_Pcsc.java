@@ -101,7 +101,7 @@ public class Main_ChangePin_Pcsc {
             ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Configure the card resource service to provide an adequate SAM for future secure operations.
-    // We suppose here, we use a Identive contact PC/SC reader as card reader.
+    // We suppose here, we use an Identive contact PC/SC reader as card reader.
     setupCardResourceService(
         plugin, ConfigurationUtil.SAM_READER_NAME_REGEX, CalypsoConstants.SAM_PROFILE_NAME);
 
@@ -141,8 +141,8 @@ public class Main_ChangePin_Pcsc {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
-    logger.info(
-        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+    String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
+    logger.info("Calypso Serial Number = {}", csn);
 
     // Create the card transaction manager
     CardTransactionManager cardTransaction;

@@ -89,7 +89,7 @@ public class EndpointServer implements AsyncEndpointServerSpi {
 
     logger.trace("Server - Received message {} : ", data);
 
-    // Deserialise the incoming message.
+    // Deserialize the incoming message.
     MessageDto message = JsonUtil.getParser().fromJson(data, MessageDto.class);
 
     // Retrieves the async node associated to the local service.

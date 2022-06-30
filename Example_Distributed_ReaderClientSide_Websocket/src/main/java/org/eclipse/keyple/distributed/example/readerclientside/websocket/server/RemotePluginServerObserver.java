@@ -12,11 +12,11 @@
 package org.eclipse.keyple.distributed.example.readerclientside.websocket.server;
 
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.core.service.ObservablePlugin;
 import org.eclipse.keyple.core.service.PluginEvent;
-import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.service.spi.PluginObserverSpi;
 import org.eclipse.keyple.distributed.RemotePluginServer;
@@ -57,8 +57,8 @@ public class RemotePluginServerObserver implements PluginObserverSpi {
     String readerName = event.getReaderNames().first();
 
     // Retrieves the remote reader from the plugin using the reader name.
-    Reader reader = plugin.getReader(readerName);
-    RemoteReaderServer readerExtension = reader.getExtension(RemoteReaderServer.class);
+    RemoteReaderServer readerExtension =
+        plugin.getReaderExtension(RemoteReaderServer.class, readerName);
 
     // Analyses the Service ID contains in the reader to find which business service to execute.
     // The Service ID was specified by the client when executing the remote service.
@@ -66,6 +66,7 @@ public class RemotePluginServerObserver implements PluginObserverSpi {
     if ("EXECUTE_CALYPSO_SESSION_FROM_REMOTE_SELECTION".equals(readerExtension.getServiceId())) {
 
       // Executes the business service using the remote reader.
+      CardReader reader = plugin.getReader(readerName);
       userOutputData = executeCalypsoSessionFromRemoteSelection(reader, readerExtension);
 
     } else {
@@ -92,7 +93,7 @@ public class RemotePluginServerObserver implements PluginObserverSpi {
    * @return a nullable reference to the user output data to transmit to the client.
    */
   private Object executeCalypsoSessionFromRemoteSelection(
-      Reader reader, RemoteReaderServer readerExtension) {
+      CardReader reader, RemoteReaderServer readerExtension) {
 
     // Retrieves the optional userInputData specified by the client when executing the remote
     // service.

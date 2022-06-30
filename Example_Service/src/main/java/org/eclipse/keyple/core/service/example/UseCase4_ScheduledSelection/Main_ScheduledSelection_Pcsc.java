@@ -135,7 +135,7 @@ public class Main_ScheduledSelection_Pcsc {
 
   /**
    * This object is used to freeze the main thread while card operations are handle through the
-   * observers callbacks. A call to the notify() method would end the program (not demonstrated
+   * observers callbacks. A call to the "notify()" method would end the program (not demonstrated
    * here).
    */
   private static final Object waitForEnd = new Object();

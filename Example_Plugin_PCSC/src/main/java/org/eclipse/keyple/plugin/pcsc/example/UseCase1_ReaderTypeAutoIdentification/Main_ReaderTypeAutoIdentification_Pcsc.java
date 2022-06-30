@@ -11,10 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.pcsc.example.UseCase1_ReaderTypeAutoIdentification;
 
-import java.util.Set;
 import org.calypsonet.terminal.reader.CardReader;
 import org.eclipse.keyple.core.service.Plugin;
-import org.eclipse.keyple.core.service.Reader;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
@@ -35,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *   <li>Configure the plugin (via its factory builder) to specify two regular expressions to apply
  *       to the reader names.
  *   <li>The first regular expression defines the names of readers that are of the contactless type.
- *   <li>The second regular expression defines the names of readers that are of the contactl type.
+ *   <li>The second regular expression defines the names of readers that are of the contact type.
  *   <li>Display the types of all connected readers.
  * </ul>
  *
@@ -74,11 +72,8 @@ public class Main_ReaderTypeAutoIdentification_Pcsc {
                     ".*Identive.*|.*HID Global OMNIKEY 3x21.*|(?=contact)(?!contactless)")
                 .build());
 
-    // Get all connected readers
-    Set<Reader> readers = plugin.getReaders();
-
-    // Log the type of each reader
-    for (CardReader reader : readers) {
+    // Log the type of each connected reader
+    for (CardReader reader : plugin.getReaders()) {
       logger.info(
           "The reader '{}' is a '{}' type",
           reader.getName(),

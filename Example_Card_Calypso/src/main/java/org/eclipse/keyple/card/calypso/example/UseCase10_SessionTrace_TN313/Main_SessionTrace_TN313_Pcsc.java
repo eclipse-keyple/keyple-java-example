@@ -212,12 +212,11 @@ public class Main_SessionTrace_TN313_Pcsc {
   /** Displays the expected options */
   private static void displayUsageAndExit() {
     System.out.println("Available options:");
-    System.out.println(
-        String.format(
-            " -d, --default                  use default values (is equivalent to -a=\"%s\" -c=\"%s\" -s=\"%s\")",
-            CalypsoConstants.AID,
-            ConfigurationUtil.CARD_READER_NAME_REGEX,
-            ConfigurationUtil.SAM_READER_NAME_REGEX));
+    System.out.printf(
+        " -d, --default                  use default values (is equivalent to -a=\"%s\" -c=\"%s\" -s=\"%s\")%n",
+        CalypsoConstants.AID,
+        ConfigurationUtil.CARD_READER_NAME_REGEX,
+        ConfigurationUtil.SAM_READER_NAME_REGEX);
     System.out.println(
         " -a, --aid=\"APPLICATION_AID\"    between 5 and 16 hex bytes (e.g. \"315449432E49434131\")");
     System.out.println(

@@ -77,7 +77,6 @@ class CardReaderObserver
       case CARD_MATCHED:
         // read the current time used later to compute the transaction time
         long timeStamp = System.currentTimeMillis();
-        CardTransactionManager cardTransactionManager = null;
         try {
           // the selection matched, get the resulting CalypsoCard
           CalypsoCard calypsoCard =
@@ -89,7 +88,7 @@ class CardReaderObserver
 
           // create a transaction manager, open a Secure Session, read Environment, Event Log and
           // Contract List.
-          cardTransactionManager =
+          CardTransactionManager cardTransactionManager =
               CalypsoExtensionService.getInstance()
                   .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
                   .prepareReadRecord(

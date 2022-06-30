@@ -69,7 +69,7 @@ public class ConfigurationUtil {
   }
 
   /**
-   * Setup the {@link CardResourceService} to provide a Calypso SAM C1 resource when requested.
+   * Set up the {@link CardResourceService} to provide a Calypso SAM C1 resource when requested.
    *
    * @param plugin The plugin to which the SAM reader belongs.
    * @param readerNameRegex A regular expression matching the expected SAM reader name.
@@ -117,8 +117,8 @@ public class ConfigurationUtil {
   }
 
   /**
-   * Reader configurator used by the card resource service to setup the SAM reader with the required
-   * settings.
+   * Reader configurator used by the card resource service to set up the SAM reader with the
+   * required settings.
    */
   private static class ReaderConfigurator implements ReaderConfiguratorSpi {
     private static final Logger logger = LoggerFactory.getLogger(ReaderConfigurator.class);

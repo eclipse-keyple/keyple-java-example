@@ -11,6 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.UseCase7_PluginAndReaderObservation;
 
+import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
@@ -22,8 +23,8 @@ import org.slf4j.LoggerFactory;
  * <h1>Use Case Generic 7 – plugin and reader observation (PC/SC)</h1>
  *
  * <p>We demonstrate here the monitoring of an {@link ObservablePlugin} to be notified of reader
- * connection/disconnection, and also the monitoring of an {@link ObservableReader} to be notified
- * of card insertion/removal.
+ * connection/disconnection, and also the monitoring of an {@link ObservableCardReader} to be
+ * notified of card insertion/removal.
  *
  * <h2>Scenario:</h2>
  *
@@ -79,7 +80,7 @@ public class Main_PluginAndReaderObservation_Pcsc {
 
   /**
    * This object is used to freeze the main thread while card operations are handle through the
-   * observers callbacks. A call to the notify() method would end the program (not demonstrated
+   * observers callbacks. A call to the "notify()" method would end the program (not demonstrated
    * here).
    */
   private static final Object waitForEnd = new Object();

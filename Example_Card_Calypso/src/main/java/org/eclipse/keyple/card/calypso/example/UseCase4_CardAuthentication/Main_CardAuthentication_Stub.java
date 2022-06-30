@@ -89,7 +89,7 @@ public class Main_CardAuthentication_Stub {
     // Verify that the extension's API level is consistent with the current service.
     smartCardService.checkCardExtension(calypsoCardService);
 
-    // Get and setup the card reader
+    // Get and set up the card reader
     CardReader cardReader = plugin.getReader(CARD_READER_NAME);
 
     // Configure the card resource service to provide an adequate SAM for future secure operations.
@@ -132,8 +132,8 @@ public class Main_CardAuthentication_Stub {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
-    logger.info(
-        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
+    String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
+    logger.info("Calypso Serial Number = {}", csn);
 
     // Create security settings that reference the same SAM profile requested from the card resource
     // service.
@@ -167,9 +167,11 @@ public class Main_CardAuthentication_Stub {
 
     logger.info(
         "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
+
+    String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(
         "File {}h, rec 1: FILE_CONTENT = {}",
-        String.format("%02X", CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER),
+        sfiEnvHolder,
         calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
 
     logger.info("= #### End of the Calypso card processing.");

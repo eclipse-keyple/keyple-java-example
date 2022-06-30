@@ -46,7 +46,7 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
    * @param initialReaders The readers connected before the plugin is observed.
    * @since 2.0.0
    */
-  PluginObserver(Set<CardReader> initialReaders) {
+  PluginObserver(Set<? extends CardReader> initialReaders) {
     readerObserver = new ReaderObserver();
     for (CardReader reader : initialReaders) {
       if (reader instanceof ObservableCardReader) {
