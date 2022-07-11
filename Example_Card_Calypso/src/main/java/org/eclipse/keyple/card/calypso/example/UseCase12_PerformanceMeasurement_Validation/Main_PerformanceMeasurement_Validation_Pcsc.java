@@ -178,27 +178,27 @@ public class Main_PerformanceMeasurement_Validation_Pcsc {
         continue;
       }
 
-      logger.info("Starting validation transaction...");
-
-      logger.info("Select application with AID = '{}'", cardAid);
-
-      // Prepare the selection by adding the created Calypso selection to the card selection
-      // scenario.
-      cardSelectionManager.prepareSelection(cardSelection);
-
-      CardSelectionResult cardSelectionResult =
-          cardSelectionManager.processCardSelectionScenario(cardReader);
-
-      CalypsoCard calypsoCard = (CalypsoCard) cardSelectionResult.getActiveSmartCard();
-
-      if (calypsoCard == null) {
-        logger.info("Card selection failed!");
-        continue;
-      }
-
-      // read the current time used later to compute the transaction time
-      long timeStamp = System.currentTimeMillis();
       try {
+        logger.info("Starting validation transaction...");
+
+        logger.info("Select application with AID = '{}'", cardAid);
+
+        // Prepare the selection by adding the created Calypso selection to the card selection
+        // scenario.
+        cardSelectionManager.prepareSelection(cardSelection);
+
+        CardSelectionResult cardSelectionResult =
+            cardSelectionManager.processCardSelectionScenario(cardReader);
+
+        CalypsoCard calypsoCard = (CalypsoCard) cardSelectionResult.getActiveSmartCard();
+
+        if (calypsoCard == null) {
+          logger.info("Card selection failed!");
+          continue;
+        }
+
+        // read the current time used later to compute the transaction time
+        long timeStamp = System.currentTimeMillis();
         // create a transaction manager, open a Secure Session, read Environment and Event Log.
         CardTransactionManager cardTransactionManager =
             CalypsoExtensionService.getInstance()
