@@ -122,17 +122,15 @@ public class Main_CardAuthentication_Pcsc {
       throw new IllegalStateException("No card is present in the reader.");
     }
 
-    logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
-
-    // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    // Create a SAM selection manager.
+    CardSelectionManager samSelectionManager = smartCardService.createCardSelectionManager();
 
     // Create a SAM selection using the Calypso card extension.
-    cardSelectionManager.prepareSelection(calypsoCardService.createSamSelection());
+    samSelectionManager.prepareSelection(calypsoCardService.createSamSelection());
 
     // SAM communication: run the selection scenario.
     CardSelectionResult samSelectionResult =
-        cardSelectionManager.processCardSelectionScenario(calypsoSamReader);
+        samSelectionManager.processCardSelectionScenario(calypsoSamReader);
 
     // Check the selection result.
     if (samSelectionResult.getActiveSmartCard() == null) {
@@ -143,6 +141,11 @@ public class Main_CardAuthentication_Pcsc {
     CalypsoSam calypsoSam = (CalypsoSam) samSelectionResult.getActiveSmartCard();
 
     logger.info("= SmartCard = {}", calypsoSam);
+
+    logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
+
+    // Create a card selection manager.
+    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
