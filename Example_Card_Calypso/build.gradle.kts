@@ -74,4 +74,17 @@ tasks {
         sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
         from(sourcesMain.output)
     }
+    register("fatJarPerfValidation", Jar::class.java) {
+        archiveClassifier.set("PerformanceValidation-fat")
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        manifest {
+            attributes("Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_Validation.Main_PerformanceMeasurement_Validation_Pcsc")
+        }
+        from(configurations.runtimeClasspath.get()
+            .onEach { println("add from dependencies: ${it.name}") }
+            .map { if (it.isDirectory) it else zipTree(it) })
+        val sourcesMain = sourceSets.main.get()
+        sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
+        from(sourcesMain.output)
+    }
 }
