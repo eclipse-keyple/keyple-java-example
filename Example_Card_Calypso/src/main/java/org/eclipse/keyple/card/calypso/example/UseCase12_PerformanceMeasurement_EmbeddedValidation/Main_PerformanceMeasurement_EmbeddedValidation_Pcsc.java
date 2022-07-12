@@ -15,7 +15,6 @@ import java.io.*;
 import java.util.Properties;
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
@@ -123,28 +122,26 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
         samSelectionManager.processCardSelectionScenario(samReader);
     CalypsoSam calypsoSam = (CalypsoSam) samSelectionResult.getActiveSmartCard();
 
+    logger.info("Calypso SAM = {}", calypsoSam);
+
     // Check the selection result.
     if (calypsoSam == null) {
       throw new IllegalStateException("The selection of the SAM failed.");
     }
-
-    logger.info("Calypso SAM = {}", calypsoSam);
 
     // Create a card selection manager.
     CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
 
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
-    CalypsoCardSelection cardSelection =
+    // Prepare the selection by adding the selection to the card selection
+    // scenario.
+    cardSelectionManager.prepareSelection(
         calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
-            .filterByDfName(cardAid);
-
-    // Prepare the selection by adding the created Calypso selection to the card selection
-    // scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+            .filterByDfName(cardAid));
 
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
