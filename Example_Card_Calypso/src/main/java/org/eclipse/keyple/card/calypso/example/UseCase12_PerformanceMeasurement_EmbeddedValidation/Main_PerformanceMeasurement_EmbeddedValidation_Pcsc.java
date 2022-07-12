@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ************************************************************************************** */
-package org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_Validation;
+package org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_EmbeddedValidation;
 
 import java.io.*;
 import java.util.Properties;
@@ -39,16 +39,16 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
 
 /**
- * Use Case Calypso 12 – Performance measurement: validation (PC/SC)
+ * Use Case Calypso 12 – Performance measurement: embedded validation (PC/SC)
  *
- * <p>This code is dedicated to performance measurement for a validation type transaction.
+ * <p>This code is dedicated to performance measurement for an embedded validation type transaction.
  *
  * <p>It implements the scenario described <a
  * href="https://terminal-api.calypsonet.org/apis/calypsonet-terminal-calypso-api/#simple-secure-session-for-fast-embedded-performance">here</a>:
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
-public class Main_PerformanceMeasurement_Validation_Pcsc {
+public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
   // operating parameters
   private static String cardReaderRegex;
   private static String samReaderRegex;
@@ -69,7 +69,8 @@ public class Main_PerformanceMeasurement_Validation_Pcsc {
 
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel);
 
-    Logger logger = LoggerFactory.getLogger(Main_PerformanceMeasurement_Validation_Pcsc.class);
+    Logger logger =
+        LoggerFactory.getLogger(Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.class);
 
     logger.info(
         "=============== Performance measurement: validation transaction ==================");
@@ -187,6 +188,9 @@ public class Main_PerformanceMeasurement_Validation_Pcsc {
         // scenario.
         cardSelectionManager.prepareSelection(cardSelection);
 
+        // read the current time used later to compute the transaction time
+        long timeStamp = System.currentTimeMillis();
+
         CardSelectionResult cardSelectionResult =
             cardSelectionManager.processCardSelectionScenario(cardReader);
 
@@ -196,9 +200,6 @@ public class Main_PerformanceMeasurement_Validation_Pcsc {
           logger.info("Card selection failed!");
           continue;
         }
-
-        // read the current time used later to compute the transaction time
-        long timeStamp = System.currentTimeMillis();
         // create a transaction manager, open a Secure Session, read Environment and Event Log.
         CardTransactionManager cardTransactionManager =
             CalypsoExtensionService.getInstance()
@@ -211,6 +212,17 @@ public class Main_PerformanceMeasurement_Validation_Pcsc {
         /*
         Place for the analysis of the context and the last event log
         */
+        byte[] environmentAndHolderData =
+            calypsoCard
+                .getFileByLid(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
+                .getData()
+                .getContent(CalypsoConstants.RECORD_NUMBER_1);
+
+        byte[] eventLogData =
+            calypsoCard
+                .getFileByLid(CalypsoConstants.SFI_EVENT_LOG)
+                .getData()
+                .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
         // read the contract list
         cardTransactionManager
@@ -219,6 +231,11 @@ public class Main_PerformanceMeasurement_Validation_Pcsc {
         /*
         Place for the analysis of the contract list
         */
+        byte[] contractListData =
+            calypsoCard
+                .getFileByLid(CalypsoConstants.SFI_CONTRACT_LIST)
+                .getData()
+                .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
         // read the elected contract
         cardTransactionManager
@@ -228,6 +245,11 @@ public class Main_PerformanceMeasurement_Validation_Pcsc {
         /*
         Place for the analysis of the contract
         */
+        byte[] contractData =
+            calypsoCard
+                .getFileByLid(CalypsoConstants.SFI_CONTRACTS)
+                .getData()
+                .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
         // read the contract counter
         cardTransactionManager
@@ -237,6 +259,11 @@ public class Main_PerformanceMeasurement_Validation_Pcsc {
         /*
         Place for the preparation of the card's content update
         */
+        int counterValue =
+            calypsoCard
+                .getFileByLid(CalypsoConstants.SFI_CONTRACT_LIST)
+                .getData()
+                .getContentAsCounterValue(1);
 
         // add an event record and close the Secure Session
         cardTransactionManager
