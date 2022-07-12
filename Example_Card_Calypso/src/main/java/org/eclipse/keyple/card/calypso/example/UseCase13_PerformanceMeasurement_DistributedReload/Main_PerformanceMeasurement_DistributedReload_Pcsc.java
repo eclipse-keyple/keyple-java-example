@@ -60,14 +60,13 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
   private static String logLevel;
   private static byte[] newContractListRecord;
   private static byte[] newContractRecord;
+  // user interface management
+  private static final String ANSI_RESET = "\u001B[0m";
+  private static final String ANSI_RED = "\u001B[31m";
+  private static final String ANSI_GREEN = "\u001B[32m";
+  private static final String ANSI_YELLOW = "\u001B[33m";
 
   public static void main(String[] args) throws IOException {
-    // user interface management
-    final String ANSI_RESET = "\u001B[0m";
-    final String ANSI_RED = "\u001B[31m";
-    final String ANSI_GREEN = "\u001B[32m";
-    final String ANSI_YELLOW = "\u001B[33m";
-    final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 
     // load operating parameters
     readConfigurationFile();
@@ -87,11 +86,10 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
     logger.info("  log level={}", logLevel);
 
     // Get the instance of the SmartCardService (singleton pattern)
-    final SmartCardService smartCardService = SmartCardServiceProvider.getService();
+    SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
     // Register the PcscPlugin
-    final Plugin plugin =
-        smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
+    Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
     CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
@@ -101,14 +99,12 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
 
     // Get the contactless reader whose name matches the provided regex
     String pcscContactlessReaderName = ConfigurationUtil.getCardReaderName(plugin, cardReaderRegex);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
-
-    // Configure the reader with parameters suitable for contactless operations.
     plugin
         .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
+    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
     ((ConfigurableCardReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
@@ -149,6 +145,8 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
                 samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     boolean loop = true;
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+
     while (loop) {
       logger.info(
           "{}########################################################{}", ANSI_YELLOW, ANSI_RESET);
