@@ -165,7 +165,6 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
 
       try {
         logger.info("Starting reloading transaction...");
-
         logger.info("Select application with AID = '{}'", cardAid);
 
         // read the current time used later to compute the transaction time

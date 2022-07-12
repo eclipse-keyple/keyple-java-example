@@ -168,7 +168,6 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
 
       try {
         logger.info("Starting validation transaction...");
-
         logger.info("Select application with AID = '{}'", cardAid);
 
         // read the current time used later to compute the transaction time
