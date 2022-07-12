@@ -149,8 +149,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             .setControlSamResource(samReader, calypsoSam);
 
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-    boolean loop = true;
-    while (loop) {
+    while (true) {
       logger.info(
           "{}########################################################{}", ANSI_YELLOW, ANSI_RESET);
       logger.info(
@@ -164,8 +163,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
 
       if (input.toLowerCase().contains("q")) {
         bufferedReader.close();
-        loop = false;
-        continue;
+        break;
       }
 
       try {

@@ -146,8 +146,7 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
                 samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-    boolean loop = true;
-    while (loop) {
+    while (true) {
       logger.info(
           "{}########################################################{}", ANSI_YELLOW, ANSI_RESET);
       logger.info(
@@ -161,8 +160,7 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
 
       if (input.toLowerCase().contains("q")) {
         bufferedReader.close();
-        loop = false;
-        continue;
+        break;
       }
 
       try {
