@@ -163,114 +163,116 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
         break;
       }
 
-      try {
-        logger.info("Starting reloading transaction...");
-        logger.info("Select application with AID = '{}'", cardAid);
+      if (cardReader.isCardPresent()) {
+        try {
+          logger.info("Starting reloading transaction...");
+          logger.info("Select application with AID = '{}'", cardAid);
 
-        // read the current time used later to compute the transaction time
-        long timeStamp = System.currentTimeMillis();
+          // read the current time used later to compute the transaction time
+          long timeStamp = System.currentTimeMillis();
 
-        CardSelectionResult cardSelectionResult =
-            cardSelectionManager.processCardSelectionScenario(cardReader);
+          // Process the card selection scenario
+          CardSelectionResult cardSelectionResult =
+              cardSelectionManager.processCardSelectionScenario(cardReader);
+          CalypsoCard calypsoCard = (CalypsoCard) cardSelectionResult.getActiveSmartCard();
+          if (calypsoCard == null) {
+            throw new IllegalStateException("Card selection failed!");
+          }
 
-        CalypsoCard calypsoCard = (CalypsoCard) cardSelectionResult.getActiveSmartCard();
+          /*
+          Place for the pre-analysis of the context and the contract list
+          */
+          byte[] environmentAndHolderData =
+              calypsoCard
+                  .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
+                  .getData()
+                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
-        if (calypsoCard == null) {
-          logger.info("Card selection failed!");
-          continue;
+          byte[] contractListData =
+              calypsoCard
+                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
+                  .getData()
+                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+
+          // create a transaction manager, open a Secure Session, read Environment and Event Log.
+          CardTransactionManager cardTransactionManager =
+              CalypsoExtensionService.getInstance()
+                  .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+                  .prepareReadRecord(
+                      CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
+                  .prepareReadRecord(
+                      CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
+                  .prepareReadRecords(
+                      CalypsoConstants.SFI_CONTRACTS,
+                      CalypsoConstants.RECORD_NUMBER_1,
+                      CalypsoConstants.RECORD_NUMBER_2,
+                      CalypsoConstants.RECORD_SIZE)
+                  .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 2)
+                  .processOpening(WriteAccessLevel.LOAD);
+
+          /*
+          Place for the analysis of the context, the contract list, the contracts and counters
+          */
+          environmentAndHolderData =
+              calypsoCard
+                  .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
+                  .getData()
+                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+
+          contractListData =
+              calypsoCard
+                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
+                  .getData()
+                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+
+          byte[] contract1Data =
+              calypsoCard
+                  .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
+                  .getData()
+                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+
+          byte[] contract2Data =
+              calypsoCard
+                  .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
+                  .getData()
+                  .getContent(CalypsoConstants.RECORD_NUMBER_2);
+
+          int counter1Value =
+              calypsoCard
+                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
+                  .getData()
+                  .getContentAsCounterValue(1);
+
+          int counter2Value =
+              calypsoCard
+                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
+                  .getData()
+                  .getContentAsCounterValue(2);
+
+          // add an event record and close the Secure Session
+          cardTransactionManager
+              .prepareUpdateRecord(
+                  CalypsoConstants.SFI_CONTRACT_LIST,
+                  CalypsoConstants.RECORD_NUMBER_1,
+                  newContractListRecord)
+              .prepareUpdateRecord(
+                  CalypsoConstants.SFI_CONTRACTS,
+                  CalypsoConstants.RECORD_NUMBER_1,
+                  newContractRecord)
+              .prepareIncreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterIncrement)
+              .prepareReleaseCardChannel()
+              .processClosing();
+
+          // display transaction time
+          logger.info(
+              "{}Transaction succeeded. Execution time: {} ms{}",
+              ANSI_GREEN,
+              System.currentTimeMillis() - timeStamp,
+              ANSI_RESET);
+        } catch (Exception e) {
+          logger.error(
+              "{}Transaction failed with exception: {}{}", ANSI_RED, e.getMessage(), ANSI_RESET);
         }
-
-        /*
-        Place for the pre-analysis of the context and the contract list
-        */
-        byte[] environmentAndHolderData =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
-                .getData()
-                .getContent(CalypsoConstants.RECORD_NUMBER_1);
-
-        byte[] contractListData =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                .getData()
-                .getContent(CalypsoConstants.RECORD_NUMBER_1);
-
-        // create a transaction manager, open a Secure Session, read Environment and Event Log.
-        CardTransactionManager cardTransactionManager =
-            CalypsoExtensionService.getInstance()
-                .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-                .prepareReadRecord(
-                    CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
-                .prepareReadRecord(
-                    CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
-                .prepareReadRecords(
-                    CalypsoConstants.SFI_CONTRACTS,
-                    CalypsoConstants.RECORD_NUMBER_1,
-                    CalypsoConstants.RECORD_NUMBER_2,
-                    CalypsoConstants.RECORD_SIZE)
-                .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 2)
-                .processOpening(WriteAccessLevel.LOAD);
-
-        /*
-        Place for the analysis of the context, the contract list, the contracts and counters
-        */
-        environmentAndHolderData =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
-                .getData()
-                .getContent(CalypsoConstants.RECORD_NUMBER_1);
-
-        contractListData =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                .getData()
-                .getContent(CalypsoConstants.RECORD_NUMBER_1);
-
-        byte[] contract1Data =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
-                .getData()
-                .getContent(CalypsoConstants.RECORD_NUMBER_1);
-
-        byte[] contract2Data =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
-                .getData()
-                .getContent(CalypsoConstants.RECORD_NUMBER_2);
-
-        int counter1Value =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                .getData()
-                .getContentAsCounterValue(1);
-
-        int counter2Value =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                .getData()
-                .getContentAsCounterValue(2);
-
-        // add an event record and close the Secure Session
-        cardTransactionManager
-            .prepareUpdateRecord(
-                CalypsoConstants.SFI_CONTRACT_LIST,
-                CalypsoConstants.RECORD_NUMBER_1,
-                newContractListRecord)
-            .prepareUpdateRecord(
-                CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1, newContractRecord)
-            .prepareIncreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterIncrement)
-            .prepareReleaseCardChannel()
-            .processClosing();
-
-        // display transaction time
-        logger.info(
-            "{}Transaction succeeded. Execution time: {} ms{}",
-            ANSI_GREEN,
-            System.currentTimeMillis() - timeStamp,
-            ANSI_RESET);
-      } catch (Exception e) {
-        logger.error(
-            "{}Transaction failed with exception: {}{}", ANSI_RED, e.getMessage(), ANSI_RESET);
       }
     }
     logger.info("Exiting the program on user's request.");
