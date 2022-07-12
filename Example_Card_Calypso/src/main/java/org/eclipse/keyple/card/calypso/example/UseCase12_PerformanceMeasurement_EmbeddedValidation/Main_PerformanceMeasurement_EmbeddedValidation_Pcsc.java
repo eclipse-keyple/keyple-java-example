@@ -19,7 +19,6 @@ import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
@@ -49,6 +48,13 @@ import org.slf4j.impl.SimpleLogger;
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
 public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
+
+  // user interface management
+  private static final String ANSI_RESET = "\u001B[0m";
+  private static final String ANSI_RED = "\u001B[31m";
+  private static final String ANSI_GREEN = "\u001B[32m";
+  private static final String ANSI_YELLOW = "\u001B[33m";
+
   // operating parameters
   private static String cardReaderRegex;
   private static String samReaderRegex;
@@ -56,40 +62,29 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
   private static int counterDecrement;
   private static String logLevel;
   private static byte[] newEventRecord;
-  // user interface management
-  private static final String ANSI_RESET = "\u001B[0m";
-  private static final String ANSI_RED = "\u001B[31m";
-  private static final String ANSI_GREEN = "\u001B[32m";
-  private static final String ANSI_YELLOW = "\u001B[33m";
 
   public static void main(String[] args) throws IOException {
     // load operating parameters
     readConfigurationFile();
 
+    // init logger
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel);
-
     Logger logger =
         LoggerFactory.getLogger(Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.class);
 
     logger.info("=============== Performance measurement: validation transaction ===============");
-
     logger.info("Using parameters:");
-    logger.info("  AID={}", cardAid);
     logger.info("  CARD_READER_REGEX={}", cardReaderRegex);
     logger.info("  SAM_READER_REGEX={}", samReaderRegex);
+    logger.info("  AID={}", cardAid);
+    logger.info("  Counter decrement={}", counterDecrement);
     logger.info("  log level={}", logLevel);
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the main Keyple service
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
     // Register the PcscPlugin
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
-
-    // Get the Calypso card extension service
-    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
-
-    // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(calypsoCardService);
 
     // Get the contactless reader whose name matches the provided regex and configure it
     String pcscContactlessReaderName = ConfigurationUtil.getCardReaderName(plugin, cardReaderRegex);
@@ -98,11 +93,10 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
-    ((ConfigurableCardReader) cardReader)
-        .activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
+    ConfigurableCardReader cardReader =
+        (ConfigurableCardReader) plugin.getReader(pcscContactlessReaderName);
+    cardReader.activateProtocol(
+        PcscSupportedContactlessProtocol.ISO_14443_4.name(), ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     // Get the contact reader whose name matches the provided regex and configure it
     String pcscContactReaderName = ConfigurationUtil.getCardReaderName(plugin, samReaderRegex);
@@ -111,10 +105,16 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
         .setContactless(false)
         .setIsoProtocol(PcscReader.IsoProtocol.T0)
         .setSharingMode(PcscReader.SharingMode.SHARED);
-    CardReader samReader = plugin.getReader(pcscContactReaderName);
-    ((ConfigurableCardReader) samReader)
-        .activateProtocol(
-            PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
+    ConfigurableCardReader samReader =
+        (ConfigurableCardReader) plugin.getReader(pcscContactReaderName);
+    samReader.activateProtocol(
+        PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
+
+    // Get the Calypso card extension service
+    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
+
+    // Verify that the extension's API level is consistent with the current service.
+    smartCardService.checkCardExtension(calypsoCardService);
 
     // Create a SAM selection manager, use it to select the SAM and retrieve a CalypsoSam.
     CardSelectionManager samSelectionManager = smartCardService.createCardSelectionManager();
@@ -151,9 +151,9 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             .createCardSecuritySetting()
             .setControlSamResource(samReader, calypsoSam);
 
-    boolean loop = true;
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 
+    boolean loop = true;
     while (loop) {
       logger.info(
           "{}########################################################{}", ANSI_YELLOW, ANSI_RESET);
