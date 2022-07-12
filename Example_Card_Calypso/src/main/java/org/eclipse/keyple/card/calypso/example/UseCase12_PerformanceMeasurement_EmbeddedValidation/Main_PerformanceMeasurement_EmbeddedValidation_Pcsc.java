@@ -117,7 +117,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
     // Configure the reader with parameters suitable for contactless operations.
     plugin
         .getReaderExtension(PcscReader.class, pcscContactReaderName)
-        .setContactless(true)
+        .setContactless(false)
         .setIsoProtocol(PcscReader.IsoProtocol.T0)
         .setSharingMode(PcscReader.SharingMode.SHARED);
     ((ConfigurableCardReader) samReader)
