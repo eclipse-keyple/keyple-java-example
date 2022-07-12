@@ -70,3 +70,11 @@ Each example can be run independently.
 * Use Case Calypso 10 - Session Trace TN #313:
    [UseCase10_SessionTrace_TN313](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase10_SessionTrace_TN313)
     * Real mode with PC/SC readers [`Main_SessionTrace_TN313_Pcsc.java`]
+
+* Use Case Calypso 11 - Data signing:
+  [UseCase11_DataSigning](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase11_DataSigning)
+    * Real mode with PC/SC readers [`Main_DataSigning_Pcsc.java`]
+
+* Use Case Calypso 12 - Performance measurement:
+  [UseCase12_PerformanceMeasurement_EmbeddedValidation](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase12_PerformanceMeasurement_EmbeddedValidation)
+    * Real mode with PC/SC readers [`Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.java`]

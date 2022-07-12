@@ -155,6 +155,10 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(cardAid);
 
+    // Prepare the selection by adding the created Calypso selection to the card selection
+    // scenario.
+    cardSelectionManager.prepareSelection(cardSelection);
+
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
@@ -184,10 +188,6 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
 
         logger.info("Select application with AID = '{}'", cardAid);
 
-        // Prepare the selection by adding the created Calypso selection to the card selection
-        // scenario.
-        cardSelectionManager.prepareSelection(cardSelection);
-
         // read the current time used later to compute the transaction time
         long timeStamp = System.currentTimeMillis();
 
@@ -214,13 +214,13 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
         */
         byte[] environmentAndHolderData =
             calypsoCard
-                .getFileByLid(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
+                .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
                 .getData()
                 .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
         byte[] eventLogData =
             calypsoCard
-                .getFileByLid(CalypsoConstants.SFI_EVENT_LOG)
+                .getFileBySfi(CalypsoConstants.SFI_EVENT_LOG)
                 .getData()
                 .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
@@ -233,7 +233,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
         */
         byte[] contractListData =
             calypsoCard
-                .getFileByLid(CalypsoConstants.SFI_CONTRACT_LIST)
+                .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
                 .getData()
                 .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
@@ -247,7 +247,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
         */
         byte[] contractData =
             calypsoCard
-                .getFileByLid(CalypsoConstants.SFI_CONTRACTS)
+                .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
                 .getData()
                 .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
@@ -261,7 +261,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
         */
         int counterValue =
             calypsoCard
-                .getFileByLid(CalypsoConstants.SFI_CONTRACT_LIST)
+                .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
                 .getData()
                 .getContentAsCounterValue(1);
 
