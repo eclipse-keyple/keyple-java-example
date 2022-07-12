@@ -75,6 +75,10 @@ Each example can be run independently.
   [UseCase11_DataSigning](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase11_DataSigning)
     * Real mode with PC/SC readers [`Main_DataSigning_Pcsc.java`]
 
-* Use Case Calypso 12 - Performance measurement:
+* Use Case Calypso 12 - Performance measurement (embedded validation):
   [UseCase12_PerformanceMeasurement_EmbeddedValidation](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase12_PerformanceMeasurement_EmbeddedValidation)
     * Real mode with PC/SC readers [`Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.java`]
+
+* Use Case Calypso 13 - Performance measurement (distributed reload):
+  [UseCase12_PerformanceMeasurement_DistributedReload](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase12_PerformanceMeasurement_DistributedReload)
+    * Real mode with PC/SC readers [`Main_PerformanceMeasurement_DistributedReload_Pcsc.java`]

@@ -9,7 +9,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ************************************************************************************** */
-package org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_EmbeddedValidation;
+package org.eclipse.keyple.card.calypso.example.UseCase13_PerformanceMeasurement_DistributedReload;
+
+import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
 import java.io.*;
 import java.util.Properties;
@@ -29,33 +31,35 @@ import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
+import org.eclipse.keyple.core.service.resource.CardResource;
+import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
 
 /**
- * Use Case Calypso 12 – Performance measurement: embedded validation (PC/SC)
+ * Use Case Calypso 12 – Performance measurement: reloading (PC/SC)
  *
- * <p>This code is dedicated to performance measurement for an embedded validation type transaction.
+ * <p>This code is dedicated to performance measurement for a reloading type transaction.
  *
  * <p>It implements the scenario described <a
- * href="https://terminal-api.calypsonet.org/apis/calypsonet-terminal-calypso-api/#simple-secure-session-for-fast-embedded-performance">here</a>:
+ * href="https://terminal-api.calypsonet.org/apis/calypsonet-terminal-calypso-api/#simple-secure-session-for-an-efficient-distributed-system">here</a>:
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
-public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
+public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
   // operating parameters
   private static String cardReaderRegex;
   private static String samReaderRegex;
   private static String cardAid;
-  private static int counterDecrement;
+  private static int counterIncrement;
   private static String logLevel;
-  private static byte[] newEventRecord;
+  private static byte[] newContractListRecord;
+  private static byte[] newContractRecord;
 
   public static void main(String[] args) throws IOException {
     // user interface management
@@ -71,7 +75,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel);
 
     Logger logger =
-        LoggerFactory.getLogger(Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.class);
+        LoggerFactory.getLogger(Main_PerformanceMeasurement_DistributedReload_Pcsc.class);
 
     logger.info(
         "=============== Performance measurement: validation transaction ==================");
@@ -110,41 +114,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
 
-    // Get the contact reader whose name matches the provided regex
-    String pcscContactReaderName = ConfigurationUtil.getCardReaderName(plugin, samReaderRegex);
-    CardReader samReader = plugin.getReader(pcscContactReaderName);
-
-    // Configure the reader with parameters suitable for contactless operations.
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactReaderName)
-        .setContactless(true)
-        .setIsoProtocol(PcscReader.IsoProtocol.T0)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ((ConfigurableCardReader) samReader)
-        .activateProtocol(
-            PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
-
-    // Create a SAM selection manager.
-    CardSelectionManager samSelectionManager = smartCardService.createCardSelectionManager();
-
-    // Create a SAM selection using the Calypso card extension.
-    samSelectionManager.prepareSelection(calypsoCardService.createSamSelection());
-
-    // SAM communication: run the selection scenario.
-    CardSelectionResult samSelectionResult =
-        samSelectionManager.processCardSelectionScenario(samReader);
-
-    // Check the selection result.
-    if (samSelectionResult.getActiveSmartCard() == null) {
-      throw new IllegalStateException("The selection of the SAM failed.");
-    }
-
-    // Get the Calypso SAM SmartCard resulting of the selection.
-    CalypsoSam calypsoSam = (CalypsoSam) samSelectionResult.getActiveSmartCard();
-
-    logger.info("= SmartCard = {}", calypsoSam);
-
-    // Create a SAM selection manager.
+    // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
 
     // Create a card selection using the Calypso card extension.
@@ -154,16 +124,29 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             .createCardSelection()
             .acceptInvalidatedCard()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
-            .filterByDfName(cardAid);
+            .filterByDfName(cardAid)
+            .prepareReadRecord(
+                CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
+            .prepareReadRecord(
+                CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1);
 
     // Prepare the selection by adding the created Calypso selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(cardSelection);
 
+    // Configure the card resource service for the targeted SAM.
+    setupCardResourceService(plugin, samReaderRegex, CalypsoConstants.SAM_PROFILE_NAME);
+
+    // Create security settings that reference the same SAM profile requested from the card resource
+    // service.
+    CardResource samResource =
+        CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
+
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam);
+            .setControlSamResource(
+                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     boolean loop = true;
     while (loop) {
@@ -185,7 +168,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
       }
 
       try {
-        logger.info("Starting validation transaction...");
+        logger.info("Starting reloading transaction...");
 
         logger.info("Select application with AID = '{}'", cardAid);
 
@@ -201,17 +184,9 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           logger.info("Card selection failed!");
           continue;
         }
-        // create a transaction manager, open a Secure Session, read Environment and Event Log.
-        CardTransactionManager cardTransactionManager =
-            CalypsoExtensionService.getInstance()
-                .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-                .prepareReadRecord(
-                    CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
-                .prepareReadRecord(CalypsoConstants.SFI_EVENT_LOG, CalypsoConstants.RECORD_NUMBER_1)
-                .processOpening(WriteAccessLevel.DEBIT);
 
         /*
-        Place for the analysis of the context and the last event log
+        Place for the pre-analysis of the context and the contract list
         */
         byte[] environmentAndHolderData =
             calypsoCard
@@ -219,57 +194,76 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
                 .getData()
                 .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
-        byte[] eventLogData =
-            calypsoCard
-                .getFileBySfi(CalypsoConstants.SFI_EVENT_LOG)
-                .getData()
-                .getContent(CalypsoConstants.RECORD_NUMBER_1);
-
-        // read the contract list
-        cardTransactionManager
-            .prepareReadRecord(CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
-            .processCommands();
-        /*
-        Place for the analysis of the contract list
-        */
         byte[] contractListData =
             calypsoCard
                 .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
                 .getData()
                 .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
-        // read the elected contract
-        cardTransactionManager
-            .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
-            .processCommands();
+        // create a transaction manager, open a Secure Session, read Environment and Event Log.
+        CardTransactionManager cardTransactionManager =
+            CalypsoExtensionService.getInstance()
+                .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+                .prepareReadRecord(
+                    CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
+                .prepareReadRecord(
+                    CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
+                .prepareReadRecords(
+                    CalypsoConstants.SFI_CONTRACTS,
+                    CalypsoConstants.RECORD_NUMBER_1,
+                    CalypsoConstants.RECORD_NUMBER_2,
+                    CalypsoConstants.RECORD_SIZE)
+                .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 2)
+                .processOpening(WriteAccessLevel.LOAD);
 
         /*
-        Place for the analysis of the contract
+        Place for the analysis of the context, the contract list, the contracts and counters
         */
-        byte[] contractData =
+        environmentAndHolderData =
+            calypsoCard
+                .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
+                .getData()
+                .getContent(CalypsoConstants.RECORD_NUMBER_1);
+
+        contractListData =
+            calypsoCard
+                .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
+                .getData()
+                .getContent(CalypsoConstants.RECORD_NUMBER_1);
+
+        byte[] contract1Data =
             calypsoCard
                 .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
                 .getData()
                 .getContent(CalypsoConstants.RECORD_NUMBER_1);
 
-        // read the contract counter
-        cardTransactionManager
-            .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 1)
-            .processCommands();
+        byte[] contract2Data =
+            calypsoCard
+                .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
+                .getData()
+                .getContent(CalypsoConstants.RECORD_NUMBER_2);
 
-        /*
-        Place for the preparation of the card's content update
-        */
-        int counterValue =
+        int counter1Value =
             calypsoCard
                 .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
                 .getData()
                 .getContentAsCounterValue(1);
 
+        int counter2Value =
+            calypsoCard
+                .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
+                .getData()
+                .getContentAsCounterValue(2);
+
         // add an event record and close the Secure Session
         cardTransactionManager
-            .prepareDecreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterDecrement)
-            .prepareAppendRecord(CalypsoConstants.SFI_EVENT_LOG, newEventRecord)
+            .prepareUpdateRecord(
+                CalypsoConstants.SFI_CONTRACT_LIST,
+                CalypsoConstants.RECORD_NUMBER_1,
+                newContractListRecord)
+            .prepareUpdateRecord(
+                CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1, newContractRecord)
+            .prepareIncreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterIncrement)
             .prepareReleaseCardChannel()
             .processClosing();
 
@@ -297,12 +291,13 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
       // load a properties file
       prop.load(input);
 
-      cardReaderRegex = prop.getProperty("validation.reader.card");
-      samReaderRegex = prop.getProperty("validation.reader.sam");
-      cardAid = prop.getProperty("validation.aid");
-      counterDecrement = Integer.parseInt(prop.getProperty("validation.decrement"));
-      newEventRecord = HexUtil.toByteArray(prop.getProperty("validation.event"));
-      logLevel = prop.getProperty("validation.log");
+      cardReaderRegex = prop.getProperty("reloading.reader.card");
+      samReaderRegex = prop.getProperty("reloading.reader.sam");
+      cardAid = prop.getProperty("reloading.aid");
+      counterIncrement = Integer.parseInt(prop.getProperty("reloading.increment"));
+      newContractListRecord = HexUtil.toByteArray(prop.getProperty("reloading.contractlist"));
+      newContractRecord = HexUtil.toByteArray(prop.getProperty("reloading.contract"));
+      logLevel = prop.getProperty("reloading.log");
 
     } catch (IOException ex) {
       ex.printStackTrace();
