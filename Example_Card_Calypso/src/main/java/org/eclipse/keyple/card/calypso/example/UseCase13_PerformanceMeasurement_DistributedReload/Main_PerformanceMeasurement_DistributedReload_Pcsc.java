@@ -17,7 +17,6 @@ import java.io.*;
 import java.util.Properties;
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
@@ -76,7 +75,6 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel);
     Logger logger =
         LoggerFactory.getLogger(Main_PerformanceMeasurement_DistributedReload_Pcsc.class);
-
     logger.info(
         "=============== Performance measurement: validation transaction ==================");
 
@@ -116,7 +114,9 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
 
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
-    CalypsoCardSelection cardSelection =
+    // Prepare the selection by adding the created Calypso selection to the card selection
+    // scenario.
+    cardSelectionManager.prepareSelection(
         calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
@@ -125,11 +125,7 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
             .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
             .prepareReadRecord(
-                CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1);
-
-    // Prepare the selection by adding the created Calypso selection to the card selection
-    // scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+                CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1));
 
     // Configure the card resource service for the targeted SAM.
     setupCardResourceService(plugin, samReaderRegex, CalypsoConstants.SAM_PROFILE_NAME);
@@ -210,9 +206,8 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
                   .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 2)
                   .processOpening(WriteAccessLevel.LOAD);
 
-          /*
-          Place for the analysis of the context, the contract list, the contracts and counters
-          */
+          //  TODO Place here the analysis of the context, the contract list, the contracts, the
+          // counters and the preparation of the card's content update
           environmentAndHolderData =
               calypsoCard
                   .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
