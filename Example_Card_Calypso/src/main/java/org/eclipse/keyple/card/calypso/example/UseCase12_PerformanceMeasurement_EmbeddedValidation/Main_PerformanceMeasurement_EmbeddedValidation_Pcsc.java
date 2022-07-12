@@ -149,9 +149,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             .setControlSamResource(samReader, calypsoSam);
 
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-
-    boolean loop = true;
-    while (loop) {
+    boolean loop = true;    while (loop) {
       logger.info(
           "{}########################################################{}", ANSI_YELLOW, ANSI_RESET);
       logger.info(

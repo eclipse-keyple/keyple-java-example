@@ -146,7 +146,6 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
                 samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-
     boolean loop = true;
     while (loop) {
       logger.info(
