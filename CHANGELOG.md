@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - "Keyple Service Library" to version `2.1.0`
 - "Keyple Service Resource Library" to version `2.0.2`
 - "Keyple Plugin Stub Library" to version `2.1.0`
+### Added
+- Calypso example #12 for Performance Measurement (embedded validation).
+- Calypso example #13 for Performance Measurement (distributed reloading).
+
 
 ## [2022-06-09]
 ### Fixed

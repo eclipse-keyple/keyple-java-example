@@ -47,6 +47,7 @@ public final class CalypsoConstants {
   public static final byte SFI_EVENT_LOG = (byte) 0x08;
   public static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
   public static final byte SFI_CONTRACTS = (byte) 0x09;
+  public static final byte SFI_COUNTERS = (byte) 0x19;
 
   public static final short LID_DF_RT = 0x2000;
   public static final short LID_EVENT_LOG = 0x2010;

@@ -56,8 +56,8 @@ Each example can be run independently.
     * Real mode with PC/SC readers [`Main_VerifyPin_Pcsc.java`]
 
 * Use Case Calypso 7 - Stored Value reloading (out of Secure Session):
-   [UseCase7_StoredValue_SimpleReload](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase7_StoredValue_SimpleReload)
-    * Real mode with PC/SC readers [`Main_StoredValue_SimpleReload_Pcsc.java`]
+   [UseCase7_StoredValue_SimpleReloading](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase7_StoredValue_SimpleReloading)
+    * Real mode with PC/SC readers [`Main_StoredValue_SimpleReloading_Pcsc.java`]
 
 * Use Case Calypso 8 - Stored Value debit within a Secure Session:
    [UseCase8_StoredValue_DebitInSession](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase8_StoredValue_DebitInSession)
@@ -70,3 +70,15 @@ Each example can be run independently.
 * Use Case Calypso 10 - Session Trace TN #313:
    [UseCase10_SessionTrace_TN313](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase10_SessionTrace_TN313)
     * Real mode with PC/SC readers [`Main_SessionTrace_TN313_Pcsc.java`]
+
+* Use Case Calypso 11 - Data signing:
+  [UseCase11_DataSigning](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase11_DataSigning)
+    * Real mode with PC/SC readers [`Main_DataSigning_Pcsc.java`]
+
+* Use Case Calypso 12 - Performance measurement (embedded validation):
+  [UseCase12_PerformanceMeasurement_EmbeddedValidation](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase12_PerformanceMeasurement_EmbeddedValidation)
+    * Real mode with PC/SC readers [`Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.java`]
+
+* Use Case Calypso 13 - Performance measurement (distributed reloading):
+  [UseCase12_PerformanceMeasurement_DistributedReloading](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase12_PerformanceMeasurement_DistributedReloading)
+    * Real mode with PC/SC readers [`Main_PerformanceMeasurement_DistributedReloading_Pcsc.java`]

@@ -6,11 +6,6 @@ pipeline {
   }
   agent { kubernetes { yaml javaBuilder('2.0') } }
   stages {
-    stage('Prepare settings') { steps { container('java-builder') {
-      script {
-        sh 'git lfs fetch && git lfs checkout'
-      }
-    } } }
     stage('Build Example Service') {
       steps { container('java-builder') {
         sh 'cd ./Example_Service && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'
