@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ************************************************************************************** */
-package org.eclipse.keyple.card.calypso.example.UseCase7_StoredValue_SimpleReload;
+package org.eclipse.keyple.card.calypso.example.UseCase7_StoredValue_SimpleReloading;
 
 import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
@@ -61,9 +61,9 @@ import org.slf4j.LoggerFactory;
  *
  * @since 2.0.0
  */
-public class Main_StoredValue_SimpleReload_Pcsc {
+public class Main_StoredValue_SimpleReloading_Pcsc {
   private static final Logger logger =
-      LoggerFactory.getLogger(Main_StoredValue_SimpleReload_Pcsc.class);
+      LoggerFactory.getLogger(Main_StoredValue_SimpleReloading_Pcsc.class);
 
   public static void main(String[] args) {
 
@@ -166,7 +166,7 @@ public class Main_StoredValue_SimpleReload_Pcsc {
 
       logger.info(". Debit log record = {}", calypsoCard.getSvLoadLogRecord());
 
-      // Reload with 2 units
+      // Reloading with 2 units
       cardTransaction.prepareSvReload(2);
 
       // Execute the command and close the communication after

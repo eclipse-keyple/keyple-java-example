@@ -87,11 +87,11 @@ tasks {
         sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
         from(sourcesMain.output)
     }
-    register("fatJarPerfDistributedReload", Jar::class.java) {
-        archiveClassifier.set("PerfDistributedReload-fat")
+    register("fatJarPerfDistributedReloading", Jar::class.java) {
+        archiveClassifier.set("PerfDistributedReloading-fat")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         manifest {
-            attributes("Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase13_PerformanceMeasurement_DistributedReload.Main_PerformanceMeasurement_DistributedReload_Pcsc")
+            attributes("Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase13_PerformanceMeasurement_DistributedReloading.Main_PerformanceMeasurement_DistributedReloading_Pcsc")
         }
         from(configurations.runtimeClasspath.get()
             .onEach { println("add from dependencies: ${it.name}") }

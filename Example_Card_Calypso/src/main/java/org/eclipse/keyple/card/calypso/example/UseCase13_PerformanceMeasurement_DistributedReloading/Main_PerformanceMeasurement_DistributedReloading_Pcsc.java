@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ************************************************************************************** */
-package org.eclipse.keyple.card.calypso.example.UseCase13_PerformanceMeasurement_DistributedReload;
+package org.eclipse.keyple.card.calypso.example.UseCase13_PerformanceMeasurement_DistributedReloading;
 
 import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
@@ -49,7 +49,7 @@ import org.slf4j.impl.SimpleLogger;
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
-public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
+public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
 
   // user interface management
   private static final String ANSI_RESET = "\u001B[0m";
@@ -74,7 +74,7 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
     // init logger
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel);
     Logger logger =
-        LoggerFactory.getLogger(Main_PerformanceMeasurement_DistributedReload_Pcsc.class);
+        LoggerFactory.getLogger(Main_PerformanceMeasurement_DistributedReloading_Pcsc.class);
     logger.info(
         "=============== Performance measurement: validation transaction ==================");
 
@@ -135,6 +135,12 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
     CardResource samResource =
         CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
 
+    if (samResource == null) {
+      throw new IllegalStateException("No SAM resource available.");
+    }
+
+    logger.info("Calypso SAM = {}", samResource.getSmartCard());
+
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
@@ -175,9 +181,6 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
             throw new IllegalStateException("Card selection failed!");
           }
 
-          /*
-          Place for the pre-analysis of the context and the contract list
-          */
           byte[] environmentAndHolderData =
               calypsoCard
                   .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
@@ -189,6 +192,8 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
                   .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
                   .getData()
                   .getContent(CalypsoConstants.RECORD_NUMBER_1);
+
+          // TODO Place here the pre-analysis of the context and the contract list
 
           // create a transaction manager, open a Secure Session, read Environment and Event Log.
           CardTransactionManager cardTransactionManager =
@@ -206,8 +211,6 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
                   .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 2)
                   .processOpening(WriteAccessLevel.LOAD);
 
-          //  TODO Place here the analysis of the context, the contract list, the contracts, the
-          // counters and the preparation of the card's content update
           environmentAndHolderData =
               calypsoCard
                   .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
@@ -244,7 +247,10 @@ public class Main_PerformanceMeasurement_DistributedReload_Pcsc {
                   .getData()
                   .getContentAsCounterValue(2);
 
-          // add an event record and close the Secure Session
+          //  TODO Place here the analysis of the context, the contract list, the contracts, the
+          // counters and the preparation of the card's content update
+
+          // update contract list and contract, increase counter and close the Secure Session
           cardTransactionManager
               .prepareUpdateRecord(
                   CalypsoConstants.SFI_CONTRACT_LIST,
