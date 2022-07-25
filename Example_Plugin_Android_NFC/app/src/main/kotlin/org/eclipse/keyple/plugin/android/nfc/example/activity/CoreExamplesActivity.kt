@@ -62,7 +62,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
             addObserver(this@CoreExamplesActivity)
 
             // with this protocol settings we activate the nfc for ISO1443_4 protocol
-            (this as ConfigurableCardReader).activateProtocol(AndroidNfcSupportedProtocols.ISO_14443_4.name, "ISO_14443_4_CARD")
+            (this as ConfigurableCardReader).activateProtocol(AndroidNfcSupportedProtocols.ISO_14443_4.name, CalypsoClassicInfo.CARD_PROTOCOL)
             reader = this
         }
     }
@@ -140,7 +140,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
              * selection
              */
             val cardSelection = GenericExtensionService.getInstance().createCardSelection()
-                .filterByCardProtocol(AndroidNfcSupportedProtocols.ISO_14443_4.name)
+                .filterByCardProtocol(CalypsoClassicInfo.CARD_PROTOCOL)
                 .filterByDfName(aid)
 
             /**
@@ -217,7 +217,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                  * the selection and read additional information afterwards
                  */
                 val cardSelection = cardExtension.createCardSelection()
-                    .filterByCardProtocol(AndroidNfcSupportedProtocols.ISO_14443_4.name)
+                    .filterByCardProtocol(CalypsoClassicInfo.CARD_PROTOCOL)
                     .filterByDfName(aid)
 
                 /**

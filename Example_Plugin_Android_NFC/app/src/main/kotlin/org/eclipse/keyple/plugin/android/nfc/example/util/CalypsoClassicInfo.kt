@@ -15,4 +15,6 @@ object CalypsoClassicInfo {
     /** AID: Keyple test kit profile 1, Application 2  */
     val AID_CD_LIGHT_GTML = "315449432E49434131"
     val AID_HOPLINK = "A000000291A00000019102"
+
+    val CARD_PROTOCOL = "ISO_14443_4_CARD"
 }
