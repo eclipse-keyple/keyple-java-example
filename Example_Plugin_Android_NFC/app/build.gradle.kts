@@ -22,6 +22,7 @@ android {
         minSdkVersion(19)
         targetSdkVersion(29)
         versionName(project.version.toString())
+        versionCode(1)
 
         testInstrumentationRunner("android.support.test.runner.AndroidJUnitRunner")
         multiDexEnabled = true
