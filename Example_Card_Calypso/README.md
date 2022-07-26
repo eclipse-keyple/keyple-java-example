@@ -80,5 +80,5 @@ Each example can be run independently.
     * Real mode with PC/SC readers [`Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.java`]
 
 * Use Case Calypso 13 - Performance measurement (distributed reloading):
-  [UseCase12_PerformanceMeasurement_DistributedReloading](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase12_PerformanceMeasurement_DistributedReloading)
+  [UseCase13_PerformanceMeasurement_DistributedReloading](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase13_PerformanceMeasurement_DistributedReloading)
     * Real mode with PC/SC readers [`Main_PerformanceMeasurement_DistributedReloading_Pcsc.java`]

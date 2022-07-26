@@ -22,7 +22,7 @@ import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
-import org.eclipse.keyple.core.service.*;
+import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
