@@ -1,3 +1,5 @@
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 ///////////////////////////////////////////////////////////////////////////////
 //  GRADLE CONFIGURATION
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,6 +40,7 @@ dependencies {
     implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.2.1")
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
     implementation("org.slf4j:slf4j-simple:1.7.32")
+    implementation("com.google.code.gson:gson:2.8.8")
 }
 
 val javaSourceLevel: String by project
@@ -47,6 +50,10 @@ java {
     targetCompatibility = JavaVersion.toVersion(javaTargetLevel)
     println("Compiling Java $sourceCompatibility to Java $targetCompatibility.")
 }
+
+val buildTimeAndDate = OffsetDateTime.now()
+val buildDate = DateTimeFormatter.ISO_LOCAL_DATE.format(buildTimeAndDate)
+val buildTime = DateTimeFormatter.ofPattern("HH:mm:ss.SSSZ").format(buildTimeAndDate)
 
 ///////////////////////////////////////////////////////////////////////////////
 //  TASKS CONFIGURATION
@@ -65,7 +72,16 @@ tasks {
         archiveClassifier.set("TN313-fat")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         manifest {
-            attributes("Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313.Main_SessionTrace_TN313_Pcsc")
+            attributes(
+                "Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313.Main_SessionTrace_TN313_Pcsc",
+                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${System.getProperty("java.vm.version")})",
+                "Build-Date" to buildDate,
+                "Build-Time" to buildTime,
+                "Specification-Title" to project.name,
+                "Implementation-Version" to project.version,
+                "Bundle-Name" to project.name,
+                "Bundle-Description" to project.description
+            )
         }
         from(configurations.runtimeClasspath.get()
             .onEach { println("add from dependencies: ${it.name}") }
@@ -78,7 +94,16 @@ tasks {
         archiveClassifier.set("PerfEmbeddedValidation-fat")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         manifest {
-            attributes("Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_EmbeddedValidation.Main_PerformanceMeasurement_EmbeddedValidation_Pcsc")
+            attributes(
+                "Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_EmbeddedValidation.Main_PerformanceMeasurement_EmbeddedValidation_Pcsc",
+                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${System.getProperty("java.vm.version")})",
+                "Build-Date" to buildDate,
+                "Build-Time" to buildTime,
+                "Specification-Title" to project.name,
+                "Implementation-Version" to project.version,
+                "Bundle-Name" to project.name,
+                "Bundle-Description" to project.description
+            )
         }
         from(configurations.runtimeClasspath.get()
             .onEach { println("add from dependencies: ${it.name}") }
@@ -91,7 +116,16 @@ tasks {
         archiveClassifier.set("PerfDistributedReloading-fat")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         manifest {
-            attributes("Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase13_PerformanceMeasurement_DistributedReloading.Main_PerformanceMeasurement_DistributedReloading_Pcsc")
+            attributes(
+                "Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase13_PerformanceMeasurement_DistributedReloading.Main_PerformanceMeasurement_DistributedReloading_Pcsc",
+                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${System.getProperty("java.vm.version")})",
+                "Build-Date" to buildDate,
+                "Build-Time" to buildTime,
+                "Specification-Title" to project.name,
+                "Implementation-Version" to project.version,
+                "Bundle-Name" to project.name,
+                "Bundle-Description" to project.description
+            )
         }
         from(configurations.runtimeClasspath.get()
             .onEach { println("add from dependencies: ${it.name}") }

@@ -15,6 +15,8 @@ import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.s
 
 import java.io.*;
 import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
@@ -24,6 +26,7 @@ import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_EmbeddedValidation.Main_PerformanceMeasurement_EmbeddedValidation_Pcsc;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.Plugin;
@@ -65,6 +68,8 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
   private static String logLevel;
   private static byte[] newContractListRecord;
   private static byte[] newContractRecord;
+  private static String builtDate;
+  private static String builtTime;
 
   public static void main(String[] args) throws IOException {
 
@@ -75,15 +80,17 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel);
     Logger logger =
         LoggerFactory.getLogger(Main_PerformanceMeasurement_DistributedReloading_Pcsc.class);
-    logger.info(
-        "=============== Performance measurement: validation transaction ==================");
 
-    logger.info("Using parameters:");
-    logger.info("  CARD_READER_REGEX={}", cardReaderRegex);
-    logger.info("  SAM_READER_REGEX={}", samReaderRegex);
-    logger.info("  AID={}", cardAid);
-    logger.info("  Counter increment={}", counterIncrement);
-    logger.info("  log level={}", logLevel);
+    System.out.printf(
+        "%s=============== Performance measurement: validation transaction ===============\n",
+        ANSI_GREEN);
+    System.out.printf("Using parameters:\n");
+    System.out.printf("  CARD_READER_REGEX=%s\n", cardReaderRegex);
+    System.out.printf("  SAM_READER_REGEX=%s\n", samReaderRegex);
+    System.out.printf("  AID=%s\n", cardAid);
+    System.out.printf("  Counter decrement=%d\n", counterIncrement);
+    System.out.printf("  log level=%s\n", logLevel);
+    System.out.printf("Build date: %s %s%s\n", builtDate, builtTime, ANSI_RESET);
 
     // Get the main Keyple service
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
@@ -149,14 +156,18 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
 
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
     while (true) {
-      logger.info(
-          "{}########################################################{}", ANSI_YELLOW, ANSI_RESET);
-      logger.info(
-          "{}## Press ENTER when the card is in the reader's field ##{}", ANSI_YELLOW, ANSI_RESET);
-      logger.info(
-          "{}## (or press 'q' + ENTER to exit)                     ##{}", ANSI_YELLOW, ANSI_RESET);
-      logger.info(
-          "{}########################################################{}", ANSI_YELLOW, ANSI_RESET);
+      System.out.printf(
+          "\n%s########################################################%s\n",
+          ANSI_YELLOW, ANSI_RESET);
+      System.out.printf(
+          "%s## Press ENTER when the card is in the reader's field ##%s\n",
+          ANSI_YELLOW, ANSI_RESET);
+      System.out.printf(
+          "%s## (or press 'q' + ENTER to exit)                     ##%s\n",
+          ANSI_YELLOW, ANSI_RESET);
+      System.out.printf(
+          "%s########################################################%s\n",
+          ANSI_YELLOW, ANSI_RESET);
 
       String input = bufferedReader.readLine();
 
@@ -265,15 +276,15 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
               .processClosing();
 
           // display transaction time
-          logger.info(
-              "{}Transaction succeeded. Execution time: {} ms{}",
-              ANSI_GREEN,
-              System.currentTimeMillis() - timeStamp,
-              ANSI_RESET);
+          System.out.printf(
+              "%sTransaction succeeded. Execution time: %d ms%s\n",
+              ANSI_GREEN, System.currentTimeMillis() - timeStamp, ANSI_RESET);
         } catch (Exception e) {
-          logger.error(
-              "{}Transaction failed with exception: {}{}", ANSI_RED, e.getMessage(), ANSI_RESET);
+          System.out.printf(
+              "%sTransaction failed with exception: %s%s", ANSI_RED, e.getMessage(), ANSI_RESET);
         }
+      } else {
+        System.out.printf("%sNo card detected%s", ANSI_RED, ANSI_RESET);
       }
     }
     logger.info("Exiting the program on user's request.");
@@ -296,7 +307,13 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
       newContractListRecord = HexUtil.toByteArray(prop.getProperty("reloading.contractlist"));
       newContractRecord = HexUtil.toByteArray(prop.getProperty("reloading.contract"));
       logLevel = prop.getProperty("reloading.log");
-
+      InputStream stream =
+          Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.class.getResourceAsStream(
+              "/META-INF/MANIFEST.MF");
+      Manifest manifest = new Manifest(stream);
+      Attributes attributes = manifest.getMainAttributes();
+      builtDate = attributes.getValue("Build-Date");
+      builtTime = attributes.getValue("Build-Time");
     } catch (IOException ex) {
       ex.printStackTrace();
     } finally {
