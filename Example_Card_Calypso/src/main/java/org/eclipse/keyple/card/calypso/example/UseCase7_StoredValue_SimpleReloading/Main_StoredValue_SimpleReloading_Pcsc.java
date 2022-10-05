@@ -11,8 +11,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase7_StoredValue_SimpleReloading;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
-
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
@@ -27,11 +25,10 @@ import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.service.resource.CardResource;
-import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,12 +43,12 @@ import org.slf4j.LoggerFactory;
  * <h2>Scenario:</h2>
  *
  * <ul>
- *   <li>Sets up the card resource service to provide a Calypso SAM (C1).
  *   <li>Checks if an ISO 14443-4 card is in the reader, enables the card selection manager.
+ *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
  *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
  *       an AID-based application selection scenario.
  *   <li>Creates a {@link CardTransactionManager} using {@link CardSecuritySetting} referencing the
- *       SAM profile defined in the card resource service.
+ *       selected SAM.
  *   <li>Displays the Stored Value status, reloads the Store Value without opening a Secure Session.
  * </ul>
  *
@@ -67,11 +64,10 @@ public class Main_StoredValue_SimpleReloading_Pcsc {
 
   public static void main(String[] args) {
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
-    // Register the PcscPlugin with the SmartCardService, get the corresponding generic plugin in
-    // return.
+    // Register the PcscPlugin, get the corresponding generic plugin in return
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
@@ -96,10 +92,20 @@ public class Main_StoredValue_SimpleReloading_Pcsc {
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ConfigurationUtil.ISO_CARD_PROTOCOL);
 
-    // Configure the card resource service to provide an adequate SAM for future secure operations.
-    // We suppose here, we use an Identive contact PC/SC reader as card reader.
-    setupCardResourceService(
-        plugin, ConfigurationUtil.SAM_READER_NAME_REGEX, CalypsoConstants.SAM_PROFILE_NAME);
+    // Get the contact reader dedicated for Calypso SAM whose name matches the provided regex
+    String pcscContactReaderName =
+        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
+    CardReader samReader = plugin.getReader(pcscContactReaderName);
+
+    // Configure the Calypso SAM reader with parameters suitable for contactless operations.
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactReaderName)
+        .setContactless(false)
+        .setIsoProtocol(PcscReader.IsoProtocol.T0)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) samReader)
+        .activateProtocol(
+            PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
 
     logger.info("=============== UseCase Calypso #7: Stored Value reloading ==================");
 
@@ -107,6 +113,26 @@ public class Main_StoredValue_SimpleReloading_Pcsc {
     if (!cardReader.isCardPresent()) {
       throw new IllegalStateException("No card is present in the reader.");
     }
+
+    // Create a SAM selection manager.
+    CardSelectionManager samSelectionManager = smartCardService.createCardSelectionManager();
+
+    // Create a SAM selection using the Calypso card extension.
+    samSelectionManager.prepareSelection(calypsoCardService.createSamSelection());
+
+    // SAM communication: run the selection scenario.
+    CardSelectionResult samSelectionResult =
+        samSelectionManager.processCardSelectionScenario(samReader);
+
+    // Check the selection result.
+    if (samSelectionResult.getActiveSmartCard() == null) {
+      throw new IllegalStateException("The selection of the SAM failed.");
+    }
+
+    // Get the Calypso SAM SmartCard resulting of the selection.
+    CalypsoSam calypsoSam = (CalypsoSam) samSelectionResult.getActiveSmartCard();
+
+    logger.info("= SmartCard = {}", calypsoSam);
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
@@ -140,46 +166,33 @@ public class Main_StoredValue_SimpleReloading_Pcsc {
     String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
     logger.info("Calypso Serial Number = {}", csn);
 
-    // Create security settings that reference the same SAM profile requested from the card resource
-    // service.
-    CardResource samResource =
-        CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
+    // Create security settings that reference the SAM
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setControlSamResource(
-                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+            .setControlSamResource(samReader, calypsoSam);
 
-    try {
-      // Performs file reads using the card transaction manager in non-secure mode.
-      // Prepare the command to retrieve the SV status with the two debit and reload logs.
-      CardTransactionManager cardTransaction =
-          calypsoCardService
-              .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-              .prepareSvGet(SvOperation.RELOAD, SvAction.DO)
-              .processCommands();
+    // Performs file reads using the card transaction manager in non-secure mode.
+    // Prepare the command to retrieve the SV status with the two debit and reload logs.
+    CardTransactionManager cardTransaction =
+        calypsoCardService
+            .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+            .prepareSvGet(SvOperation.RELOAD, SvAction.DO)
+            .processCommands();
 
-      // Display the current SV status
-      logger.info("Current SV status (SV Get for RELOAD):");
-      logger.info(". Balance = {}", calypsoCard.getSvBalance());
-      logger.info(". Last Transaction Number = {}", calypsoCard.getSvLastTNum());
+    // Display the current SV status
+    logger.info("Current SV status (SV Get for RELOAD):");
+    logger.info(". Balance = {}", calypsoCard.getSvBalance());
+    logger.info(". Last Transaction Number = {}", calypsoCard.getSvLastTNum());
 
-      logger.info(". Debit log record = {}", calypsoCard.getSvLoadLogRecord());
+    logger.info(". Debit log record = {}", calypsoCard.getSvLoadLogRecord());
 
-      // Reloading with 2 units
-      cardTransaction.prepareSvReload(2);
+    // Reloading with 2 units
+    cardTransaction.prepareSvReload(2);
 
-      // Execute the command and close the communication after
-      cardTransaction.prepareReleaseCardChannel();
-      cardTransaction.processCommands();
-
-    } finally {
-      try {
-        CardResourceServiceProvider.getService().releaseCardResource(samResource);
-      } catch (RuntimeException e) {
-        logger.error("Error during the card resource release: {}", e.getMessage(), e);
-      }
-    }
+    // Execute the command and close the communication after
+    cardTransaction.prepareReleaseCardChannel();
+    cardTransaction.processCommands();
 
     logger.info(
         "The Secure Session ended successfully, the stored value has been reloaded by 2 units.");

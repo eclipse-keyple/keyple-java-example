@@ -4,14 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Changed
+- replace the use of the Card Resource Service with a simple SAM selection in most Calypso examples
 ### Upgraded
-- "Keyple Service Library" to version `2.1.0`
-- "Keyple Service Resource Library" to version `2.0.2`
-- "Keyple Plugin Stub Library" to version `2.1.0`
+- "Calypsonet Terminal Reader API" to `1.3.0` 
+- "Keyple Calypso Card Library" to version `2.2.2`
 ### Added
 - Calypso example #12 for Performance Measurement (embedded validation).
 - Calypso example #13 for Performance Measurement (distributed reloading).
 
+## [2022-07-26]
+### Upgraded
+- "Keyple Calypso Card Library" to version `2.2.1`
+- "Keyple Plugin PC/SC Library" to version `2.1.0`
+- "Keyple Service Library" to version `2.1.0`
+- "Keyple Service Resource Library" to version `2.0.2`
 
 ## [2022-06-09]
 ### Fixed

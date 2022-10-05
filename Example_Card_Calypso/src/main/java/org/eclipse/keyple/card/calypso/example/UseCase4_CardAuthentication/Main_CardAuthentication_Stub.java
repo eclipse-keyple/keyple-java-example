@@ -71,7 +71,7 @@ public class Main_CardAuthentication_Stub {
     final String CARD_READER_NAME = "Stub card reader";
     final String SAM_READER_NAME = "Stub SAM reader";
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
     // Register the StubPlugin with the SmartCardService, plug a Calypso card stub

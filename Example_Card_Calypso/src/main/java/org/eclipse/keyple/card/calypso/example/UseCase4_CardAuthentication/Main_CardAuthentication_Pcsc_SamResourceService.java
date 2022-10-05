@@ -71,11 +71,10 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
 
   public static void main(String[] args) {
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
-    // Register the PcscPlugin with the SmartCardService, get the corresponding generic plugin in
-    // return.
+    // Register the PcscPlugin, get the corresponding generic plugin in return
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
@@ -95,6 +94,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
+
     ((ConfigurableCardReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),

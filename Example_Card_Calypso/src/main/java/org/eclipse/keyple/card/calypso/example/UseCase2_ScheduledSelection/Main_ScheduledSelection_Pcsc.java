@@ -59,11 +59,10 @@ public class Main_ScheduledSelection_Pcsc {
 
   public static void main(String[] args) throws InterruptedException {
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
-    // Register the PcscPlugin with the SmartCardService, get the corresponding generic plugin in
-    // return.
+    // Register the PcscPlugin, get the corresponding generic plugin in return
     final Plugin plugin =
         smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
