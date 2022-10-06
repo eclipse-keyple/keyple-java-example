@@ -61,8 +61,6 @@ import org.slf4j.LoggerFactory;
  * All results are logged with slf4j.
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
- *
- * @since 2.0.0
  */
 public class Main_CardAuthentication_Stub {
   private static final Logger logger = LoggerFactory.getLogger(Main_CardAuthentication_Stub.class);

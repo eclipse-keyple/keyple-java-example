@@ -70,12 +70,12 @@ public class ConfigurationUtil {
    * @param plugin The plugin to which the reader belongs.
    * @param readerNameRegex A regular expression matching the targeted reader.
    * @return The found card reader.
-   * @throws IllegalStateException If the reader is not found.
-   * @since 2.0.0
+   * @throws IllegalStateException If the reader is not found.ConfigurationUtil.getSamReader(plugin,
+   *     ConfigurationUtil.SAM_READER_NAME_REGEX)
    */
   public static CardReader getCardReader(Plugin plugin, String readerNameRegex) {
     // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName = ConfigurationUtil.getReaderName(plugin, readerNameRegex);
+    String pcscContactlessReaderName = getReaderName(plugin, readerNameRegex);
     CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
 
     // Configure the reader with parameters suitable for contactless operations.
@@ -86,9 +86,7 @@ public class ConfigurationUtil {
         .setSharingMode(PcscReader.SharingMode.SHARED);
 
     ((ConfigurableCardReader) cardReader)
-        .activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
+        .activateProtocol(PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
     return cardReader;
   }
 
@@ -99,12 +97,12 @@ public class ConfigurationUtil {
    * @param plugin The plugin to which the reader belongs.
    * @param readerNameRegex A regular expression matching the targeted reader.
    * @return The found SAM reader.
-   * @throws IllegalStateException If the reader is not found.
-   * @since 2.0.0
+   * @throws IllegalStateException If the reader is not found.ConfigurationUtil.getSamReader(plugin,
+   *     ConfigurationUtil.SAM_READER_NAME_REGEX)
    */
   public static CardReader getSamReader(Plugin plugin, String readerNameRegex) {
     // Get the contact reader dedicated for Calypso SAM whose name matches the provided regex
-    String pcscContactReaderName = ConfigurationUtil.getReaderName(plugin, readerNameRegex);
+    String pcscContactReaderName = getReaderName(plugin, readerNameRegex);
     CardReader samReader = plugin.getReader(pcscContactReaderName);
 
     // Configure the Calypso SAM reader with parameters suitable for contactless operations.
@@ -114,8 +112,7 @@ public class ConfigurationUtil {
         .setIsoProtocol(PcscReader.IsoProtocol.ANY)
         .setSharingMode(PcscReader.SharingMode.SHARED);
     ((ConfigurableCardReader) samReader)
-        .activateProtocol(
-            PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
+        .activateProtocol(PcscSupportedContactProtocol.ISO_7816_3_T0.name(), SAM_PROTOCOL);
     return samReader;
   }
 
@@ -124,8 +121,8 @@ public class ConfigurationUtil {
    *
    * @param samReader The reader in which the SAM is inserted
    * @return A {@link CalypsoSam}.
-   * @throws IllegalStateException when the selection of the SAM failed.
-   * @since 2.0.0
+   * @throws IllegalStateException when the selection of the SAM
+   *     failed.ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX)
    */
   public static CalypsoSam getSam(CardReader samReader) {
 

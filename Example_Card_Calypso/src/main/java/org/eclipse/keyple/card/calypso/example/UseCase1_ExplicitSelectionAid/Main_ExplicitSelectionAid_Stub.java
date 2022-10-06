@@ -47,8 +47,6 @@ import org.slf4j.LoggerFactory;
  * All results are logged with slf4j.
  *
  * <p>Any unexpected behavior will result in a runtime exceptions.
- *
- * @since 2.0.0
  */
 public class Main_ExplicitSelectionAid_Stub {
   private static final Logger logger =

@@ -52,9 +52,7 @@ class CardReaderObserver
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @since 2.0.0
+   * {@inheritDoc} ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX)
    */
   @Override
   public void onReaderEvent(CardReaderEvent event) {
@@ -103,9 +101,7 @@ class CardReaderObserver
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * @since 2.0.0
+   * {@inheritDoc} ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX)
    */
   @Override
   public void onReaderObservationError(String pluginName, String readerName, Throwable e) {

@@ -47,7 +47,6 @@ public class ConfigurationUtil {
    * @param readerNameRegex A regular expression matching the targeted reader.
    * @return The name of the found reader.
    * @throws IllegalStateException If the reader is not found.
-   * @since 2.0.0
    */
   public static String getCardReaderName(Plugin plugin, String readerNameRegex) {
     for (String readerName : plugin.getReaderNames()) {
