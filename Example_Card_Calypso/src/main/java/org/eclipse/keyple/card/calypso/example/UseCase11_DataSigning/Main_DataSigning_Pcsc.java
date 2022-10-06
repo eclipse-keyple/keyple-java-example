@@ -275,7 +275,7 @@ public class Main_DataSigning_Pcsc {
     /** {@inheritDoc} */
     @Override
     public void setupReader(CardReader reader) {
-      // Configure the reader with parameters suitable for contactless operations.
+      // Configure the reader with parameters suitable for contact operations.
       try {
         ((ConfigurableCardReader) reader)
             .activateProtocol(

@@ -20,7 +20,7 @@ import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -31,8 +31,6 @@ import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -92,27 +90,11 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
     // Register the PcscPlugin
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
-    // Get the contactless reader whose name matches the provided regex and configure it
-    String pcscContactlessReaderName = ConfigurationUtil.getCardReaderName(plugin, cardReaderRegex);
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
-        .setContactless(true)
-        .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ConfigurableCardReader cardReader =
-        (ConfigurableCardReader) plugin.getReader(pcscContactlessReaderName);
-    cardReader.activateProtocol(
-        PcscSupportedContactlessProtocol.ISO_14443_4.name(), ConfigurationUtil.ISO_CARD_PROTOCOL);
-
-    // Get the contact reader whose name matches the provided regex and configure it
-    String pcscContactReaderName = ConfigurationUtil.getCardReaderName(plugin, samReaderRegex);
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactReaderName)
-        .setContactless(false)
-        .setIsoProtocol(PcscReader.IsoProtocol.ANY)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ConfigurableCardReader samReader =
-        (ConfigurableCardReader) plugin.getReader(pcscContactReaderName);
+    // Get the card and SAM readers whose name matches the provided regexs
+    CardReader cardReader =
+        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader samReader =
+        ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
 
     // Get the Calypso card extension service
     CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
@@ -120,18 +102,8 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
     // Verify that the extension's API level is consistent with the current service.
     smartCardService.checkCardExtension(calypsoCardService);
 
-    // Create a SAM selection manager, use it to select the SAM and retrieve a CalypsoSam.
-    CardSelectionManager samSelectionManager = smartCardService.createCardSelectionManager();
-    samSelectionManager.prepareSelection(calypsoCardService.createSamSelection());
-    CardSelectionResult samSelectionResult =
-        samSelectionManager.processCardSelectionScenario(samReader);
-    CalypsoSam calypsoSam = (CalypsoSam) samSelectionResult.getActiveSmartCard();
-
-    // Check the selection result.
-    System.out.printf("Calypso SAM = %s\n", calypsoSam);
-    if (calypsoSam == null) {
-      throw new IllegalStateException("The selection of the SAM failed.");
-    }
+    // Get the Calypso SAM SmartCard after selection.
+    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
 
     // Create a card selection manager.
     CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();

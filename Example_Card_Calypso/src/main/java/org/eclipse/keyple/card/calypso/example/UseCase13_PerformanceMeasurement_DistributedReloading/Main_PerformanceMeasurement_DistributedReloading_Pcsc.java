@@ -22,7 +22,7 @@ import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
+import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -36,8 +36,6 @@ import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -98,17 +96,9 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
     // Register the PcscPlugin
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
-    // Get the contactless reader whose name matches the provided regex and configure it
-    String pcscContactlessReaderName = ConfigurationUtil.getCardReaderName(plugin, cardReaderRegex);
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
-        .setContactless(true)
-        .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ConfigurableCardReader cardReader =
-        (ConfigurableCardReader) plugin.getReader(pcscContactlessReaderName);
-    cardReader.activateProtocol(
-        PcscSupportedContactlessProtocol.ISO_14443_4.name(), ConfigurationUtil.ISO_CARD_PROTOCOL);
+    // Get the card readers whose name matches the provided regex
+    CardReader cardReader =
+        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
 
     // Get the Calypso card extension service
     CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();

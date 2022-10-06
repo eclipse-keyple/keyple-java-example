@@ -14,6 +14,9 @@ package org.eclipse.keyple.card.calypso.example.common;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.sam.CalypsoSamSelection;
 import org.calypsonet.terminal.reader.CardReader;
+import org.calypsonet.terminal.reader.ConfigurableCardReader;
+import org.calypsonet.terminal.reader.selection.CardSelectionManager;
+import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.Plugin;
@@ -22,6 +25,8 @@ import org.eclipse.keyple.core.service.resource.*;
 import org.eclipse.keyple.core.service.resource.spi.CardResourceProfileExtension;
 import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,17 +52,7 @@ public class ConfigurationUtil {
    */
   private ConfigurationUtil() {}
 
-  /**
-   * Retrieves the name of the first available reader in the provided plugin whose name matches the
-   * provided regular expression.
-   *
-   * @param plugin The plugin to which the reader belongs.
-   * @param readerNameRegex A regular expression matching the targeted reader.
-   * @return The name of the found reader.
-   * @throws IllegalStateException If the reader is not found.
-   * @since 2.0.0
-   */
-  public static String getCardReaderName(Plugin plugin, String readerNameRegex) {
+  private static String getReaderName(Plugin plugin, String readerNameRegex) {
     for (String readerName : plugin.getReaderNames()) {
       if (readerName.matches(readerNameRegex)) {
         logger.info("Card reader, plugin; {}, name: {}", plugin.getName(), readerName);
@@ -66,6 +61,93 @@ public class ConfigurationUtil {
     }
     throw new IllegalStateException(
         String.format("Reader '%s' not found in plugin '%s'", readerNameRegex, plugin.getName()));
+  }
+
+  /**
+   * Retrieves the contactless card reader the first available reader in the provided plugin whose
+   * name matches the provided regular expression.
+   *
+   * @param plugin The plugin to which the reader belongs.
+   * @param readerNameRegex A regular expression matching the targeted reader.
+   * @return The found card reader.
+   * @throws IllegalStateException If the reader is not found.
+   * @since 2.0.0
+   */
+  public static CardReader getCardReader(Plugin plugin, String readerNameRegex) {
+    // Get the contactless reader whose name matches the provided regex
+    String pcscContactlessReaderName = ConfigurationUtil.getReaderName(plugin, readerNameRegex);
+    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
+
+    // Configure the reader with parameters suitable for contactless operations.
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
+        .setContactless(true)
+        .setIsoProtocol(PcscReader.IsoProtocol.T1)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+
+    ((ConfigurableCardReader) cardReader)
+        .activateProtocol(
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ConfigurationUtil.ISO_CARD_PROTOCOL);
+    return cardReader;
+  }
+
+  /**
+   * Retrieves the contact SAM reader the first available reader in the provided plugin whose name
+   * matches the provided regular expression.
+   *
+   * @param plugin The plugin to which the reader belongs.
+   * @param readerNameRegex A regular expression matching the targeted reader.
+   * @return The found SAM reader.
+   * @throws IllegalStateException If the reader is not found.
+   * @since 2.0.0
+   */
+  public static CardReader getSamReader(Plugin plugin, String readerNameRegex) {
+    // Get the contact reader dedicated for Calypso SAM whose name matches the provided regex
+    String pcscContactReaderName = ConfigurationUtil.getReaderName(plugin, readerNameRegex);
+    CardReader samReader = plugin.getReader(pcscContactReaderName);
+
+    // Configure the Calypso SAM reader with parameters suitable for contactless operations.
+    plugin
+        .getReaderExtension(PcscReader.class, pcscContactReaderName)
+        .setContactless(false)
+        .setIsoProtocol(PcscReader.IsoProtocol.ANY)
+        .setSharingMode(PcscReader.SharingMode.SHARED);
+    ((ConfigurableCardReader) samReader)
+        .activateProtocol(
+            PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
+    return samReader;
+  }
+
+  /**
+   * Attempts to select a SAM and return the {@link CalypsoSam} in case of success.
+   *
+   * @param samReader The reader in which the SAM is inserted
+   * @return A {@link CalypsoSam}.
+   * @throws IllegalStateException when the selection of the SAM failed.
+   * @since 2.0.0
+   */
+  public static CalypsoSam getSam(CardReader samReader) {
+
+    // Create a SAM selection manager.
+    CardSelectionManager samSelectionManager =
+        SmartCardServiceProvider.getService().createCardSelectionManager();
+
+    // Create a SAM selection using the Calypso card extension.
+    samSelectionManager.prepareSelection(
+        CalypsoExtensionService.getInstance().createSamSelection());
+
+    // SAM communication: run the selection scenario.
+    CardSelectionResult samSelectionResult =
+        samSelectionManager.processCardSelectionScenario(samReader);
+
+    // Check the selection result.
+    if (samSelectionResult.getActiveSmartCard() == null) {
+      throw new IllegalStateException("The selection of the SAM failed.");
+    }
+
+    // Get the Calypso SAM SmartCard resulting of the selection.
+    return (CalypsoSam) samSelectionResult.getActiveSmartCard();
   }
 
   /**

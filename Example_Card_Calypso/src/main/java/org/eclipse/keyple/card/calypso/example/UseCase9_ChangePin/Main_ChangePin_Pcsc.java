@@ -18,7 +18,6 @@ import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
 import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -27,9 +26,6 @@ import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,36 +74,11 @@ public class Main_ChangePin_Pcsc {
     // Verify that the extension's API level is consistent with the current service.
     smartCardService.checkCardExtension(calypsoCardService);
 
-    // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName =
-        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
-
-    // Configure the reader with parameters suitable for contactless operations.
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
-        .setContactless(true)
-        .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ((ConfigurableCardReader) cardReader)
-        .activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
-
-    // Get the contact reader dedicated for Calypso SAM whose name matches the provided regex
-    String pcscContactReaderName =
-        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
-    CardReader samReader = plugin.getReader(pcscContactReaderName);
-
-    // Configure the Calypso SAM reader with parameters suitable for contactless operations.
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactReaderName)
-        .setContactless(false)
-        .setIsoProtocol(PcscReader.IsoProtocol.T0)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ((ConfigurableCardReader) samReader)
-        .activateProtocol(
-            PcscSupportedContactProtocol.ISO_7816_3_T0.name(), ConfigurationUtil.SAM_PROTOCOL);
+    // Get the card and SAM readers whose name matches the provided regexs
+    CardReader cardReader =
+        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader samReader =
+        ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
 
     logger.info("=============== UseCase Calypso #5: Calypso card Verify PIN ==================");
 
@@ -116,25 +87,10 @@ public class Main_ChangePin_Pcsc {
       throw new IllegalStateException("No card is present in the reader.");
     }
 
-    // Create a SAM selection manager.
-    CardSelectionManager samSelectionManager = smartCardService.createCardSelectionManager();
+    // Get the Calypso SAM SmartCard after selection.
+    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
 
-    // Create a SAM selection using the Calypso card extension.
-    samSelectionManager.prepareSelection(calypsoCardService.createSamSelection());
-
-    // SAM communication: run the selection scenario.
-    CardSelectionResult samSelectionResult =
-        samSelectionManager.processCardSelectionScenario(samReader);
-
-    // Check the selection result.
-    if (samSelectionResult.getActiveSmartCard() == null) {
-      throw new IllegalStateException("The selection of the SAM failed.");
-    }
-
-    // Get the Calypso SAM SmartCard resulting of the selection.
-    CalypsoSam calypsoSam = (CalypsoSam) samSelectionResult.getActiveSmartCard();
-
-    logger.info("= SmartCard = {}", calypsoSam);
+    logger.info("= SAM = {}", calypsoSam);
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
