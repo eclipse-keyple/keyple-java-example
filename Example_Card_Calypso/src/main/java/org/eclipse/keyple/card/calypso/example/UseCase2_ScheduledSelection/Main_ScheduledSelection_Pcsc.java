@@ -13,7 +13,6 @@ package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -21,8 +20,6 @@ import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,11 +56,10 @@ public class Main_ScheduledSelection_Pcsc {
 
   public static void main(String[] args) throws InterruptedException {
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
-    // Register the PcscPlugin with the SmartCardService, get the corresponding generic plugin in
-    // return.
+    // Register the PcscPlugin, get the corresponding generic plugin in return
     final Plugin plugin =
         smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
@@ -74,20 +70,8 @@ public class Main_ScheduledSelection_Pcsc {
     smartCardService.checkCardExtension(calypsoCardService);
 
     // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName =
-        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
-
-    // Configure the reader with parameters suitable for contactless operations.
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
-        .setContactless(true)
-        .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ((ConfigurableCardReader) cardReader)
-        .activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
+    CardReader cardReader =
+        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
 
     logger.info("=============== UseCase Generic #2: scheduled selection ==================");
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);

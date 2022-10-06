@@ -73,11 +73,10 @@ public class Main_DataSigning_Pcsc {
 
   public static void main(String[] args) {
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
-    // Register the PcscPlugin with the SmartCardService, get the corresponding PC/SC plugin in
-    // return.
+    // Register the PcscPlugin, get the corresponding PC/SC plugin in return
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
@@ -276,7 +275,7 @@ public class Main_DataSigning_Pcsc {
     /** {@inheritDoc} */
     @Override
     public void setupReader(CardReader reader) {
-      // Configure the reader with parameters suitable for contactless operations.
+      // Configure the reader with parameters suitable for contact operations.
       try {
         ((ConfigurableCardReader) reader)
             .activateProtocol(

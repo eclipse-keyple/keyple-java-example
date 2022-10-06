@@ -13,7 +13,6 @@ package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
 
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
 import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -22,8 +21,6 @@ import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +45,6 @@ import org.slf4j.LoggerFactory;
  * All results are logged with slf4j.
  *
  * <p>Any unexpected behavior will result in a runtime exceptions.
- *
- * @since 2.0.0
  */
 public class Main_ExplicitSelectionAid_Pcsc {
   private static final Logger logger =
@@ -57,11 +52,10 @@ public class Main_ExplicitSelectionAid_Pcsc {
 
   public static void main(String[] args) {
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
-    // Register the PcscPlugin with the SmartCardService, get the corresponding generic plugin in
-    // return.
+    // Register the PcscPlugin, get the corresponding generic plugin in return
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the Calypso card extension service
@@ -71,20 +65,8 @@ public class Main_ExplicitSelectionAid_Pcsc {
     smartCardService.checkCardExtension(calypsoCardService);
 
     // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName =
-        ConfigurationUtil.getCardReaderName(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
-
-    // Configure the reader with parameters suitable for contactless operations.
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
-        .setContactless(true)
-        .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ((ConfigurableCardReader) cardReader)
-        .activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
+    CardReader cardReader =
+        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
 
     logger.info(
         "=============== UseCase Calypso #1: AID based explicit selection ==================");

@@ -61,7 +61,7 @@ public class Main_ScheduledSelection_Stub {
   public static void main(String[] args) throws InterruptedException {
     final String CARD_READER_NAME = "Stub card reader";
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
     // Register the StubPlugin with the SmartCardService, plug a Calypso card stub

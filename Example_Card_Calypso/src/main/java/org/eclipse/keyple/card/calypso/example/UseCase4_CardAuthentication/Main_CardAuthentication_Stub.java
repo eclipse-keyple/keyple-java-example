@@ -61,8 +61,6 @@ import org.slf4j.LoggerFactory;
  * All results are logged with slf4j.
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
- *
- * @since 2.0.0
  */
 public class Main_CardAuthentication_Stub {
   private static final Logger logger = LoggerFactory.getLogger(Main_CardAuthentication_Stub.class);
@@ -71,7 +69,7 @@ public class Main_CardAuthentication_Stub {
     final String CARD_READER_NAME = "Stub card reader";
     final String SAM_READER_NAME = "Stub SAM reader";
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
     // Register the StubPlugin with the SmartCardService, plug a Calypso card stub

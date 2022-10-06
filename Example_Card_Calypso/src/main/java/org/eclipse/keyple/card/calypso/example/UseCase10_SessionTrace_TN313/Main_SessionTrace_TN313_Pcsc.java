@@ -11,26 +11,19 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
-
 import java.util.Scanner;
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.service.resource.CardResource;
-import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -46,7 +39,7 @@ import org.slf4j.impl.SimpleLogger;
  * <ul>
  *   <li>Schedule a selection scenario over an observable reader to target a specific card (here a
  *       Calypso card characterized by its AID) and including the reading of a file record.
- *   <li>Initialize and start the SAM resource service.
+ *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
  *   <li>Start the observation and wait for a card insertion.
  *   <li>Within the reader event handler:
  *       <ul>
@@ -78,7 +71,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     logger.info("  CARD_READER_REGEX={}", cardReaderRegex);
     logger.info("  SAM_READER_REGEX={}", samReaderRegex);
 
-    // Get the instance of the SmartCardService (singleton pattern)
+    // Get the instance of the SmartCardService
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
     // Register the PcscPlugin
@@ -91,20 +84,16 @@ public class Main_SessionTrace_TN313_Pcsc {
     // Verify that the extension's API level is consistent with the current service.
     smartCardService.checkCardExtension(calypsoCardService);
 
-    // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName = ConfigurationUtil.getCardReaderName(plugin, cardReaderRegex);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
+    // Get the card and SAM readers whose name matches the provided regexs
+    CardReader cardReader =
+        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader samReader =
+        ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
 
-    // Configure the reader with parameters suitable for contactless operations.
-    plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
-        .setContactless(true)
-        .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
-    ((ConfigurableCardReader) cardReader)
-        .activateProtocol(
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
+    // Get the Calypso SAM SmartCard after selection.
+    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
+
+    logger.info("= SAM = {}", calypsoSam);
 
     logger.info("Select application with AID = '{}'", cardAid);
 
@@ -130,18 +119,11 @@ public class Main_SessionTrace_TN313_Pcsc {
         ObservableCardReader.DetectionMode.REPEATING,
         ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
-    // Configure the card resource service for the targeted SAM.
-    setupCardResourceService(plugin, samReaderRegex, CalypsoConstants.SAM_PROFILE_NAME);
-
-    // Create security settings that reference the same SAM profile requested from the card resource
-    // service.
-    CardResource samResource =
-        CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
+    // Create security settings that reference the SAM
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setControlSamResource(
-                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
+            .setControlSamResource(samReader, calypsoSam);
 
     // Create and add a card observer for this reader
     CardReaderObserver cardReaderObserver =
