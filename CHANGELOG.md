@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Changed
-- replace the use of the Card Resource Service with a simple SAM selection in most Calypso examples
+- Replaced the use of the Card Resource Service with a simple SAM selection in most Calypso examples.
 ### Upgraded
 - "Calypsonet Terminal Reader API" to `1.3.0` 
 - "Keyple Calypso Card Library" to version `2.2.2`
