@@ -32,11 +32,13 @@ repositories {
 dependencies {
     implementation("org.calypsonet.terminal:calypsonet-terminal-reader-java-api:1.1.+") { isChanging = true }
     implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-java-api:1.4.+") { isChanging = true }
+    implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-crypto-legacysam-java-api:0.1.0-SNAPSHOT") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.+") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-service-java-lib:2.1.1")
     implementation("org.eclipse.keyple:keyple-service-resource-java-lib:2.0.2")
     implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.0")
     implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.1.0")
+    implementation("org.eclipse.keyple:keyple-card-calypso-crypto-legacysam-java-lib:0.1.0-SNAPSHOT") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.3.0")
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
     implementation("org.slf4j:slf4j-simple:1.7.32")
