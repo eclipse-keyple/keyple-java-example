@@ -25,6 +25,8 @@ import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 public class Main_SamEvent_Management_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_SamEvent_Management_Pcsc.class);
 
@@ -59,6 +61,13 @@ public class Main_SamEvent_Management_Pcsc {
     samTransactionManager.prepareReadEventCounters(0, 26);
     samTransactionManager.prepareReadEventCeilings(0, 26);
     samTransactionManager.processCommands();
+
+    for(Map.Entry<Integer, Integer> ceiling: calypsoSam.getEventCeilings().entrySet()) {
+      logger.info("Ceiling #{}: {}", ceiling.getKey(), ceiling.getValue());
+    }
+    for(Map.Entry<Integer, Integer> counter: calypsoSam.getEventCounters().entrySet()) {
+      logger.info("Counter #{}: {}", counter.getKey(), counter.getValue());
+    }
 
     logger.info("= SAM = {}", JsonUtil.toJson(calypsoSam));
   }
