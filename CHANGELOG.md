@@ -4,14 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
-### Changed
-- Replaced the use of the Card Resource Service with a simple SAM selection in most Calypso examples.
-### Upgraded
-- "Calypsonet Terminal Reader API" to `1.3.0` 
-- "Keyple Calypso Card Library" to version `2.2.2`
+
+## [2022-10-27]
 ### Added
 - Calypso example #12 for Performance Measurement (embedded validation).
 - Calypso example #13 for Performance Measurement (distributed reloading).
+### Changed
+- Replaced the use of the Card Resource Service with a simple SAM selection in most Calypso examples.
+### Upgraded
+- "Calypsonet Terminal Reader API" to `1.1.0` 
+- "Calypsonet Terminal Calypso API" to `1.4.0`
+- "Keyple Service Library" to version `2.1.1`
+- "Keyple Calypso Card Library" to version `2.2.3`
 
 ## [2022-07-26]
 ### Upgraded
@@ -28,14 +32,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - "Keyple Plugin Android OMAPI Library" to version `2.0.1`
 
 ## [2022-05-30]
+### Added
+- Calypso example #11 for Data signing (issue [#15]).
 ### Changed
 - Removal of the use of deprecated methods.
 ### Upgraded
 - "Calypsonet Terminal Calypso API" to version `1.2.+`
 - "Keyple Card Calypso Library" to version `2.2.0`
 - "Keyple Util Library" to version `2.1.0`
-### Added
-- Calypso example #11 for Data signing (issue [#15]).
 
 ## [2022-04-06]
 ### Added
@@ -97,7 +101,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
     
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-06-09...HEAD
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-10-27...HEAD
+[2022-10-27]: https://github.com/eclipse/keyple-java-example/compare/2022-06-09...2022-10-27
 [2022-06-09]: https://github.com/eclipse/keyple-java-example/compare/2022-05-30...2022-06-09
 [2022-05-30]: https://github.com/eclipse/keyple-java-example/compare/2022-04-06...2022-05-30
 [2022-04-06]: https://github.com/eclipse/keyple-java-example/compare/2022-02-02...2022-04-06
