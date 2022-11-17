@@ -5,7 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-## [2022-10-27]
+## [2022-11-17]
+### Fixed
+- Command line argument parsing in TN313 Calypso example.
+### Added
+- Default KIF values for `PRIME_REVISION_2` cards in TN313 Calypso example.
+### Upgraded
+- "Keyple Calypso Card Library" to version `2.2.5`
+
+## [2022-10-27]`
 ### Added
 - Calypso example #12 for Performance Measurement (embedded validation).
 - Calypso example #13 for Performance Measurement (distributed reloading).

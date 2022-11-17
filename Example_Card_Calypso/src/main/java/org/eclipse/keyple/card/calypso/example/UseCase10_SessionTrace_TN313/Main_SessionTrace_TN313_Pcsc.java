@@ -12,6 +12,7 @@
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
 import java.util.Scanner;
+import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
@@ -85,10 +86,8 @@ public class Main_SessionTrace_TN313_Pcsc {
     smartCardService.checkCardExtension(calypsoCardService);
 
     // Get the card and SAM readers whose name matches the provided regexs
-    CardReader cardReader =
-        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
-    CardReader samReader =
-        ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
+    CardReader cardReader = ConfigurationUtil.getCardReader(plugin, cardReaderRegex);
+    CardReader samReader = ConfigurationUtil.getSamReader(plugin, samReaderRegex);
 
     // Get the Calypso SAM SmartCard after selection.
     CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
@@ -123,6 +122,9 @@ public class Main_SessionTrace_TN313_Pcsc {
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
+            .assignDefaultKif(WriteAccessLevel.PERSONALIZATION, (byte) 0x21)
+            .assignDefaultKif(WriteAccessLevel.LOAD, (byte) 0x27)
+            .assignDefaultKif(WriteAccessLevel.DEBIT, (byte) 0x30)
             .setControlSamResource(samReader, calypsoSam);
 
     // Create and add a card observer for this reader
