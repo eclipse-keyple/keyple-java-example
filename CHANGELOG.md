@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2022-12-06]
+### Upgraded
+- "Keyple Calypso Card Library" to version `2.3.0`.
+
 ## [2022-11-17]
 ### Fixed
 - Command line argument parsing in TN313 Calypso example.
@@ -109,7 +113,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
     
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-10-27...HEAD
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-12-06...HEAD
+[2022-12-06]: https://github.com/eclipse/keyple-java-example/compare/2022-10-27...2022-12-06
 [2022-10-27]: https://github.com/eclipse/keyple-java-example/compare/2022-06-09...2022-10-27
 [2022-06-09]: https://github.com/eclipse/keyple-java-example/compare/2022-05-30...2022-06-09
 [2022-05-30]: https://github.com/eclipse/keyple-java-example/compare/2022-04-06...2022-05-30
