@@ -17,7 +17,7 @@ import org.calypsonet.terminal.calypso.crypto.legacysam.transaction.LegacySamFre
 import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.eclipse.keyple.card.calypso.crypto.legacysam.CardSelectionFactoryProvider;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamSelectionFactoryProvider;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamTransactionManagerFactoryProvider;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.Plugin;
@@ -48,7 +48,7 @@ public class Main_SamEvent_Management_Pcsc {
 
     // Create a SAM selection.
     LegacySamSelection samSelection =
-        CardSelectionFactoryProvider.getFactory().createSamSelection();
+        LegacySamSelectionFactoryProvider.getFactory().createSamSelection();
 
     // Provide the SAM selection to the card selection manager
     samSelectionManager.prepareSelection(samSelection);
