@@ -13,12 +13,12 @@ package org.eclipse.keyple.card.calypso.example.UseCase14_SamEvent_Management;
 
 import org.calypsonet.terminal.calypso.crypto.legacysam.sam.LegacySam;
 import org.calypsonet.terminal.calypso.crypto.legacysam.sam.LegacySamSelection;
-import org.calypsonet.terminal.calypso.crypto.legacysam.transaction.LegacySamFreeTransactionManager;
+import org.calypsonet.terminal.calypso.crypto.legacysam.transaction.LSFreeTransactionManager;
 import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LSTransactionManagerFactoryProvider;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamSelectionFactoryProvider;
-import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamTransactionManagerFactoryProvider;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
@@ -65,8 +65,8 @@ public class Main_SamEvent_Management_Pcsc {
     // Get the Calypso legacy SAM SmartCard resulting of the selection.
     LegacySam sam = (LegacySam) samSelectionResult.getActiveSmartCard();
 
-    LegacySamFreeTransactionManager samTransactionManager =
-        LegacySamTransactionManagerFactoryProvider.getFactory()
+    LSFreeTransactionManager samTransactionManager =
+        LSTransactionManagerFactoryProvider.getFactory()
             .createFreeTransactionManager(samReader, sam);
 
     samTransactionManager
