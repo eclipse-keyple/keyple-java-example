@@ -11,14 +11,12 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase14_SamEvent_Management;
 
-import java.util.Map;
 import org.calypsonet.terminal.calypso.crypto.legacysam.sam.LegacySam;
 import org.calypsonet.terminal.calypso.crypto.legacysam.sam.LegacySamSelection;
 import org.calypsonet.terminal.calypso.crypto.legacysam.transaction.LegacySamFreeTransactionManager;
 import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.CardSelectionFactoryProvider;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamTransactionManagerFactoryProvider;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
@@ -39,12 +37,6 @@ public class Main_SamEvent_Management_Pcsc {
 
     // Register the PcscPlugin, get the corresponding PC/SC plugin in return
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
-
-    // Get the Calypso card extension service
-    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
-
-    // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(calypsoCardService);
 
     // Retrieve the SAM reader
     CardReader samReader =
@@ -73,23 +65,15 @@ public class Main_SamEvent_Management_Pcsc {
     // Get the Calypso legacy SAM SmartCard resulting of the selection.
     LegacySam sam = (LegacySam) samSelectionResult.getActiveSmartCard();
 
-    logger.info("= SAM = {}", JsonUtil.toJson(sam));
-
     LegacySamFreeTransactionManager samTransactionManager =
         LegacySamTransactionManagerFactoryProvider.getFactory()
             .createFreeTransactionManager(samReader, sam);
 
-    samTransactionManager.prepareReadEventCounters(0, 26);
-    samTransactionManager.prepareReadEventCeilings(0, 26);
-    samTransactionManager.processCommands();
+    samTransactionManager
+        .prepareReadEventCounters(0, 26)
+        .prepareReadEventCeilings(0, 26)
+        .processCommands();
 
-    for (Map.Entry<Integer, Integer> ceiling : sam.getEventCeilings().entrySet()) {
-      logger.info("Ceiling #{}: {}", ceiling.getKey(), ceiling.getValue());
-    }
-    for (Map.Entry<Integer, Integer> counter : sam.getEventCounters().entrySet()) {
-      logger.info("Counter #{}: {}", counter.getKey(), counter.getValue());
-    }
-
-    logger.info("= SAM = {}", JsonUtil.toJson(sam));
+    logger.info("SAM content: {}", JsonUtil.toJson(sam));
   }
 }
