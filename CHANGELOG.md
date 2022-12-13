@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2022-12-13]
+### Added
+- `UseCase14_ReadLegacySamCountersAndCeilings` example.
+
 ## [2022-12-06]
 ### Upgraded
 - "Keyple Calypso Card Library" to version `2.3.0`.
