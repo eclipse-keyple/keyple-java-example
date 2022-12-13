@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
 
 /**
- * Use Case Calypso 12 – Performance measurement: reloading (PC/SC)
+ * Use Case Calypso 13 – Performance measurement: distributed reloading (PC/SC)
  *
  * <p>This code is dedicated to performance measurement for a reloading type transaction.
  *

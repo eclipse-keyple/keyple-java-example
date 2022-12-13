@@ -82,3 +82,7 @@ Each example can be run independently.
 * Use Case Calypso 13 - Performance measurement (distributed reloading):
   [UseCase13_PerformanceMeasurement_DistributedReloading](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase13_PerformanceMeasurement_DistributedReloading)
     * Real mode with PC/SC readers [`Main_PerformanceMeasurement_DistributedReloading_Pcsc.java`]
+
+* Use Case Calypso 14 - Read SAM counters and ceilings:
+  [UseCase14_ReadLegacySamCountersAndCeilings](https://github.com/eclipse/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse/keyple/card/calypso/example/UseCase14_ReadLegacySamCountersAndCeilings)
+    * Real mode with PC/SC readers [`Main_ReadLegacySamCountersAndCeilings_Pcsc.java`]
