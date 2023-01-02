@@ -117,7 +117,6 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
         calypsoCardService
             .createCardSelection()
             .acceptInvalidatedCard()
-            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(cardAid)
             .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)

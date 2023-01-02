@@ -113,11 +113,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
     // Prepare the selection by adding the selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
-            .filterByDfName(cardAid));
+        calypsoCardService.createCardSelection().acceptInvalidatedCard().filterByDfName(cardAid));
 
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
