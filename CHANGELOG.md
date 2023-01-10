@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]]
+
+## [2023-01-10]
 ### Fixed
 - Removed filtering by protocol in performance measurement tools.
 ### Upgraded
+- "Calypsonet Terminal Reader API" to `1.2.0`
+- "Keyple Service Library" to version `2.1.2`.
 - "Keyple Calypso Card Library" to version `2.3.1`.
 
 ## [2022-12-13]
