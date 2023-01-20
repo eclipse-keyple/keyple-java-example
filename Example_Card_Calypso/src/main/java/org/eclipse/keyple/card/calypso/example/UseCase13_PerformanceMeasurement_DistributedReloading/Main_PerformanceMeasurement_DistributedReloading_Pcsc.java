@@ -206,9 +206,13 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
                   .prepareReadRecords(
                       CalypsoConstants.SFI_CONTRACTS,
                       CalypsoConstants.RECORD_NUMBER_1,
-                      CalypsoConstants.RECORD_NUMBER_2,
+                      calypsoCard.getProductType() == CalypsoCard.ProductType.BASIC
+                          ? CalypsoConstants.RECORD_NUMBER_1
+                          : CalypsoConstants.RECORD_NUMBER_2,
                       CalypsoConstants.RECORD_SIZE)
-                  .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 2)
+                  .prepareReadCounter(
+                      CalypsoConstants.SFI_COUNTERS,
+                      calypsoCard.getProductType() == CalypsoCard.ProductType.BASIC ? 1 : 2)
                   .processOpening(WriteAccessLevel.LOAD);
 
           environmentAndHolderData =
