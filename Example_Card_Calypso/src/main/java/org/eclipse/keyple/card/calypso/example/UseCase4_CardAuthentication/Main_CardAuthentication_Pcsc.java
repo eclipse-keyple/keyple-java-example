@@ -135,14 +135,13 @@ public class Main_CardAuthentication_Pcsc {
     // Performs file reads using the card transaction manager in secure mode.
     calypsoCardService
         .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
         .prepareReadRecords(
             CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
             CalypsoConstants.RECORD_NUMBER_1,
             CalypsoConstants.RECORD_NUMBER_1,
             CalypsoConstants.RECORD_SIZE)
-        .processOpening(WriteAccessLevel.DEBIT)
-        .prepareReleaseCardChannel()
-        .processClosing();
+        .processCommands(true);
 
     logger.info(
         "The Secure Session ended successfully, the card is authenticated and the data read are certified.");

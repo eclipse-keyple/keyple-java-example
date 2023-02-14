@@ -147,14 +147,13 @@ public class Main_CardAuthentication_Stub {
       // Performs file reads using the card transaction manager in secure mode.
       calypsoCardService
           .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+          .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
           .prepareReadRecords(
               CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
               CalypsoConstants.RECORD_NUMBER_1,
               CalypsoConstants.RECORD_NUMBER_1,
               CalypsoConstants.RECORD_SIZE)
-          .processOpening(WriteAccessLevel.DEBIT)
-          .prepareReleaseCardChannel()
-          .processClosing();
+          .processCommands(true);
     } finally {
       try {
         CardResourceServiceProvider.getService().releaseCardResource(samResource);

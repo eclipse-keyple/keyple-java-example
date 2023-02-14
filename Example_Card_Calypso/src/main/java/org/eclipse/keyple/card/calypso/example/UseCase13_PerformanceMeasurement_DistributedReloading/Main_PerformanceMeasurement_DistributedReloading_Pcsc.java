@@ -199,6 +199,7 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
           CardTransactionManager cardTransactionManager =
               CalypsoExtensionService.getInstance()
                   .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+                  .prepareOpenSecureSession(WriteAccessLevel.LOAD)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
                   .prepareReadRecord(
@@ -213,7 +214,7 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
                   .prepareReadCounter(
                       CalypsoConstants.SFI_COUNTERS,
                       calypsoCard.getProductType() == CalypsoCard.ProductType.BASIC ? 1 : 2)
-                  .processOpening(WriteAccessLevel.LOAD);
+                  .processCommands(false);
 
           environmentAndHolderData =
               calypsoCard
@@ -265,8 +266,8 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
                   CalypsoConstants.RECORD_NUMBER_1,
                   newContractRecord)
               .prepareIncreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterIncrement)
-              .prepareReleaseCardChannel()
-              .processClosing();
+              .prepareCloseSecureSession()
+              .processCommands(true);
 
           // display transaction time
           System.out.printf(

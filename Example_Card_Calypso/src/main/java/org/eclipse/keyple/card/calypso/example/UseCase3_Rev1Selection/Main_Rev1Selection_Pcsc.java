@@ -127,8 +127,7 @@ public class Main_Rev1Selection_Pcsc {
     calypsoCardService
         .createCardTransactionWithoutSecurity(cardReader, calypsoCard)
         .prepareReadRecord(CalypsoConstants.SFI_EVENT_LOG, 1)
-        .prepareReleaseCardChannel()
-        .processCommands();
+        .processCommands(true);
 
     String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(

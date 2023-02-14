@@ -143,7 +143,7 @@ public class Main_VerifyPin_Pcsc {
 
     ////////////////////////////
     // Verification of the PIN (correct) out of a secure session in plain mode
-    cardTransaction.processVerifyPin(CalypsoConstants.PIN_OK);
+    cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_OK).processCommands(false);
     logger.info("Remaining attempts #1: {}", calypsoCard.getPinAttemptRemaining());
 
     // create a secured card transaction
@@ -152,17 +152,18 @@ public class Main_VerifyPin_Pcsc {
 
     ////////////////////////////
     // Verification of the PIN (correct) out of a secure session in encrypted mode
-    cardTransaction.processVerifyPin(CalypsoConstants.PIN_OK);
+    cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_OK).processCommands(false);
     // log the current counter value (should be 3)
     logger.info("Remaining attempts #2: {}", calypsoCard.getPinAttemptRemaining());
 
     ////////////////////////////
     // Verification of the PIN (incorrect) inside a secure session
-    cardTransaction.processOpening(WriteAccessLevel.DEBIT);
+    cardTransaction.prepareOpenSecureSession(WriteAccessLevel.DEBIT);
     try {
-      cardTransaction.processVerifyPin(CalypsoConstants.PIN_KO);
+      cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_KO).processCommands(false);
     } catch (Exception ex) {
       logger.error("PIN Exception: {}", ex.getMessage());
+      cardTransaction.prepareCancelSecureSession().processCommands(false);
     }
     // log the current counter value (should be 2)
     logger.error("Remaining attempts #3: {}", calypsoCard.getPinAttemptRemaining());
@@ -170,13 +171,16 @@ public class Main_VerifyPin_Pcsc {
     ////////////////////////////
     // Verification of the PIN (correct) inside a secure session with reading of the counter
     //////////////////////////// before
-    cardTransaction.prepareCheckPinStatus();
-    cardTransaction.processOpening(WriteAccessLevel.DEBIT);
+    cardTransaction
+        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+        .prepareCheckPinStatus()
+        .processCommands(false);
     // log the current counter value (should be 2)
     logger.info("Remaining attempts #4: {}", calypsoCard.getPinAttemptRemaining());
-    cardTransaction.processVerifyPin(CalypsoConstants.PIN_OK);
-    cardTransaction.prepareReleaseCardChannel();
-    cardTransaction.processClosing();
+    cardTransaction
+        .prepareVerifyPin(CalypsoConstants.PIN_OK)
+        .prepareCloseSecureSession()
+        .processCommands(true);
 
     // log the current counter value (should be 3)
     logger.info("Remaining attempts #5: {}", calypsoCard.getPinAttemptRemaining());
