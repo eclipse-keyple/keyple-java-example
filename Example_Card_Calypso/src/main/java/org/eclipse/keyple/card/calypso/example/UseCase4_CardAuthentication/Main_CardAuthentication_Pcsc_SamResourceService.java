@@ -147,6 +147,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
               CalypsoConstants.RECORD_NUMBER_1,
               CalypsoConstants.RECORD_NUMBER_1,
               CalypsoConstants.RECORD_SIZE)
+          .prepareCloseSecureSession()
           .processCommands(true);
     } finally {
       try {

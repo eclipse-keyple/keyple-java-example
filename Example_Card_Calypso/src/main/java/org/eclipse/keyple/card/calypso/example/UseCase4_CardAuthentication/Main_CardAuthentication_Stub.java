@@ -153,6 +153,7 @@ public class Main_CardAuthentication_Stub {
               CalypsoConstants.RECORD_NUMBER_1,
               CalypsoConstants.RECORD_NUMBER_1,
               CalypsoConstants.RECORD_SIZE)
+          .prepareCloseSecureSession()
           .processCommands(true);
     } finally {
       try {
