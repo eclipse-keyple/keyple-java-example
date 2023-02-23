@@ -132,8 +132,9 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     CardTransactionManager cardTransaction =
         calypsoCardService
             .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+            .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
             .prepareSvGet(SvOperation.DEBIT, SvAction.DO)
-            .processOpening(WriteAccessLevel.DEBIT);
+            .processCommands(false);
 
     // Display the current SV status
     logger.info("Current SV status (SV Get for DEBIT):");
@@ -145,7 +146,7 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     logger.info(". Debit log record = {}", calypsoCard.getSvDebitLogLastRecord());
 
     // Prepare an SV Debit of 2 units
-    cardTransaction.prepareSvDebit(2).prepareReleaseCardChannel().processClosing();
+    cardTransaction.prepareSvDebit(2).prepareCloseSecureSession().processCommands(true);
 
     logger.info(
         "The Secure Session ended successfully, the stored value has been debited by 2 units.");

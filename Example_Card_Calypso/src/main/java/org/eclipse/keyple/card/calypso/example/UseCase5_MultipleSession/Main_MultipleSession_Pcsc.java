@@ -131,7 +131,7 @@ public class Main_MultipleSession_Pcsc {
     CardTransactionManager cardTransaction =
         calypsoCardService.createCardTransaction(cardReader, calypsoCard, cardSecuritySetting);
 
-    cardTransaction.processOpening(WriteAccessLevel.DEBIT);
+    cardTransaction.prepareOpenSecureSession(WriteAccessLevel.DEBIT);
 
     // Compute the number of append records (29 bytes) commands that will overflow the card
     // modifications buffer. Each append records will consume 35 (29 + 6) bytes in the
@@ -155,7 +155,7 @@ public class Main_MultipleSession_Pcsc {
           HexUtil.toByteArray(CalypsoConstants.EVENT_LOG_DATA_FILL));
     }
 
-    cardTransaction.prepareReleaseCardChannel().processClosing();
+    cardTransaction.prepareCloseSecureSession().processCommands(true);
 
     logger.info(
         "The secure session has ended successfully, all data has been written to the card's memory.");

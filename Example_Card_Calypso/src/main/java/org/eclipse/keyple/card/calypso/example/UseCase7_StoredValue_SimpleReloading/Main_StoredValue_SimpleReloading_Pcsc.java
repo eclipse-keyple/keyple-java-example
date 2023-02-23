@@ -132,7 +132,7 @@ public class Main_StoredValue_SimpleReloading_Pcsc {
         calypsoCardService
             .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
             .prepareSvGet(SvOperation.RELOAD, SvAction.DO)
-            .processCommands();
+            .processCommands(false);
 
     // Display the current SV status
     logger.info("Current SV status (SV Get for RELOAD):");
@@ -145,8 +145,7 @@ public class Main_StoredValue_SimpleReloading_Pcsc {
     cardTransaction.prepareSvReload(2);
 
     // Execute the command and close the communication after
-    cardTransaction.prepareReleaseCardChannel();
-    cardTransaction.processCommands();
+    cardTransaction.processCommands(true);
 
     logger.info(
         "The Secure Session ended successfully, the stored value has been reloaded by 2 units.");

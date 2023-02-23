@@ -1,5 +1,5 @@
 /* **************************************************************************************
- * Copyright (c) 2018 Calypso Networks Association https://calypsonet.org/
+ * Copyright (c) 2023 Calypso Networks Association https://calypsonet.org/
  *
  * See the NOTICE file(s) distributed with this work for additional information
  * regarding copyright ownership.
@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ************************************************************************************** */
-package org.eclipse.keyple.card.calypso.example.UseCase4_CardAuthentication;
+package org.eclipse.keyple.card.calypso.example.UseCase15_ExtendedModeSession;
 
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
@@ -33,33 +33,17 @@ import org.slf4j.LoggerFactory;
 /**
  *
  *
- * <h1>Use Case Calypso 4 – Calypso Card authentication (PC/SC)</h1>
+ * <h1>Use Case Calypso 15 – Extended Mode Session (PC/SC)</h1>
  *
- * <p>We demonstrate here the authentication of a Calypso card using a Secure Session in which a
- * file from the card is read. The read is certified by verifying the signature of the card by a
- * Calypso SAM.
+ * <p>We demonstrate here how to operate early authentication and data encryption within a Calypso
+ * Secure Session. Please check the generated log to observe the security mechanisms.
  *
- * <p>Two readers are required for this example: a contactless reader for the Calypso Card, a
- * contact reader for the Calypso SAM.
- *
- * <h2>Scenario:</h2>
- *
- * <ul>
- *   <li>Checks if an ISO 14443-4 card is in the reader, enables the card selection manager.
- *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
- *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
- *       an AID-based application selection scenario.
- *   <li>Creates a {@link CardTransactionManager} using {@link CardSecuritySetting} referencing the
- *       selected SAM.
- *   <li>Read a file record in Secure Session.
- * </ul>
- *
- * All results are logged with slf4j.
+ * <p>All results are logged with slf4j.
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
-public class Main_CardAuthentication_Pcsc {
-  private static final Logger logger = LoggerFactory.getLogger(Main_CardAuthentication_Pcsc.class);
+public class Main_ExtendedModeSession_Pcsc {
+  private static final Logger logger = LoggerFactory.getLogger(Main_ExtendedModeSession_Pcsc.class);
 
   public static void main(String[] args) {
 
@@ -81,8 +65,7 @@ public class Main_CardAuthentication_Pcsc {
     CardReader samReader =
         ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
 
-    logger.info(
-        "=============== UseCase Calypso #4: Calypso card authentication ==================");
+    logger.info("=============== UseCase Calypso #15: Extended Mode Session ==================");
 
     // Check if a card is present in the reader
     if (!cardReader.isCardPresent()) {
@@ -96,7 +79,7 @@ public class Main_CardAuthentication_Pcsc {
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
-    // Create a card selection manager.
+    // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
 
     // Create a card selection using the Calypso card extension.
@@ -123,35 +106,36 @@ public class Main_CardAuthentication_Pcsc {
 
     logger.info("= SmartCard = {}", calypsoCard);
 
-    String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
-    logger.info("Calypso Serial Number = {}", csn);
+    if (!calypsoCard.isExtendedModeSupported()) {
+      throw new IllegalStateException("This Calypso card does not support the extended mode.");
+    }
 
     // Create security settings that reference the SAM
     CardSecuritySetting cardSecuritySetting =
         CalypsoExtensionService.getInstance()
             .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam);
+            .setControlSamResource(samReader, calypsoSam)
+            .enableMultipleSession();
 
-    // Performs file reads using the card transaction manager in secure mode.
-    calypsoCardService
-        .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+    // Performs file reads using the card transaction manager in non-secure mode.
+    CardTransactionManager cardTransaction =
+        calypsoCardService.createCardTransaction(cardReader, calypsoCard, cardSecuritySetting);
+
+    cardTransaction
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
-        .prepareReadRecords(
-            CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
-            CalypsoConstants.RECORD_NUMBER_1,
-            CalypsoConstants.RECORD_NUMBER_1,
-            CalypsoConstants.RECORD_SIZE)
+        .prepareEarlyMutualAuthentication()
+        .prepareReadRecord(CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
+        .prepareActivateEncryption()
+        .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
+        .prepareDeactivateEncryption()
+        .prepareAppendRecord(
+            CalypsoConstants.SFI_EVENT_LOG,
+            HexUtil.toByteArray(CalypsoConstants.EVENT_LOG_DATA_FILL))
         .prepareCloseSecureSession()
         .processCommands(true);
 
     logger.info(
-        "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
-
-    String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
-    logger.info(
-        "File {}h, rec 1: FILE_CONTENT = {}",
-        sfiEnvHolder,
-        calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
+        "The secure session has ended successfully, all data has been written to the card's memory.");
 
     logger.info("= #### End of the Calypso card processing.");
 

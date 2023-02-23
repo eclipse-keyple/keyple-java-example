@@ -163,11 +163,12 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           CardTransactionManager cardTransactionManager =
               CalypsoExtensionService.getInstance()
                   .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+                  .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_EVENT_LOG, CalypsoConstants.RECORD_NUMBER_1)
-                  .processOpening(WriteAccessLevel.DEBIT);
+                  .processCommands(false);
 
           byte[] environmentAndHolderData =
               calypsoCard
@@ -187,7 +188,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           cardTransactionManager
               .prepareReadRecord(
                   CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
-              .processCommands();
+              .processCommands(false);
 
           byte[] contractListData =
               calypsoCard
@@ -200,7 +201,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           // read the elected contract
           cardTransactionManager
               .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
-              .processCommands();
+              .processCommands(false);
 
           byte[] contractData =
               calypsoCard
@@ -213,7 +214,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           // read the contract counter
           cardTransactionManager
               .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 1)
-              .processCommands();
+              .processCommands(false);
 
           int counterValue =
               calypsoCard
@@ -227,8 +228,8 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           cardTransactionManager
               .prepareDecreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterDecrement)
               .prepareAppendRecord(CalypsoConstants.SFI_EVENT_LOG, newEventRecord)
-              .prepareReleaseCardChannel()
-              .processClosing();
+              .prepareCloseSecureSession()
+              .processCommands(true);
 
           // display transaction time
           System.out.printf(

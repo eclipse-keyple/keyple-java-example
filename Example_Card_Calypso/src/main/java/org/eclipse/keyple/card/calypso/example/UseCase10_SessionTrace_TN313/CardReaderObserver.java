@@ -91,13 +91,14 @@ class CardReaderObserver
           CardTransactionManager cardTransactionManager =
               CalypsoExtensionService.getInstance()
                   .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+                  .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_EVENT_LOG, CalypsoConstants.RECORD_NUMBER_1)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
-                  .processOpening(WriteAccessLevel.DEBIT);
+                  .processCommands(false);
 
           /*
           Place for the analysis of the context and the list of contracts
@@ -106,7 +107,7 @@ class CardReaderObserver
           // read the elected contract
           cardTransactionManager
               .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
-              .processCommands();
+              .processCommands(false);
 
           /*
           Place for the analysis of the contracts
@@ -115,7 +116,8 @@ class CardReaderObserver
           // add an event record and close the Secure Session
           cardTransactionManager
               .prepareAppendRecord(CalypsoConstants.SFI_EVENT_LOG, newEventRecord)
-              .processClosing();
+              .prepareCloseSecureSession()
+              .processCommands(true);
 
           // display transaction time
           logger.info(

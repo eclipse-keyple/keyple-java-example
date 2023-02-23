@@ -158,18 +158,16 @@ public class Main_ChangePin_Pcsc {
 
     ////////////////////////////
     // Change the PIN (correct)
-    cardTransaction.processChangePin(newPinCode);
+    cardTransaction.prepareChangePin(newPinCode).processCommands(false);
 
     logger.info("PIN code value successfully updated to {}", inputString);
 
     ////////////////////////////
     // Verification of the PIN
-    cardTransaction.processVerifyPin(newPinCode);
+    cardTransaction.prepareVerifyPin(newPinCode).processCommands(true);
     logger.info("Remaining attempts: {}", calypsoCard.getPinAttemptRemaining());
 
     logger.info("PIN {} code successfully presented.", inputString);
-
-    cardTransaction.prepareReleaseCardChannel();
 
     logger.info("= #### End of the Calypso card processing.");
 
