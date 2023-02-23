@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - "Keyple Service Library" to version `2.1.3`.
 - "Keyple Distributed Remote Library" to version `2.1.0`.
 - "Google Gson library" (com.google.code.gson) to version `2.10.1`.
+### Added
+- `UseCase15_ExtendedModeSession` example.
 
 ## [2023-01-10]
 ### Fixed
