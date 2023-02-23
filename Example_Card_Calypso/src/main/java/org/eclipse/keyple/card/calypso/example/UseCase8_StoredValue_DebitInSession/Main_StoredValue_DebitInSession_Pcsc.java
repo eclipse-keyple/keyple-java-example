@@ -146,7 +146,7 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     logger.info(". Debit log record = {}", calypsoCard.getSvDebitLogLastRecord());
 
     // Prepare an SV Debit of 2 units
-    cardTransaction.prepareCloseSecureSession().processCommands(true);
+    cardTransaction.prepareSvDebit(2).prepareCloseSecureSession().processCommands(true);
 
     logger.info(
         "The Secure Session ended successfully, the stored value has been debited by 2 units.");
