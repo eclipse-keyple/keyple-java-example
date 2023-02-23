@@ -96,8 +96,7 @@ public class CalypsoTicketingServiceUtil {
     CalypsoExtensionService.getInstance()
         .createCardTransactionWithoutSecurity(reader, calypsoCard)
         .prepareReadRecord(SFI_EventLog, RECORD_NUMBER_1)
-        .prepareReleaseCardChannel()
-        .processCommands();
+        .processCommands(true);
     logger.info("The reading of the EventLog has succeeded.");
 
     // Retrieves the data read from the CalypsoCard updated during the transaction process.

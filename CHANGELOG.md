@@ -3,7 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]]
+## [Unreleased]
+
+## [2023-02-23]
+### Upgraded
+- "Calypsonet Terminal Calypso API" to `1.6.0`
+- "Keyple Calypso Card Library" to version `2.3.2`.
+- "Keyple Service Library" to version `2.1.3`.
+- "Keyple Distributed Remote Library" to version `2.1.0`.
+- "Google Gson library" (com.google.code.gson) to version `2.10.1`.
 
 ## [2023-01-10]
 ### Fixed
@@ -15,6 +23,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [2022-12-13]
 ### Added
+- "Calypsonet Terminal Calypso Crypto Legacy SAM API" version `0.1.0`.
+- "Keyple Calypso Crypto Legacy SAM Library" version `0.2.0`.
 - `UseCase14_ReadLegacySamCountersAndCeilings` example.
 
 ## [2022-12-06]
@@ -125,7 +135,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
     
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2022-12-06...HEAD
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2023-02-23...HEAD
+[2023-02-23]: https://github.com/eclipse/keyple-java-example/compare/2022-12-06...2023-02-23
 [2022-12-06]: https://github.com/eclipse/keyple-java-example/compare/2022-10-27...2022-12-06
 [2022-10-27]: https://github.com/eclipse/keyple-java-example/compare/2022-06-09...2022-10-27
 [2022-06-09]: https://github.com/eclipse/keyple-java-example/compare/2022-05-30...2022-06-09
