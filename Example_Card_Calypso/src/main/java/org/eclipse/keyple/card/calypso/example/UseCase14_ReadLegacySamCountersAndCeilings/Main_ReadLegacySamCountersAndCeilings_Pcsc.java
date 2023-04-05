@@ -90,12 +90,11 @@ public class Main_ReadLegacySamCountersAndCeilings_Pcsc {
 
     // Process the transaction to read counters and ceilings
     samTransactionManager
-        .prepareReadEventCounters(0, 26)
-        .prepareReadEventCeilings(0, 26)
+        .prepareReadAllCountersStatus()
         .processCommands();
 
     // Output results
-    logger.info("\nSAM event counters =\n{}", gson.toJson(sam.getEventCounters()));
-    logger.info("\nSAM event ceilings =\n{}", gson.toJson(sam.getEventCeilings()));
+    logger.info("\nSAM event counters =\n{}", gson.toJson(sam.getCounters()));
+    logger.info("\nSAM event ceilings =\n{}", gson.toJson(sam.getCounterCeilings()));
   }
 }

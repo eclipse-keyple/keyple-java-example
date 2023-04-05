@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2023-04-05]
+### Upgraded
+- "Calypsonet Terminal Calypso API" to `1.8.0`.
+- "Calypsonet Terminal Calypso Crypto Legacy SAM API" version `0.2.0`.
+- "Keyple Calypso Card Library" to version `2.3.4`.
+- "Keyple Calypso Crypto Legacy SAM Library" version `0.3.0`.
+- "Keyple Service Library" to version `2.1.4`.
+- "Keyple Distributed Network Library" to version `2.2.0`.
+- "Keyple Distributed Remote Library" to version `2.2.0`.
+- "Keyple Distributed Local Library" to version `2.2.0`.
+- "Keyple Plugin PC/SC Library" to version `2.1.1`
+
 ## [2023-02-23]
 ### Upgraded
 - "Calypsonet Terminal Calypso API" to `1.6.0`
