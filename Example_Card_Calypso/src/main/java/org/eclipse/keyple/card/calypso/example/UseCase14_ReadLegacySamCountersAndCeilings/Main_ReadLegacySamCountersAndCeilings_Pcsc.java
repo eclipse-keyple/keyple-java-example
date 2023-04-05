@@ -89,9 +89,7 @@ public class Main_ReadLegacySamCountersAndCeilings_Pcsc {
             .createFreeTransactionManager(samReader, sam);
 
     // Process the transaction to read counters and ceilings
-    samTransactionManager
-        .prepareReadAllCountersStatus()
-        .processCommands();
+    samTransactionManager.prepareReadAllCountersStatus().processCommands();
 
     // Output results
     logger.info("\nSAM event counters =\n{}", gson.toJson(sam.getCounters()));
