@@ -148,11 +148,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-generic-java-lib:2.0.0
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
-    
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2023-02-23...HEAD
-[2023-02-23]: https://github.com/eclipse/keyple-java-example/compare/2022-12-06...2023-02-23
-[2022-12-06]: https://github.com/eclipse/keyple-java-example/compare/2022-10-27...2022-12-06
-[2022-10-27]: https://github.com/eclipse/keyple-java-example/compare/2022-06-09...2022-10-27
+
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2023-04-05...HEAD
+[2023-04-05]: https://github.com/eclipse/keyple-java-example/compare/2023-02-23...2023-04-05
+[2023-02-23]: https://github.com/eclipse/keyple-java-example/compare/2023-01-10...2023-02-23
+[2023-01-10]: https://github.com/eclipse/keyple-java-example/compare/2022-12-13...2023-01-10
+[2022-12-13]: https://github.com/eclipse/keyple-java-example/compare/2022-12-06...2022-12-13
+[2022-12-06]: https://github.com/eclipse/keyple-java-example/compare/2022-11-17...2022-12-06
+[2022-11-17]: https://github.com/eclipse/keyple-java-example/compare/2022-10-27...2022-11-17
+[2022-10-27]: https://github.com/eclipse/keyple-java-example/compare/2022-07-26...2022-10-27
+[2022-07-26]: https://github.com/eclipse/keyple-java-example/compare/2022-06-09...2022-07-26
 [2022-06-09]: https://github.com/eclipse/keyple-java-example/compare/2022-05-30...2022-06-09
 [2022-05-30]: https://github.com/eclipse/keyple-java-example/compare/2022-04-06...2022-05-30
 [2022-04-06]: https://github.com/eclipse/keyple-java-example/compare/2022-02-02...2022-04-06
