@@ -27,6 +27,7 @@ import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keyple.core.util.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +78,7 @@ class CardReaderObserver
       case CARD_MATCHED:
         // read the current time used later to compute the transaction time
         long timeStamp = System.currentTimeMillis();
+        CardTransactionManager cardTransactionManager = null;
         try {
           // the selection matched, get the resulting CalypsoCard
           CalypsoCard calypsoCard =
@@ -88,7 +90,7 @@ class CardReaderObserver
 
           // create a transaction manager, open a Secure Session, read Environment, Event Log and
           // Contract List.
-          CardTransactionManager cardTransactionManager =
+          cardTransactionManager =
               CalypsoExtensionService.getInstance()
                   .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
                   .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
@@ -125,11 +127,16 @@ class CardReaderObserver
               ANSI_GREEN,
               System.currentTimeMillis() - timeStamp,
               ANSI_RESET);
+          logger.info("{}{}{}", ANSI_GREEN,
+                  JsonUtil.toJson(cardTransactionManager.getTransactionAuditData()),
+                  ANSI_RESET);
         } catch (Exception e) {
           logger.error(
               "{}Transaction failed with exception: {}{}", ANSI_RED, e.getMessage(), ANSI_RESET);
         }
-
+        if(cardTransactionManager != null) {
+          //cardTransactionManager.initSamContextForNextTransaction();
+        }
         break;
 
       case CARD_INSERTED:

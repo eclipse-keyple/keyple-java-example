@@ -11,11 +11,14 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.UseCase7_PluginAndReaderObservation;
 
+import de.intarsys.security.smartcard.smartcardio.SmartcardioProvider;
 import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.Security;
 
 /**
  *
@@ -46,6 +49,8 @@ public class Main_PluginAndReaderObservation_Pcsc {
       LoggerFactory.getLogger(Main_PluginAndReaderObservation_Pcsc.class);
 
   public static void main(String[] args) throws Exception {
+
+    Security.insertProviderAt(new SmartcardioProvider(), 1);
 
     // Get the instance of the SmartCardService (singleton pattern)
     SmartCardService smartCardService = SmartCardServiceProvider.getService();

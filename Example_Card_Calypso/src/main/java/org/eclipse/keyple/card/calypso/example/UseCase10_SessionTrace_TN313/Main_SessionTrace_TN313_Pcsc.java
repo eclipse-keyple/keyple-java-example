@@ -72,6 +72,8 @@ public class Main_SessionTrace_TN313_Pcsc {
     logger.info("  CARD_READER_REGEX={}", cardReaderRegex);
     logger.info("  SAM_READER_REGEX={}", samReaderRegex);
 
+
+//    Security.insertProviderAt(new SmartcardioProvider(), 1);
     // Get the instance of the SmartCardService
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
 
