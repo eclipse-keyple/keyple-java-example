@@ -83,7 +83,7 @@ public class ConfigurationUtil {
         .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
+        .setSharingMode(PcscReader.SharingMode.EXCLUSIVE);
 
     ((ConfigurableCardReader) cardReader)
         .activateProtocol(PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);

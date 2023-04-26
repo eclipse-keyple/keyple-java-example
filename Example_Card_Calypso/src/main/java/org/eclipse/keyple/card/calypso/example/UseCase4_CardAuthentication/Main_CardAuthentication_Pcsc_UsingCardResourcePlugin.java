@@ -11,32 +11,27 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase4_CardAuthentication;
 
+import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
+
+import java.util.Collections;
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.crypto.legacysam.sam.LegacySam;
 import org.calypsonet.terminal.calypso.sam.CalypsoSam;
 import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
 import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
 import org.calypsonet.terminal.reader.CardReader;
 import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.calypsonet.terminal.reader.selection.spi.SmartCard;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.CardResource;
-import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.cardresource.CardResourcePluginFactoryBuilder;
-import org.eclipse.keyple.plugin.cardresource.CardResourceReader;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.logging.Level;
-
-import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
 /**
  *
@@ -70,6 +65,8 @@ public class Main_CardAuthentication_Pcsc_UsingCardResourcePlugin {
   private static final Logger logger =
       LoggerFactory.getLogger(Main_CardAuthentication_Pcsc_UsingCardResourcePlugin.class);
 
+  private static final String CARD_RESOURCE_PLUGIN_NAME = "CardResourcePlugin";
+
   public static void main(String[] args) {
 
     // Get the instance of the SmartCardService
@@ -79,7 +76,13 @@ public class Main_CardAuthentication_Pcsc_UsingCardResourcePlugin {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Register the CardResourcePlugin, get the corresponding generic pool plugin in return
-    PoolPlugin cardResourcePlugin = (PoolPlugin) smartCardService.registerPlugin(CardResourcePluginFactoryBuilder.builder().addReferences(CalypsoConstants.SAM_PROFILE_NAME).build());
+    PoolPlugin cardResourcePlugin =
+        (PoolPlugin)
+            smartCardService.registerPlugin(
+                CardResourcePluginFactoryBuilder.builder(
+                        CARD_RESOURCE_PLUGIN_NAME,
+                        Collections.singleton(CalypsoConstants.SAM_PROFILE_NAME))
+                    .build());
 
     // Get the Calypso card extension service
     CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();

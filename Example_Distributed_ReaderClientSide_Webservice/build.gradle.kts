@@ -48,7 +48,7 @@ dependencies {
     implementation("org.eclipse.keyple:keyple-distributed-remote-java-lib:2.2.0")
     implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.3.4")
     implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.1.0")
-    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.1")
+    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.2")
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.+") { isChanging = true }
     /* Quarkus */
     implementation(enforcedPlatform("io.quarkus:quarkus-universe-bom:1.8.1.Final"))

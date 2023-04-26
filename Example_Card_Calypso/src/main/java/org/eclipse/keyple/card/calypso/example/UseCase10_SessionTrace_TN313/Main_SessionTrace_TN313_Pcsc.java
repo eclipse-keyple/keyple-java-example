@@ -11,6 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
+import de.intarsys.security.smartcard.smartcardio.SmartcardioProvider;
+import java.security.Security;
 import java.util.Scanner;
 import org.calypsonet.terminal.calypso.WriteAccessLevel;
 import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
@@ -59,6 +61,8 @@ public class Main_SessionTrace_TN313_Pcsc {
 
   public static void main(String[] args) {
 
+    Security.insertProviderAt(new SmartcardioProvider(), 1);
+
     parseCommandLine(args);
 
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, isVerbose ? "TRACE" : "INFO");
@@ -72,8 +76,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     logger.info("  CARD_READER_REGEX={}", cardReaderRegex);
     logger.info("  SAM_READER_REGEX={}", samReaderRegex);
 
-
-//    Security.insertProviderAt(new SmartcardioProvider(), 1);
+    Security.insertProviderAt(new SmartcardioProvider(), 1);
     // Get the instance of the SmartCardService
     final SmartCardService smartCardService = SmartCardServiceProvider.getService();
 

@@ -27,7 +27,6 @@ import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.core.util.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,15 +126,15 @@ class CardReaderObserver
               ANSI_GREEN,
               System.currentTimeMillis() - timeStamp,
               ANSI_RESET);
-          logger.info("{}{}{}", ANSI_GREEN,
-                  JsonUtil.toJson(cardTransactionManager.getTransactionAuditData()),
-                  ANSI_RESET);
+          //          logger.info("{}{}{}", ANSI_GREEN,
+          //                  JsonUtil.toJson(cardTransactionManager.getTransactionAuditData()),
+          //                  ANSI_RESET);
         } catch (Exception e) {
           logger.error(
               "{}Transaction failed with exception: {}{}", ANSI_RED, e.getMessage(), ANSI_RESET);
         }
-        if(cardTransactionManager != null) {
-          //cardTransactionManager.initSamContextForNextTransaction();
+        if (cardTransactionManager != null) {
+          // cardTransactionManager.initSamContextForNextTransaction();
         }
         break;
 

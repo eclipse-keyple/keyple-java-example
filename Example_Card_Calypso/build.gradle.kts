@@ -30,7 +30,7 @@ repositories {
     maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
 }
 dependencies {
-    //implementation(fileTree(mapOf("dir" to "./libs", "include" to listOf("*.jar"))))
+    implementation(fileTree(mapOf("dir" to "./libs", "include" to listOf("*.jar"))))
     implementation("org.calypsonet.terminal:calypsonet-terminal-reader-java-api:1.2.+") { isChanging = true }
     implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-java-api:1.6.+") { isChanging = true }
     implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-crypto-legacysam-java-api:0.2.+") { isChanging = true }
@@ -38,8 +38,7 @@ dependencies {
     implementation("org.eclipse.keyple:keyple-service-java-lib:2.2.0-SNAPSHOT") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-service-resource-java-lib:2.0.2")
     implementation("org.eclipse.keyple:keyple-plugin-cardresource-java-lib:1.0.0-SNAPSHOT") { isChanging = true }
-    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.1")
-//    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.2-SNAPSHOT") { isChanging = true }
+    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.2")
     implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.1.0")
     implementation("org.eclipse.keyple:keyple-card-calypso-crypto-legacysam-java-lib:0.3.0")
     implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.3.2")
