@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2023-04-27]
+### Upgraded
+- "Keyple Service Library" to version `2.2.0`.
+- "Keyple Service Resource Library" to version `2.1.1`.
+- The use of wildcards ('+') in some dependency version definitions has been removed and replaced with the requirement 
+to use the exact and latest version of each dependency. This ensures consistency and avoids compatibility issues.
+
 ## [2023-04-05]
 ### Upgraded
 - "Calypsonet Terminal Calypso API" to `1.8.0`.
@@ -149,7 +156,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
 
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2023-04-05...HEAD
+[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2023-04-27...HEAD
+[2023-04-27]: https://github.com/eclipse/keyple-java-example/compare/2023-04-05...2023-04-27
 [2023-04-05]: https://github.com/eclipse/keyple-java-example/compare/2023-02-23...2023-04-05
 [2023-02-23]: https://github.com/eclipse/keyple-java-example/compare/2023-01-10...2023-02-23
 [2023-01-10]: https://github.com/eclipse/keyple-java-example/compare/2022-12-13...2023-01-10
