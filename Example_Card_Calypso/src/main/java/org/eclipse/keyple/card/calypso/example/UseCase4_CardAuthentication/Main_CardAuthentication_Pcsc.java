@@ -11,15 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase4_CardAuthentication;
 
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.Plugin;
@@ -27,37 +20,22 @@ import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.WriteAccessLevel;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- *
- * <h1>Use Case Calypso 4 – Calypso Card authentication (PC/SC)</h1>
- *
- * <p>We demonstrate here the authentication of a Calypso card using a Secure Session in which a
- * file from the card is read. The read is certified by verifying the signature of the card by a
- * Calypso SAM.
- *
- * <p>Two readers are required for this example: a contactless reader for the Calypso Card, a
- * contact reader for the Calypso SAM.
- *
- * <h2>Scenario:</h2>
- *
- * <ul>
- *   <li>Checks if an ISO 14443-4 card is in the reader, enables the card selection manager.
- *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
- *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
- *       an AID-based application selection scenario.
- *   <li>Creates a {@link CardTransactionManager} using {@link CardSecuritySetting} referencing the
- *       selected SAM.
- *   <li>Read a file record in Secure Session.
- * </ul>
- *
- * All results are logged with slf4j.
- *
- * <p>Any unexpected behavior will result in runtime exceptions.
- */
+/** */
 public class Main_CardAuthentication_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_CardAuthentication_Pcsc.class);
 
@@ -90,23 +68,28 @@ public class Main_CardAuthentication_Pcsc {
     }
 
     // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
+    LegacySam sam = ConfigurationUtil.getSam(samReader);
 
-    logger.info("= SAM = {}", calypsoSam);
+    logger.info("= SAM = {}", sam);
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
-    // Create a card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
+    // Get the core card selection manager.
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByDfName(CalypsoConstants.AID));
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -127,14 +110,15 @@ public class Main_CardAuthentication_Pcsc {
     logger.info("Calypso Serial Number = {}", csn);
 
     // Create security settings that reference the SAM
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam);
+    SymmetricCryptoSecuritySetting cardSecuritySetting =
+        calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
+            LegacySamExtensionService.getInstance()
+                .getLegacySamApiFactory()
+                .createSymmetricCryptoTransactionManagerFactory(samReader, sam));
 
     // Performs file reads using the card transaction manager in secure mode.
-    calypsoCardService
-        .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
+    calypsoCardApiFactory
+        .createSecureRegularModeTransactionManager(cardReader, calypsoCard, cardSecuritySetting)
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
         .prepareReadRecords(
             CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
@@ -142,7 +126,7 @@ public class Main_CardAuthentication_Pcsc {
             CalypsoConstants.RECORD_NUMBER_1,
             CalypsoConstants.RECORD_SIZE)
         .prepareCloseSecureSession()
-        .processCommands(true);
+        .processCommands(ChannelControl.CLOSE_AFTER);
 
     logger.info(
         "The Secure Session ended successfully, the card is authenticated and the data read are certified.");

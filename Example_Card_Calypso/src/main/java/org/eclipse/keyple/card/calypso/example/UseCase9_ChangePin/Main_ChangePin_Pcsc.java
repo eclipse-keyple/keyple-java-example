@@ -13,19 +13,23 @@ package org.eclipse.keyple.card.calypso.example.UseCase9_ChangePin;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.*;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +47,8 @@ import org.slf4j.LoggerFactory;
  *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
  *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
  *       an AID-based application selection scenario.
- *   <li>Creates a {@link CardTransactionManager} using {@link CardSecuritySetting} referencing the
- *       selected SAM.
+ *   <li>Creates a {@link SecureRegularModeTransactionManager} using {@link
+ *       SymmetricCryptoSecuritySetting} referencing the selected SAM.
  *   <li>Ask for the new PIN code.
  *   <li>Change the PIN code.
  *   <li>Verify the PIN code.
@@ -86,23 +90,28 @@ public class Main_ChangePin_Pcsc {
     }
 
     // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
+    LegacySam sam = ConfigurationUtil.getSam(samReader);
 
-    logger.info("= SAM = {}", calypsoSam);
+    logger.info("= SAM = {}", sam);
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByDfName(CalypsoConstants.AID));
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -123,10 +132,12 @@ public class Main_ChangePin_Pcsc {
     logger.info("Calypso Serial Number = {}", csn);
 
     // Create security settings that reference the SAM
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam)
+    SymmetricCryptoSecuritySetting cardSecuritySetting =
+        calypsoCardApiFactory
+            .createSymmetricCryptoSecuritySetting(
+                LegacySamExtensionService.getInstance()
+                    .getLegacySamApiFactory()
+                    .createSymmetricCryptoTransactionManagerFactory(samReader, sam))
             .setPinVerificationCipheringKey(
                 CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KIF,
                 CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KVC)
@@ -135,8 +146,9 @@ public class Main_ChangePin_Pcsc {
                 CalypsoConstants.PIN_MODIFICATION_CIPHERING_KEY_KVC);
 
     // Create the card transaction manager in secure mode.
-    CardTransactionManager cardTransaction =
-        calypsoCardService.createCardTransaction(cardReader, calypsoCard, cardSecuritySetting);
+    SecureRegularModeTransactionManager cardTransaction =
+        calypsoCardApiFactory.createSecureRegularModeTransactionManager(
+            cardReader, calypsoCard, cardSecuritySetting);
 
     // Short delay to allow logs to be displayed before the prompt
     Thread.sleep(2000);
@@ -158,13 +170,13 @@ public class Main_ChangePin_Pcsc {
 
     ////////////////////////////
     // Change the PIN (correct)
-    cardTransaction.prepareChangePin(newPinCode).processCommands(false);
+    cardTransaction.prepareChangePin(newPinCode).processCommands(ChannelControl.KEEP_OPEN);
 
     logger.info("PIN code value successfully updated to {}", inputString);
 
     ////////////////////////////
     // Verification of the PIN
-    cardTransaction.prepareVerifyPin(newPinCode).processCommands(true);
+    cardTransaction.prepareVerifyPin(newPinCode).processCommands(ChannelControl.CLOSE_AFTER);
     logger.info("Remaining attempts: {}", calypsoCard.getPinAttemptRemaining());
 
     logger.info("PIN {} code successfully presented.", inputString);

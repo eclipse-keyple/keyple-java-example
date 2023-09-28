@@ -13,18 +13,21 @@ package org.eclipse.keyple.card.calypso.example.UseCase14_ReadLegacySamCountersA
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.calypsonet.terminal.calypso.crypto.legacysam.sam.LegacySam;
-import org.calypsonet.terminal.calypso.crypto.legacysam.sam.LegacySamSelection;
-import org.calypsonet.terminal.calypso.crypto.legacysam.transaction.LSFreeTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamCardExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.calypso.crypto.legacysam.transaction.FreeTransactionManager;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,26 +52,29 @@ public class Main_ReadLegacySamCountersAndCeilings_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the legacy SAM card extension service
-    LegacySamCardExtensionService legacySamCardExtensionService =
-        LegacySamCardExtensionService.getInstance();
+    LegacySamExtensionService legacySamExtensionService = LegacySamExtensionService.getInstance();
 
     // Check the APIs compliance (optional)
-    smartCardService.checkCardExtension(legacySamCardExtensionService);
+    smartCardService.checkCardExtension(legacySamExtensionService);
 
     // Retrieve the SAM reader
     CardReader samReader =
         ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
+    // Retrieve the reader API factory
+    ReaderApiFactory readerApiFactory = SmartCardServiceProvider.getService().getReaderApiFactory();
 
     // Create a SAM selection manager.
-    CardSelectionManager samSelectionManager =
-        SmartCardServiceProvider.getService().createCardSelectionManager();
+    CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    // Create a SAM selection.
-    LegacySamSelection samSelection =
-        legacySamCardExtensionService.getLegacySamSelectionFactory().createSamSelection();
+    // Create a card selector without filer
+    CardSelector<IsoCardSelector> cardSelector = readerApiFactory.createIsoCardSelector();
 
-    // Provide the SAM selection to the card selection manager
-    samSelectionManager.prepareSelection(samSelection);
+    LegacySamApiFactory legacySamApiFactory =
+        LegacySamExtensionService.getInstance().getLegacySamApiFactory();
+
+    // Create a SAM selection using the Calypso card extension.
+    samSelectionManager.prepareSelection(
+        cardSelector, legacySamApiFactory.createLegacySamSelectionExtension());
 
     // SAM communication: run the selection scenario.
     CardSelectionResult samSelectionResult =
@@ -83,9 +89,9 @@ public class Main_ReadLegacySamCountersAndCeilings_Pcsc {
     LegacySam sam = (LegacySam) samSelectionResult.getActiveSmartCard();
 
     // Create a transaction manager
-    LSFreeTransactionManager samTransactionManager =
-        legacySamCardExtensionService
-            .getTransactionManagerFactory()
+    FreeTransactionManager samTransactionManager =
+        legacySamExtensionService
+            .getLegacySamApiFactory()
             .createFreeTransactionManager(samReader, sam);
 
     // Process the transaction to read counters and ceilings

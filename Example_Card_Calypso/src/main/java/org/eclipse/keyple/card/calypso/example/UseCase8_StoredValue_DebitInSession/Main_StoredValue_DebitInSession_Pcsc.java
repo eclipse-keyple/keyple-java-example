@@ -11,22 +11,25 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase8_StoredValue_DebitInSession;
 
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.calypso.transaction.SvAction;
-import org.calypsonet.terminal.calypso.transaction.SvOperation;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
+import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
+
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.*;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,23 +88,28 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     }
 
     // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
+    LegacySam sam = ConfigurationUtil.getSam(samReader);
 
-    logger.info("= SAM = {}", calypsoSam);
+    logger.info("= SAM = {}", sam);
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByDfName(CalypsoConstants.AID));
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -122,19 +130,19 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     logger.info("Calypso Serial Number = {}", csn);
 
     // Create security settings that reference the SAM
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam)
-            .enableSvLoadAndDebitLog();
+    SymmetricCryptoSecuritySetting cardSecuritySetting =
+        calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
+            LegacySamExtensionService.getInstance()
+                .getLegacySamApiFactory()
+                .createSymmetricCryptoTransactionManagerFactory(samReader, sam));
 
     // Performs file reads using the card transaction manager in non-secure mode.
-    CardTransactionManager cardTransaction =
-        calypsoCardService
-            .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-            .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+    SecureRegularModeTransactionManager cardTransaction =
+        calypsoCardApiFactory
+            .createSecureRegularModeTransactionManager(cardReader, calypsoCard, cardSecuritySetting)
+            .prepareOpenSecureSession(DEBIT)
             .prepareSvGet(SvOperation.DEBIT, SvAction.DO)
-            .processCommands(false);
+            .processCommands(ChannelControl.KEEP_OPEN);
 
     // Display the current SV status
     logger.info("Current SV status (SV Get for DEBIT):");
@@ -146,7 +154,10 @@ public class Main_StoredValue_DebitInSession_Pcsc {
     logger.info(". Debit log record = {}", calypsoCard.getSvDebitLogLastRecord());
 
     // Prepare an SV Debit of 2 units
-    cardTransaction.prepareSvDebit(2).prepareCloseSecureSession().processCommands(true);
+    cardTransaction
+        .prepareSvDebit(2)
+        .prepareCloseSecureSession()
+        .processCommands(ChannelControl.CLOSE_AFTER);
 
     logger.info(
         "The Secure Session ended successfully, the stored value has been debited by 2 units.");

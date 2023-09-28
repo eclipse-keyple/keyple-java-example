@@ -11,15 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase15_ExtendedModeSession;
 
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.Plugin;
@@ -27,6 +20,19 @@ import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.WriteAccessLevel;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.calypso.card.transaction.SecureExtendedModeTransactionManager;
+import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,23 +79,28 @@ public class Main_ExtendedModeSession_Pcsc {
     }
 
     // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
+    LegacySam sam = ConfigurationUtil.getSam(samReader);
 
-    logger.info("= SAM = {}", calypsoSam);
+    logger.info("= SAM = {}", sam);
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByDfName(CalypsoConstants.AID));
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -111,15 +122,16 @@ public class Main_ExtendedModeSession_Pcsc {
     }
 
     // Create security settings that reference the SAM
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam)
-            .enableMultipleSession();
+    SymmetricCryptoSecuritySetting cardSecuritySetting =
+        calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
+            LegacySamExtensionService.getInstance()
+                .getLegacySamApiFactory()
+                .createSymmetricCryptoTransactionManagerFactory(samReader, sam));
 
     // Performs file reads using the card transaction manager in non-secure mode.
-    CardTransactionManager cardTransaction =
-        calypsoCardService.createCardTransaction(cardReader, calypsoCard, cardSecuritySetting);
+    SecureExtendedModeTransactionManager cardTransaction =
+        calypsoCardApiFactory.createSecureExtendedModeTransactionManager(
+            cardReader, calypsoCard, cardSecuritySetting);
 
     cardTransaction
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
@@ -132,7 +144,7 @@ public class Main_ExtendedModeSession_Pcsc {
             CalypsoConstants.SFI_EVENT_LOG,
             HexUtil.toByteArray(CalypsoConstants.EVENT_LOG_DATA_FILL))
         .prepareCloseSecureSession()
-        .processCommands(true);
+        .processCommands(ChannelControl.CLOSE_AFTER);
 
     logger.info(
         "The secure session has ended successfully, all data has been written to the card's memory.");

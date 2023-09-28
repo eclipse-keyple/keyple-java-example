@@ -11,15 +11,19 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 
-import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,22 +80,30 @@ public class Main_ScheduledSelection_Pcsc {
     logger.info("=============== UseCase Generic #2: scheduled selection ==================");
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
+            .filterByDfName(CalypsoConstants.AID)
+            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
-    CalypsoCardSelection cardSelection =
-        calypsoCardService
-            .createCardSelection()
+    CalypsoCardSelectionExtension cardSelection =
+        calypsoCardApiFactory
+            .createCalypsoCardSelectionExtension()
             .acceptInvalidatedCard()
-            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
-            .filterByDfName(CalypsoConstants.AID)
             .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1);
 
     // Prepare the selection by adding the created Calypso selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(cardSelector, cardSelection);
 
     // Schedule the selection scenario, request notification only if the card matches the selection
     // case.

@@ -11,19 +11,19 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 
-import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_INSERTED;
-import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_MATCHED;
+import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_INSERTED;
+import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_MATCHED;
 
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.CardReaderEvent;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
-import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.CardReaderEvent;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
+import org.eclipse.keypop.reader.spi.CardReaderObserverSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

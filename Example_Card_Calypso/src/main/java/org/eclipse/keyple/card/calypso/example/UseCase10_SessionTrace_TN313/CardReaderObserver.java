@@ -11,22 +11,24 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
-import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_INSERTED;
-import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_MATCHED;
+import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
+import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_INSERTED;
+import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_MATCHED;
 
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.CardReaderEvent;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
-import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.calypso.card.transaction.SecureRegularModeTransactionManager;
+import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.CardReaderEvent;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
+import org.eclipse.keypop.reader.spi.CardReaderObserverSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ class CardReaderObserver
 
   private static final Logger logger = LoggerFactory.getLogger(CardReaderObserver.class);
   private final CardReader cardReader;
-  private final CardSecuritySetting cardSecuritySetting;
+  private final SymmetricCryptoSecuritySetting cardSecuritySetting;
   private final CardSelectionManager cardSelectionManager;
   private final byte[] newEventRecord =
       HexUtil.toByteArray("8013C8EC55667788112233445566778811223344556677881122334455");
@@ -53,6 +55,8 @@ class CardReaderObserver
   public static final String ANSI_PURPLE = "\u001B[35m";
   public static final String ANSI_CYAN = "\u001B[36m";
   public static final String ANSI_WHITE = "\u001B[37m";
+  private final CalypsoCardApiFactory calypsoCardApiFactory;
+
   /**
    * (package-private)<br>
    * Constructor.
@@ -64,10 +68,11 @@ class CardReaderObserver
   CardReaderObserver(
       CardReader cardReader,
       CardSelectionManager cardSelectionManager,
-      CardSecuritySetting cardSecuritySetting) {
+      SymmetricCryptoSecuritySetting cardSecuritySetting) {
     this.cardReader = cardReader;
     this.cardSelectionManager = cardSelectionManager;
     this.cardSecuritySetting = cardSecuritySetting;
+    calypsoCardApiFactory = CalypsoExtensionService.getInstance().getCalypsoCardApiFactory();
   }
 
   /** {@inheritDoc} */
@@ -88,17 +93,18 @@ class CardReaderObserver
 
           // create a transaction manager, open a Secure Session, read Environment, Event Log and
           // Contract List.
-          CardTransactionManager cardTransactionManager =
-              CalypsoExtensionService.getInstance()
-                  .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-                  .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+          SecureRegularModeTransactionManager cardTransactionManager =
+              calypsoCardApiFactory
+                  .createSecureRegularModeTransactionManager(
+                      cardReader, calypsoCard, cardSecuritySetting)
+                  .prepareOpenSecureSession(DEBIT)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_EVENT_LOG, CalypsoConstants.RECORD_NUMBER_1)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
-                  .processCommands(false);
+                  .processCommands(ChannelControl.KEEP_OPEN);
 
           /*
           Place for the analysis of the context and the list of contracts
@@ -107,7 +113,7 @@ class CardReaderObserver
           // read the elected contract
           cardTransactionManager
               .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
-              .processCommands(false);
+              .processCommands(ChannelControl.KEEP_OPEN);
 
           /*
           Place for the analysis of the contracts
@@ -117,7 +123,7 @@ class CardReaderObserver
           cardTransactionManager
               .prepareAppendRecord(CalypsoConstants.SFI_EVENT_LOG, newEventRecord)
               .prepareCloseSecureSession()
-              .processCommands(true);
+              .processCommands(ChannelControl.CLOSE_AFTER);
 
           // display transaction time
           logger.info(

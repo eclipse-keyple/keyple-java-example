@@ -11,20 +11,25 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
+import static org.eclipse.keypop.calypso.card.WriteAccessLevel.*;
+
 import java.util.Scanner;
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.transaction.*;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -90,26 +95,31 @@ public class Main_SessionTrace_TN313_Pcsc {
     CardReader samReader = ConfigurationUtil.getSamReader(plugin, samReaderRegex);
 
     // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
+    LegacySam sam = ConfigurationUtil.getSam(samReader);
 
-    logger.info("= SAM = {}", calypsoSam);
+    logger.info("= SAM = {}", sam);
 
     logger.info("Select application with AID = '{}'", cardAid);
 
-    // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
 
-    // Create a card selection using the Calypso card extension.
-    // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
-    CalypsoCardSelection cardSelection =
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
+    // Get the core card selection manager.
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(cardAid);
 
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
+
+    // Create a card selection using the Calypso card extension.
+    // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
     // Prepare the selection by adding the created Calypso selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
     // Schedule the selection scenario, request notification only if the card matches the selection
     // case.
@@ -119,13 +129,16 @@ public class Main_SessionTrace_TN313_Pcsc {
         ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Create security settings that reference the SAM
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .assignDefaultKif(WriteAccessLevel.PERSONALIZATION, (byte) 0x21)
-            .assignDefaultKif(WriteAccessLevel.LOAD, (byte) 0x27)
-            .assignDefaultKif(WriteAccessLevel.DEBIT, (byte) 0x30)
-            .setControlSamResource(samReader, calypsoSam);
+    SymmetricCryptoSecuritySetting cardSecuritySetting =
+        calypsoCardApiFactory
+            .createSymmetricCryptoSecuritySetting(
+                LegacySamExtensionService.getInstance()
+                    .getLegacySamApiFactory()
+                    .createSymmetricCryptoTransactionManagerFactory(samReader, sam))
+            .assignDefaultKif(PERSONALIZATION, (byte) 0x21)
+            .assignDefaultKif(LOAD, (byte) 0x27)
+            .assignDefaultKif(DEBIT, (byte) 0x30)
+            .enableRatificationMechanism();
 
     // Create and add a card observer for this reader
     CardReaderObserver cardReaderObserver =

@@ -11,11 +11,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase3_Rev1Selection;
 
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
@@ -23,6 +18,16 @@ import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,18 +95,27 @@ public class Main_Rev1Selection_Pcsc {
 
     logger.info("= #### Select the card by its INNOVATRON protocol (no AID).");
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
+            .filterByCardProtocol(ConfigurationUtil.INNOVATRON_CARD_PROTOCOL);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario. No AID is defined, only the card protocol will be used to define the selection
     // case.
     cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
+        cardSelector,
+        calypsoCardApiFactory
+            .createCalypsoCardSelectionExtension()
             .acceptInvalidatedCard()
-            .filterByCardProtocol(ConfigurationUtil.INNOVATRON_CARD_PROTOCOL)
             .prepareReadRecord(
                 CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1));
 
@@ -124,10 +138,10 @@ public class Main_Rev1Selection_Pcsc {
 
     // Performs file reads using the card transaction manager in non-secure mode.
 
-    calypsoCardService
-        .createCardTransactionWithoutSecurity(cardReader, calypsoCard)
+    calypsoCardApiFactory
+        .createFreeTransactionManager(cardReader, calypsoCard)
         .prepareReadRecord(CalypsoConstants.SFI_EVENT_LOG, 1)
-        .processCommands(true);
+        .processCommands(ChannelControl.CLOSE_AFTER);
 
     String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(

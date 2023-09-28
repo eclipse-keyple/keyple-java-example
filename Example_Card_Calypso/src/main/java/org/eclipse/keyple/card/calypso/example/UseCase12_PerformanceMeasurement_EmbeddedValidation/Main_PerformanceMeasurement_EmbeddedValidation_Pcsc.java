@@ -11,26 +11,30 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_EmbeddedValidation;
 
+import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
+
 import java.io.*;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
-import org.eclipse.keyple.core.service.Plugin;
-import org.eclipse.keyple.core.service.SmartCardService;
-import org.eclipse.keyple.core.service.SmartCardServiceProvider;
+import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.calypso.card.transaction.SecureRegularModeTransactionManager;
+import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
@@ -103,22 +107,36 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
     smartCardService.checkCardExtension(calypsoCardService);
 
     // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
+    LegacySam sam = ConfigurationUtil.getSam(samReader);
 
-    // Create a card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    logger.info("= SAM = {}", sam);
+
+    logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
+
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
+    // Get the core card selection manager.
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
     // Prepare the selection by adding the selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        calypsoCardService.createCardSelection().acceptInvalidatedCard().filterByDfName(cardAid));
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam)
+    SymmetricCryptoSecuritySetting cardSecuritySetting =
+        calypsoCardApiFactory
+            .createSymmetricCryptoSecuritySetting(
+                LegacySamExtensionService.getInstance()
+                    .getLegacySamApiFactory()
+                    .createSymmetricCryptoTransactionManagerFactory(samReader, sam))
             .enableRatificationMechanism();
 
     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
@@ -160,15 +178,16 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           }
 
           // create a transaction manager, open a Secure Session, read Environment and Event Log.
-          CardTransactionManager cardTransactionManager =
-              CalypsoExtensionService.getInstance()
-                  .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-                  .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+          SecureRegularModeTransactionManager cardTransactionManager =
+              calypsoCardApiFactory
+                  .createSecureRegularModeTransactionManager(
+                      cardReader, calypsoCard, cardSecuritySetting)
+                  .prepareOpenSecureSession(DEBIT)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
                   .prepareReadRecord(
                       CalypsoConstants.SFI_EVENT_LOG, CalypsoConstants.RECORD_NUMBER_1)
-                  .processCommands(false);
+                  .processCommands(ChannelControl.KEEP_OPEN);
 
           byte[] environmentAndHolderData =
               calypsoCard
@@ -188,7 +207,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           cardTransactionManager
               .prepareReadRecord(
                   CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
-              .processCommands(false);
+              .processCommands(ChannelControl.KEEP_OPEN);
 
           byte[] contractListData =
               calypsoCard
@@ -201,7 +220,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           // read the elected contract
           cardTransactionManager
               .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
-              .processCommands(false);
+              .processCommands(ChannelControl.KEEP_OPEN);
 
           byte[] contractData =
               calypsoCard
@@ -214,7 +233,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           // read the contract counter
           cardTransactionManager
               .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 1)
-              .processCommands(false);
+              .processCommands(ChannelControl.KEEP_OPEN);
 
           int counterValue =
               calypsoCard
@@ -229,7 +248,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
               .prepareDecreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterDecrement)
               .prepareAppendRecord(CalypsoConstants.SFI_EVENT_LOG, newEventRecord)
               .prepareCloseSecureSession()
-              .processCommands(true);
+              .processCommands(ChannelControl.KEEP_OPEN);
 
           // display transaction time
           System.out.printf(

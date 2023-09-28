@@ -13,15 +13,8 @@ package org.eclipse.keyple.card.calypso.example.UseCase4_CardAuthentication;
 
 import static org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil.setupCardResourceService;
 
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.Plugin;
@@ -31,6 +24,18 @@ import org.eclipse.keyple.core.service.resource.CardResource;
 import org.eclipse.keyple.core.service.resource.CardResourceServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.WriteAccessLevel;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,17 +108,22 @@ public class Main_CardAuthentication_Stub {
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByDfName(CalypsoConstants.AID));
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -133,35 +143,29 @@ public class Main_CardAuthentication_Stub {
     String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
     logger.info("Calypso Serial Number = {}", csn);
 
-    // Create security settings that reference the same SAM profile requested from the card resource
     // service.
     CardResource samResource =
         CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .setControlSamResource(
-                samResource.getReader(), (CalypsoSam) samResource.getSmartCard());
 
-    try {
-      // Performs file reads using the card transaction manager in secure mode.
-      calypsoCardService
-          .createCardTransaction(cardReader, calypsoCard, cardSecuritySetting)
-          .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
-          .prepareReadRecords(
-              CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
-              CalypsoConstants.RECORD_NUMBER_1,
-              CalypsoConstants.RECORD_NUMBER_1,
-              CalypsoConstants.RECORD_SIZE)
-          .prepareCloseSecureSession()
-          .processCommands(true);
-    } finally {
-      try {
-        CardResourceServiceProvider.getService().releaseCardResource(samResource);
-      } catch (RuntimeException e) {
-        logger.error("Error during the card resource release: {}", e.getMessage(), e);
-      }
-    }
+    // Create security settings that reference the SAM
+    SymmetricCryptoSecuritySetting cardSecuritySetting =
+        calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
+            LegacySamExtensionService.getInstance()
+                .getLegacySamApiFactory()
+                .createSymmetricCryptoTransactionManagerFactory(
+                    samResource.getReader(), (LegacySam) samResource.getSmartCard()));
+
+    // Performs file reads using the card transaction manager in secure mode.
+    calypsoCardApiFactory
+        .createSecureRegularModeTransactionManager(cardReader, calypsoCard, cardSecuritySetting)
+        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+        .prepareReadRecords(
+            CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
+            CalypsoConstants.RECORD_NUMBER_1,
+            CalypsoConstants.RECORD_NUMBER_1,
+            CalypsoConstants.RECORD_SIZE)
+        .prepareCloseSecureSession()
+        .processCommands(ChannelControl.CLOSE_AFTER);
 
     logger.info(
         "The Secure Session ended successfully, the card is authenticated and the data read are certified.");

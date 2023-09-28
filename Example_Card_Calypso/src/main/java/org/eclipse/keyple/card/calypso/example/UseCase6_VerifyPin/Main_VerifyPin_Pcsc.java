@@ -11,20 +11,28 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase6_VerifyPin;
 
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
+import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
+
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.calypso.card.transaction.FreeTransactionManager;
+import org.eclipse.keypop.calypso.card.transaction.SecureRegularModeTransactionManager;
+import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +50,11 @@ import org.slf4j.LoggerFactory;
  *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
  *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
  *       an AID-based application selection scenario.
- *   <li>Creates a {@link CardTransactionManager} without security.
+ *   <li>Creates a {@link FreeTransactionManager} without security.
  *   <li>Verify the PIN code in plain mode with the correct code, display the remaining attempts
  *       counter.
- *   <li>Creates a {@link CardTransactionManager} using {@link CardSecuritySetting} referencing the
- *       selected SAM.
+ *   <li>Creates a {@link SecureRegularModeTransactionManager} using {@link
+ *       SymmetricCryptoSecuritySetting} referencing the selected SAM.
  *   <li>Verify the PIN code in session in encrypted mode with the code, display the remaining
  *       attempts counter.
  *   <li>Verify the PIN code in session in encrypted mode with a bad code, display the remaining
@@ -92,23 +100,28 @@ public class Main_VerifyPin_Pcsc {
     }
 
     // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
+    LegacySam sam = ConfigurationUtil.getSam(samReader);
 
-    logger.info("= SAM = {}", calypsoSam);
+    logger.info("= SAM = {}", sam);
 
     logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
+
+    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
     // Create a card selection using the Calypso card extension.
     // Prepare the selection by adding the created Calypso card selection to the card selection
     // scenario.
     cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByDfName(CalypsoConstants.AID));
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -129,41 +142,52 @@ public class Main_VerifyPin_Pcsc {
     logger.info("Calypso Serial Number = {}", csn);
 
     // Create security settings that reference the SAM
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam)
+    SymmetricCryptoSecuritySetting cardSecuritySetting =
+        calypsoCardApiFactory
+            .createSymmetricCryptoSecuritySetting(
+                LegacySamExtensionService.getInstance()
+                    .getLegacySamApiFactory()
+                    .createSymmetricCryptoTransactionManagerFactory(samReader, sam))
             .setPinVerificationCipheringKey(
                 CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KIF,
                 CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KVC);
 
     // Create the card transaction manager in secure mode.
-    CardTransactionManager cardTransaction =
-        calypsoCardService.createCardTransactionWithoutSecurity(cardReader, calypsoCard);
+    FreeTransactionManager freeTransactionManager =
+        calypsoCardApiFactory.createFreeTransactionManager(cardReader, calypsoCard);
 
     ////////////////////////////
     // Verification of the PIN (correct) out of a secure session in plain mode
-    cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_OK).processCommands(false);
+    freeTransactionManager
+        .prepareVerifyPin(CalypsoConstants.PIN_OK)
+        .processCommands(ChannelControl.CLOSE_AFTER);
     logger.info("Remaining attempts #1: {}", calypsoCard.getPinAttemptRemaining());
 
     // create a secured card transaction
-    cardTransaction =
-        calypsoCardService.createCardTransaction(cardReader, calypsoCard, cardSecuritySetting);
+    SecureRegularModeTransactionManager secureRegularModeTransactionManager =
+        calypsoCardApiFactory.createSecureRegularModeTransactionManager(
+            cardReader, calypsoCard, cardSecuritySetting);
 
     ////////////////////////////
     // Verification of the PIN (correct) out of a secure session in encrypted mode
-    cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_OK).processCommands(false);
+    secureRegularModeTransactionManager
+        .prepareVerifyPin(CalypsoConstants.PIN_OK)
+        .processCommands(ChannelControl.CLOSE_AFTER);
     // log the current counter value (should be 3)
     logger.info("Remaining attempts #2: {}", calypsoCard.getPinAttemptRemaining());
 
     ////////////////////////////
     // Verification of the PIN (incorrect) inside a secure session
-    cardTransaction.prepareOpenSecureSession(WriteAccessLevel.DEBIT);
+    secureRegularModeTransactionManager.prepareOpenSecureSession(DEBIT);
     try {
-      cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_KO).processCommands(false);
+      secureRegularModeTransactionManager
+          .prepareVerifyPin(CalypsoConstants.PIN_KO)
+          .processCommands(ChannelControl.CLOSE_AFTER);
     } catch (Exception ex) {
       logger.error("PIN Exception: {}", ex.getMessage());
-      cardTransaction.prepareCancelSecureSession().processCommands(false);
+      secureRegularModeTransactionManager
+          .prepareCancelSecureSession()
+          .processCommands(ChannelControl.CLOSE_AFTER);
     }
     // log the current counter value (should be 2)
     logger.error("Remaining attempts #3: {}", calypsoCard.getPinAttemptRemaining());
@@ -171,16 +195,16 @@ public class Main_VerifyPin_Pcsc {
     ////////////////////////////
     // Verification of the PIN (correct) inside a secure session with reading of the counter
     //////////////////////////// before
-    cardTransaction
-        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+    secureRegularModeTransactionManager
+        .prepareOpenSecureSession(DEBIT)
         .prepareCheckPinStatus()
-        .processCommands(false);
+        .processCommands(ChannelControl.KEEP_OPEN);
     // log the current counter value (should be 2)
     logger.info("Remaining attempts #4: {}", calypsoCard.getPinAttemptRemaining());
-    cardTransaction
+    secureRegularModeTransactionManager
         .prepareVerifyPin(CalypsoConstants.PIN_OK)
         .prepareCloseSecureSession()
-        .processCommands(true);
+        .processCommands(ChannelControl.CLOSE_AFTER);
 
     // log the current counter value (should be 3)
     logger.info("Remaining attempts #5: {}", calypsoCard.getPinAttemptRemaining());

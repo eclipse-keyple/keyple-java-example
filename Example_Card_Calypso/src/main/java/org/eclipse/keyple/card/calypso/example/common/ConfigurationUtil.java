@@ -11,13 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.common;
 
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.sam.CalypsoSamSelection;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
@@ -27,6 +22,13 @@ import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySamSelectionExtension;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +85,7 @@ public class ConfigurationUtil {
         .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
-        .setSharingMode(PcscReader.SharingMode.SHARED);
+        .setSharingMode(PcscReader.SharingMode.EXCLUSIVE);
 
     ((ConfigurableCardReader) cardReader)
         .activateProtocol(PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
@@ -117,22 +119,29 @@ public class ConfigurationUtil {
   }
 
   /**
-   * Attempts to select a SAM and return the {@link CalypsoSam} in case of success.
+   * Attempts to select a SAM and return the {@link LegacySam} in case of success.
    *
    * @param samReader The reader in which the SAM is inserted
-   * @return A {@link CalypsoSam}.
+   * @return A {@link LegacySam}.
    * @throws IllegalStateException when the selection of the SAM
    *     failed.ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX)
    */
-  public static CalypsoSam getSam(CardReader samReader) {
+  public static LegacySam getSam(CardReader samReader) {
+    // Retrieve the reader API factory
+    ReaderApiFactory readerApiFactory = SmartCardServiceProvider.getService().getReaderApiFactory();
 
     // Create a SAM selection manager.
-    CardSelectionManager samSelectionManager =
-        SmartCardServiceProvider.getService().createCardSelectionManager();
+    CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    // Create a card selector without filer
+    CardSelector<IsoCardSelector> cardSelector = readerApiFactory.createIsoCardSelector();
+
+    LegacySamApiFactory legacySamApiFactory =
+        LegacySamExtensionService.getInstance().getLegacySamApiFactory();
 
     // Create a SAM selection using the Calypso card extension.
     samSelectionManager.prepareSelection(
-        CalypsoExtensionService.getInstance().createSamSelection());
+        cardSelector, legacySamApiFactory.createLegacySamSelectionExtension());
 
     // SAM communication: run the selection scenario.
     CardSelectionResult samSelectionResult =
@@ -144,7 +153,7 @@ public class ConfigurationUtil {
     }
 
     // Get the Calypso SAM SmartCard resulting of the selection.
-    return (CalypsoSam) samSelectionResult.getActiveSmartCard();
+    return (LegacySam) samSelectionResult.getActiveSmartCard();
   }
 
   /**
@@ -157,14 +166,33 @@ public class ConfigurationUtil {
    */
   public static void setupCardResourceService(
       Plugin plugin, String readerNameRegex, String samProfileName) {
+    // Retrieve the reader API factory
+    ReaderApiFactory readerApiFactory = SmartCardServiceProvider.getService().getReaderApiFactory();
+
+    // Create a SAM selection manager.
+    CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    // Create a card selector without filer
+    CardSelector<BasicCardSelector> cardSelector =
+        readerApiFactory
+            .createBasicCardSelector()
+            .filterByPowerOnData(
+                LegacySamUtil.buildPowerOnDataFilter(LegacySam.ProductType.SAM_C1, null));
+
+    LegacySamApiFactory legacySamApiFactory =
+        LegacySamExtensionService.getInstance().getLegacySamApiFactory();
+
+    // Create a SAM selection using the Calypso card extension.
+    samSelectionManager.prepareSelection(
+        cardSelector, legacySamApiFactory.createLegacySamSelectionExtension());
 
     // Create a card resource extension expecting a SAM "C1".
-    CalypsoSamSelection samSelection =
-        CalypsoExtensionService.getInstance()
-            .createSamSelection()
-            .filterByProductType(CalypsoSam.ProductType.SAM_C1);
+    LegacySamSelectionExtension samSelection =
+        legacySamApiFactory.createLegacySamSelectionExtension();
+
     CardResourceProfileExtension samCardResourceExtension =
-        CalypsoExtensionService.getInstance().createSamResourceProfileExtension(samSelection);
+        LegacySamExtensionService.getInstance()
+            .createLegacySamResourceProfileExtension(samSelection);
 
     // Get the service
     CardResourceService cardResourceService = CardResourceServiceProvider.getService();

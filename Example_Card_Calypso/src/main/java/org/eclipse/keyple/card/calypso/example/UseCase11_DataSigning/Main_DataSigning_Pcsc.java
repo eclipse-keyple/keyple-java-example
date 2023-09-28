@@ -11,13 +11,9 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase11_DataSigning;
 
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.sam.CalypsoSamSelection;
-import org.calypsonet.terminal.calypso.transaction.*;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.*;
@@ -29,6 +25,16 @@ import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
+import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySamSelectionExtension;
+import org.eclipse.keypop.calypso.crypto.legacysam.transaction.*;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,22 +91,39 @@ public class Main_DataSigning_Pcsc {
     // Verify that the extension's API level is consistent with the current service.
     smartCardService.checkCardExtension(calypsoCardService);
 
-    // Create a SAM resource extension expecting a SAM having power-on data matching the regex
-    CalypsoSamSelection samSelection =
-        CalypsoExtensionService.getInstance()
-            .createSamSelection()
-            .filterByProductType(CalypsoSam.ProductType.SAM_C1);
+    // Retrieve the reader API factory
+    ReaderApiFactory readerApiFactory = SmartCardServiceProvider.getService().getReaderApiFactory();
 
-    CardResourceProfileExtension cardResourceExtension =
-        CalypsoExtensionService.getInstance().createSamResourceProfileExtension(samSelection);
+    // Create a SAM selection manager.
+    CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    // Create a card selector without filer
+    CardSelector cardSelector =
+        readerApiFactory
+            .createBasicCardSelector()
+            .filterByPowerOnData(
+                LegacySamUtil.buildPowerOnDataFilter(LegacySam.ProductType.SAM_C1, null));
+
+    LegacySamApiFactory legacySamApiFactory =
+        LegacySamExtensionService.getInstance().getLegacySamApiFactory();
+
+    // Create a SAM selection using the Calypso card extension.
+    samSelectionManager.prepareSelection(
+        cardSelector, legacySamApiFactory.createLegacySamSelectionExtension());
+
+    // Create a card resource extension expecting a SAM "C1".
+    LegacySamSelectionExtension samSelection =
+        legacySamApiFactory.createLegacySamSelectionExtension();
+
+    CardResourceProfileExtension samCardResourceExtension =
+        LegacySamExtensionService.getInstance()
+            .createLegacySamResourceProfileExtension(samSelection);
 
     // Get the service
     CardResourceService cardResourceService = CardResourceServiceProvider.getService();
 
     PluginAndReaderExceptionHandler pluginAndReaderExceptionHandler =
         new PluginAndReaderExceptionHandler();
-
-    SamTransactionManager samTransactionManager;
 
     // Configure the card resource service
     cardResourceService
@@ -116,18 +139,17 @@ public class Main_DataSigning_Pcsc {
                 .withUsageTimeout(5000)
                 .build())
         .withCardResourceProfiles(
-            CardResourceProfileConfigurator.builder(SAM_RESOURCE, cardResourceExtension)
+            CardResourceProfileConfigurator.builder(SAM_RESOURCE, samCardResourceExtension)
                 .withReaderNameRegex(READER_NAME_REGEX)
                 .build())
         .configure();
 
     cardResourceService.start();
 
-    SamSecuritySetting samSecuritySetting =
-        CalypsoExtensionService.getInstance().createSamSecuritySetting();
-
     boolean isSignatureValid;
     String signatureHex;
+
+    FreeTransactionManager freeTransactionManager;
 
     boolean loop = true;
     CardResource cardResource = null;
@@ -158,20 +180,17 @@ public class Main_DataSigning_Pcsc {
             logger.error("No SAM resource.");
             break;
           }
-          samTransactionManager =
-              CalypsoExtensionService.getInstance()
-                  .createSamTransaction(
-                      cardResource.getReader(),
-                      (CalypsoSam) cardResource.getSmartCard(),
-                      samSecuritySetting);
+          freeTransactionManager =
+              legacySamApiFactory.createFreeTransactionManager(
+                  cardResource.getReader(), (LegacySam) cardResource.getSmartCard());
           logger.info(
               "Signing: data='{}' with the key {}/{}", DATA_TO_SIGN, KIF_BASIC_STR, KVC_BASIC_STR);
           BasicSignatureComputationData basicSignatureComputationData =
-              CalypsoExtensionService.getInstance()
+              legacySamApiFactory
                   .createBasicSignatureComputationData()
                   .setData(HexUtil.toByteArray(DATA_TO_SIGN), KIF_BASIC, KVC_BASIC);
-          samTransactionManager.prepareComputeSignature(basicSignatureComputationData);
-          samTransactionManager.processCommands();
+          freeTransactionManager.prepareComputeSignature(basicSignatureComputationData);
+          freeTransactionManager.processCommands();
           signatureHex = HexUtil.toHex(basicSignatureComputationData.getSignature());
           logger.info("signature='{}'", signatureHex);
 
@@ -182,15 +201,15 @@ public class Main_DataSigning_Pcsc {
               KIF_BASIC_STR,
               KVC_BASIC_STR);
           BasicSignatureVerificationData basicSignatureVerificationData =
-              CalypsoExtensionService.getInstance()
+              legacySamApiFactory
                   .createBasicSignatureVerificationData()
                   .setData(
                       HexUtil.toByteArray(DATA_TO_SIGN),
                       HexUtil.toByteArray(signatureHex),
                       KIF_BASIC,
                       KVC_BASIC);
-          samTransactionManager.prepareVerifySignature(basicSignatureVerificationData);
-          samTransactionManager.processCommands();
+          freeTransactionManager.prepareVerifySignature(basicSignatureVerificationData);
+          freeTransactionManager.processCommands();
           isSignatureValid = basicSignatureVerificationData.isSignatureValid();
           logger.info("Signature is valid: '{}'", isSignatureValid);
 
@@ -201,24 +220,21 @@ public class Main_DataSigning_Pcsc {
             logger.error("No SAM resource.");
             break;
           }
-          samTransactionManager =
-              CalypsoExtensionService.getInstance()
-                  .createSamTransaction(
-                      cardResource.getReader(),
-                      (CalypsoSam) cardResource.getSmartCard(),
-                      samSecuritySetting);
+          freeTransactionManager =
+              legacySamApiFactory.createFreeTransactionManager(
+                  cardResource.getReader(), (LegacySam) cardResource.getSmartCard());
           logger.info(
               "Signing: data='{}' with the key {}/{}",
               DATA_TO_SIGN,
               KIF_TRACEABLE_STR,
               KVC_TRACEABLE_STR);
           TraceableSignatureComputationData traceableSignatureComputationData =
-              CalypsoExtensionService.getInstance()
+              legacySamApiFactory
                   .createTraceableSignatureComputationData()
                   .setData(HexUtil.toByteArray(DATA_TO_SIGN), KIF_TRACEABLE, KVC_TRACEABLE)
-                  .withSamTraceabilityMode(0, true);
-          samTransactionManager.prepareComputeSignature(traceableSignatureComputationData);
-          samTransactionManager.processCommands();
+                  .withSamTraceabilityMode(0, SamTraceabilityMode.FULL_SERIAL_NUMBER);
+          freeTransactionManager.prepareComputeSignature(traceableSignatureComputationData);
+          freeTransactionManager.processCommands();
           signatureHex = HexUtil.toHex(traceableSignatureComputationData.getSignature());
           String signedDataHex = HexUtil.toHex(traceableSignatureComputationData.getSignedData());
           logger.info("signature='{}'", signatureHex);
@@ -231,16 +247,16 @@ public class Main_DataSigning_Pcsc {
               KIF_TRACEABLE_STR,
               KVC_TRACEABLE_STR);
           TraceableSignatureVerificationData traceableSignatureVerificationData =
-              CalypsoExtensionService.getInstance()
+              legacySamApiFactory
                   .createTraceableSignatureVerificationData()
                   .setData(
                       HexUtil.toByteArray(signedDataHex),
                       HexUtil.toByteArray(signatureHex),
                       KIF_TRACEABLE,
                       KVC_TRACEABLE)
-                  .withSamTraceabilityMode(0, true, false);
-          samTransactionManager.prepareVerifySignature(traceableSignatureVerificationData);
-          samTransactionManager.processCommands();
+                  .withSamTraceabilityMode(0, SamTraceabilityMode.FULL_SERIAL_NUMBER, null);
+          freeTransactionManager.prepareVerifySignature(traceableSignatureVerificationData);
+          freeTransactionManager.processCommands();
           isSignatureValid = traceableSignatureVerificationData.isSignatureValid();
           logger.info("Signature is valid: '{}'", isSignatureValid);
 
