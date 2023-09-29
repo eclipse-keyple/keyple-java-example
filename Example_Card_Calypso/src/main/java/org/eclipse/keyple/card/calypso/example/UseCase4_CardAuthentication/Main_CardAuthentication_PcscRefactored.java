@@ -94,9 +94,9 @@ public class Main_CardAuthentication_PcscRefactored {
 
     // Initialize the context
     initKeypleService();
+    initCalypsoCardExtensionService();
     initCardReader();
     initSamReader();
-    initCalypsoCardExtensionService();
     initSecuritySetting();
 
     // CHek the card presence
