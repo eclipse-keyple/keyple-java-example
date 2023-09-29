@@ -80,9 +80,6 @@ public class Main_CardAuthentication_PcscRefactored {
   private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
   private static Plugin plugin;
 
-  /** Constructor for the Main_CardAuthentication_PcscRefactored class. */
-  public Main_CardAuthentication_PcscRefactored() {}
-
   /**
    * The main method to execute the card authentication process.
    *
