@@ -122,6 +122,7 @@ public class Main_CardAuthentication_PcscRefactored {
 
     logger.info(
         "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
+
     String serialNumberString = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
     logger.info("Calypso Serial Number = {}", serialNumberString);
     logger.info(
