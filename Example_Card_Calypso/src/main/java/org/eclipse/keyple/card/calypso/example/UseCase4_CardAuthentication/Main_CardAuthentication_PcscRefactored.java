@@ -73,61 +73,140 @@ public class Main_CardAuthentication_PcscRefactored {
   public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
   public static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
-  private final CalypsoCardApiFactory calypsoCardApiFactory;
-  private final CardReader cardReader;
-  private final CardReader samReader;
-  private final ReaderApiFactory readerApiFactory;
-  private final LegacySam sam;
+  private static CardReader cardReader;
+  private static CardReader samReader;
+  private static ReaderApiFactory readerApiFactory;
+  private static CalypsoCardApiFactory calypsoCardApiFactory;
+  private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
+  private static Plugin plugin;
+
+  /** Constructor for the Main_CardAuthentication_PcscRefactored class. */
+  public Main_CardAuthentication_PcscRefactored() {}
 
   /**
-   * Constructor for the Main_CardAuthentication_PcscRefactored class.
+   * The main method to execute the card authentication process.
    *
-   * <p>This constructor performs the initial setup required for the card authentication
-   * demonstrated here.
+   * <p>Initializes the Keyple service, card reader, security settings, and Calypso card extension
+   * service. It checks the card presence, selects the card, operates the transaction, and logs the
+   * results.
    *
-   * <p>It initializes the smart card service, registers the PC/SC plugin and checks the Calypso
-   * Card Extension Service compatibility with the current service.
-   *
-   * <p>It then prepares the factories for the Reader and Calypso Card APIs, and retrieves the card
-   * and SAM readers based on the provided regular expressions for their names.
-   *
-   * <p>Finally it retrieve the SAM that will be used to operate the security of the transaction.
-   *
-   * <ul>
-   *   <li>Obtains an instance of the SmartCardService
-   *   <li>Registers the PC/SC plugin with the smart card service
-   *   <li>Gets the CalypsoExtensionService instance and checks its compatibility with the
-   *       SmartCardService
-   *   <li>Initializes the ReaderApiFactory and CalypsoCardApiFactory for further operations
-   *   <li>Retrieves the card and SAM readers based on name matching with the provided regular
-   *       expressions
-   *   <li>Selects the SAM C1
-   * </ul>
+   * @param args the command-line arguments (not used)
    */
-  public Main_CardAuthentication_PcscRefactored() {
-    SmartCardService smartCardService = SmartCardServiceProvider.getService();
-    Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
-    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
-    smartCardService.checkCardExtension(calypsoCardService);
-    readerApiFactory = smartCardService.getReaderApiFactory();
-    calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
-    cardReader = getCardReader(plugin);
-    samReader = getSamReader(plugin);
-    sam = selectSam();
+  public static void main(String[] args) {
+    logger.info("= UseCase Calypso #4: Calypso card authentication ==================");
+
+    // Initialize the context
+    initKeypleService();
+    initCardReader();
+    initSamReader();
+    initCalypsoCardExtensionService();
+    initSecuritySetting();
+
+    // CHek the card presence
+    if (!cardReader.isCardPresent()) {
+      throw new IllegalStateException("No card is present in the reader.");
+    }
+
+    // Select the card
+    CalypsoCard calypsoCard = selectCard(cardReader, CalypsoConstants.AID);
+
+    // Operate the transaction
+    calypsoCardApiFactory
+        .createSecureRegularModeTransactionManager(
+            cardReader, calypsoCard, symmetricCryptoSecuritySetting)
+        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+        .prepareReadRecords(
+            CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
+            CalypsoConstants.RECORD_NUMBER_1,
+            CalypsoConstants.RECORD_NUMBER_1,
+            CalypsoConstants.RECORD_SIZE)
+        .prepareCloseSecureSession()
+        .processCommands(ChannelControl.CLOSE_AFTER);
+
+    logger.info(
+        "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
+    String serialNumberString = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
+    logger.info("Calypso Serial Number = {}", serialNumberString);
+    logger.info(
+        "File {}h, rec 1: FILE_CONTENT = {}",
+        CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
+        calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
   }
 
   /**
-   * The entry point of the application.
+   * Initializes the Keyple service.
    *
-   * <p>It creates an instance of {@link Main_CardAuthentication_PcscRefactored} and initiates the
-   * card authentication process.
+   * <p>Gets an instance of the smart card service, registers the PC/SC plugin, and prepares the
+   * reader API factory for use.
    *
-   * @param args The command-line arguments. Not used in this implementation.
+   * <p>Retrieves the {@link ReaderApiFactory}.
    */
-  public static void main(String[] args) {
-    logger.info(
-        "=============== UseCase Calypso #4: Calypso card authentication ==================");
-    new Main_CardAuthentication_PcscRefactored().runCardAuthentication(CalypsoConstants.AID);
+  private static void initKeypleService() {
+    SmartCardService smartCardService = SmartCardServiceProvider.getService();
+    plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
+    readerApiFactory = smartCardService.getReaderApiFactory();
+  }
+
+  /**
+   * Initializes the card reader with specific configurations.
+   *
+   * <p>Prepares the card reader using a predefined set of configurations, including the card reader
+   * name regex, ISO protocol, and sharing mode.
+   */
+  private static void initCardReader() {
+    cardReader =
+        getReader(
+            plugin,
+            CARD_READER_NAME_REGEX,
+            true,
+            PcscReader.IsoProtocol.T1,
+            PcscReader.SharingMode.EXCLUSIVE,
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ISO_CARD_PROTOCOL);
+  }
+
+  /**
+   * Initializes the SAM reader with specific configurations.
+   *
+   * <p>Prepares the SAM reader using a predefined set of configurations, including the card reader
+   * name regex, ISO protocol, and sharing mode.
+   */
+  private static void initSamReader() {
+    samReader =
+        getReader(
+            plugin,
+            SAM_READER_NAME_REGEX,
+            false,
+            PcscReader.IsoProtocol.ANY,
+            PcscReader.SharingMode.SHARED,
+            PcscSupportedContactProtocol.ISO_7816_3_T0.name(),
+            SAM_PROTOCOL);
+  }
+
+  /**
+   * Initializes the security settings for the transaction.
+   *
+   * <p>Prepares the SAM reader, selects the SAM, and sets up the symmetric crypto security setting
+   * for securing the transaction.
+   */
+  private static void initSecuritySetting() {
+    LegacySam sam = selectSam(samReader);
+    symmetricCryptoSecuritySetting =
+        calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
+            LegacySamExtensionService.getInstance()
+                .getLegacySamApiFactory()
+                .createSymmetricCryptoTransactionManagerFactory(samReader, sam));
+  }
+
+  /**
+   * Initializes the Calypso card extension service.
+   *
+   * <p>Retrieves the {@link CalypsoCardApiFactory}.
+   */
+  private static void initCalypsoCardExtensionService() {
+    CalypsoExtensionService calypsoExtensionService = CalypsoExtensionService.getInstance();
+    SmartCardServiceProvider.getService().checkCardExtension(calypsoExtensionService);
+    calypsoCardApiFactory = calypsoExtensionService.getCalypsoCardApiFactory();
   }
 
   /**
@@ -146,7 +225,7 @@ public class Main_CardAuthentication_PcscRefactored {
    * @param logicalProtocolName The name of the protocol known by the application.
    * @return The configured card reader.
    */
-  private CardReader getReader(
+  private static CardReader getReader(
       Plugin plugin,
       String readerNameRegex,
       boolean isContactless,
@@ -169,40 +248,6 @@ public class Main_CardAuthentication_PcscRefactored {
   }
 
   /**
-   * Retrieves and configures the card reader.
-   *
-   * @param plugin The plugin used for interactions with the card reader.
-   * @return The configured card reader.
-   */
-  private CardReader getCardReader(Plugin plugin) {
-    return getReader(
-        plugin,
-        CARD_READER_NAME_REGEX,
-        true,
-        PcscReader.IsoProtocol.T1,
-        PcscReader.SharingMode.EXCLUSIVE,
-        PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-        ISO_CARD_PROTOCOL);
-  }
-
-  /**
-   * Retrieves and configures the SAM reader.
-   *
-   * @param plugin The plugin used for interactions with the SAM reader.
-   * @return The configured SAM reader.
-   */
-  private CardReader getSamReader(Plugin plugin) {
-    return getReader(
-        plugin,
-        SAM_READER_NAME_REGEX,
-        false,
-        PcscReader.IsoProtocol.ANY,
-        PcscReader.SharingMode.SHARED,
-        PcscSupportedContactProtocol.ISO_7816_3_T0.name(),
-        SAM_PROTOCOL);
-  }
-
-  /**
    * Searches for and retrieves the name of the reader from the provided plugin's available reader
    * names that matches the given regular expression.
    *
@@ -220,7 +265,7 @@ public class Main_CardAuthentication_PcscRefactored {
    * @throws IllegalStateException if no reader name from the available names of the provided plugin
    *     matches the given regular expression.
    */
-  private String getReaderName(Plugin plugin, String readerNameRegex) {
+  private static String getReaderName(Plugin plugin, String readerNameRegex) {
     if (plugin == null) {
       throw new IllegalArgumentException("Plugin cannot be null");
     }
@@ -244,42 +289,16 @@ public class Main_CardAuthentication_PcscRefactored {
   }
 
   /**
-   * Executes the card authentication process for the specified Application Identifier (AID).
-   *
-   * <p>This method logs the steps and results of the authentication process and handles exceptions
-   * that might occur during execution. The AID is used to identify the expected application on the
-   * card to be authenticated.
-   *
-   * @param aid The Application Identifier (AID) used to select the expected application on the
-   *     card. It cannot be {@code null} or empty.
-   */
-  private void runCardAuthentication(String aid) {
-    try {
-      if (!cardReader.isCardPresent()) {
-        throw new IllegalStateException("No card is present in the reader.");
-      }
-
-      logger.info("= #### Select application with AID = '{}'.", aid);
-
-      CalypsoCard calypsoCard = selectCalypsoCard(aid);
-      readCardDataInASecureSession(calypsoCard, sam);
-
-      logger.info("= #### End of the Calypso card processing.");
-    } catch (Exception e) {
-      logger.error("Error during card authentication: {}", e.getMessage());
-    }
-  }
-
-  /**
    * Selects the SAM C1 for the transaction.
    *
    * <p>Creates a SAM selection manager, prepares the selection, and processes the SAM selection
    * scenario.
    *
+   * @param reader The card reader used to communicate with the SAM.
    * @return The selected SAM for the transaction.
    * @throws IllegalStateException if SAM selection fails.
    */
-  private LegacySam selectSam() {
+  private static LegacySam selectSam(CardReader reader) {
     // Create a SAM selection manager.
     CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
 
@@ -299,7 +318,7 @@ public class Main_CardAuthentication_PcscRefactored {
 
     // SAM communication: run the selection scenario.
     CardSelectionResult samSelectionResult =
-        samSelectionManager.processCardSelectionScenario(samReader);
+        samSelectionManager.processCardSelectionScenario(reader);
 
     // Check the selection result.
     if (samSelectionResult.getActiveSmartCard() == null) {
@@ -318,13 +337,14 @@ public class Main_CardAuthentication_PcscRefactored {
    * processes the card selection scenario. The AID is used to identify and select the specific
    * application on the card for the subsequent transaction.
    *
+   * @param reader The reader used to communicate with the card.
    * @param aid The Application Identifier (AID) used to select the application on the card. It
    *     cannot be {@code null} or empty.
    * @return The selected Calypso card ready for the transaction.
    * @throws IllegalStateException if the selection of the application identified by the provided
    *     AID fails.
    */
-  private CalypsoCard selectCalypsoCard(String aid) {
+  private static CalypsoCard selectCard(CardReader reader, String aid) {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
     CardSelector<IsoCardSelector> cardSelector =
         readerApiFactory.createIsoCardSelector().filterByDfName(aid);
@@ -332,50 +352,12 @@ public class Main_CardAuthentication_PcscRefactored {
         calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard();
     cardSelectionManager.prepareSelection(cardSelector, calypsoCardSelectionExtension);
 
-    CardSelectionResult selectionResult =
-        cardSelectionManager.processCardSelectionScenario(cardReader);
+    CardSelectionResult selectionResult = cardSelectionManager.processCardSelectionScenario(reader);
 
     if (selectionResult.getActiveSmartCard() == null) {
       throw new IllegalStateException("The selection of the application " + aid + " failed.");
     }
 
     return (CalypsoCard) selectionResult.getActiveSmartCard();
-  }
-
-  /**
-   * Reads data from the Calypso card in a secure session.
-   *
-   * <p>Prepares and processes command to open a secure session, read some files, close the secure
-   * session and logs the results.
-   *
-   * @param calypsoCard The Calypso card to read data from.
-   * @param sam The SAM (Secure Access Module) used for the secure transaction.
-   */
-  private void readCardDataInASecureSession(CalypsoCard calypsoCard, LegacySam sam) {
-    SymmetricCryptoSecuritySetting cardSecuritySetting =
-        calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
-            LegacySamExtensionService.getInstance()
-                .getLegacySamApiFactory()
-                .createSymmetricCryptoTransactionManagerFactory(samReader, sam));
-
-    calypsoCardApiFactory
-        .createSecureRegularModeTransactionManager(cardReader, calypsoCard, cardSecuritySetting)
-        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
-        .prepareReadRecords(
-            CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
-            CalypsoConstants.RECORD_NUMBER_1,
-            CalypsoConstants.RECORD_NUMBER_1,
-            CalypsoConstants.RECORD_SIZE)
-        .prepareCloseSecureSession()
-        .processCommands(ChannelControl.CLOSE_AFTER);
-
-    logger.info(
-        "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
-    String serialNumberString = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
-    logger.info("Calypso Serial Number = {}", serialNumberString);
-    logger.info(
-        "File {}h, rec 1: FILE_CONTENT = {}",
-        CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
-        calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
   }
 }
