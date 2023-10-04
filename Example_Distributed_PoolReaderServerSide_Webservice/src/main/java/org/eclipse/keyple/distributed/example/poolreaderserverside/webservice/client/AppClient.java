@@ -14,14 +14,14 @@ package org.eclipse.keyple.distributed.example.poolreaderserverside.webservice.c
 import java.util.SortedSet;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.core.service.PoolPlugin;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.distributed.RemotePluginClientFactory;
 import org.eclipse.keyple.distributed.RemotePoolPluginClientFactoryBuilder;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 /** Example of a client side application. */

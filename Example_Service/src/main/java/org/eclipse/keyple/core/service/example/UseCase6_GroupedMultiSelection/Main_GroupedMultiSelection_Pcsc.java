@@ -12,12 +12,7 @@
 package org.eclipse.keyple.core.service.example.UseCase6_GroupedMultiSelection;
 
 import java.util.Map;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.calypsonet.terminal.reader.selection.spi.SmartCard;
-import org.eclipse.keyple.card.generic.GenericCardSelection;
+import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
@@ -25,6 +20,12 @@ import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.*;
+import org.eclipse.keypop.reader.selection.spi.IsoSmartCard;
+import org.eclipse.keypop.reader.selection.spi.SmartCard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,28 +101,32 @@ public class Main_GroupedMultiSelection_Pcsc {
 
     logger.info("= #### Select application with AID = '{}'.", ConfigurationUtil.AID_KEYPLE_PREFIX);
 
-    // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
-    // Set the multiple selection mode
-    cardSelectionManager.setMultipleSelectionMode();
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    // First selection: get the first application occurrence matching the AID, keep the
+    GenericCardSelectionExtension genericCardSelectionExtension =
+        GenericExtensionService.getInstance().createGenericCardSelectionExtension();
+
+    // AID based selection: get the first application occurrence matching the AID, keep the
     // physical channel open
-    // Prepare the selection by adding the created generic selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(
-        genericCardService
-            .createCardSelection()
-            .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
-            .setFileOccurrence(GenericCardSelection.FileOccurrence.FIRST));
 
-    // Second selection: get the next application occurrence matching the same AID, close the
-    // physical channel after
-    // Prepare the selection by adding the created generic selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(
-        genericCardService
-            .createCardSelection()
+    CardSelector<IsoCardSelector> cardSelector1 =
+        readerApiFactory
+            .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
-            .setFileOccurrence(GenericCardSelection.FileOccurrence.NEXT));
+            .setFileOccurrence(CommonIsoCardSelector.FileOccurrence.FIRST);
+
+    // Prepare the selection by adding the created generic selection to the card selection scenario.
+    cardSelectionManager.prepareSelection(cardSelector1, genericCardSelectionExtension);
+
+    CardSelector<IsoCardSelector> cardSelector2 =
+        readerApiFactory
+            .createIsoCardSelector()
+            .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
+            .setFileOccurrence(CommonIsoCardSelector.FileOccurrence.NEXT);
+
+    // Prepare the selection by adding the created generic selection to the card selection scenario.
+    cardSelectionManager.prepareSelection(cardSelector2, genericCardSelectionExtension);
 
     // close the channel after the selection
     cardSelectionManager.prepareReleaseChannel();
@@ -131,7 +136,7 @@ public class Main_GroupedMultiSelection_Pcsc {
 
     // log the result
     for (Map.Entry<Integer, SmartCard> entry : cardSelectionsResult.getSmartCards().entrySet()) {
-      SmartCard smartCard = entry.getValue();
+      IsoSmartCard smartCard = (IsoSmartCard) entry.getValue();
       String powerOnData = smartCard.getPowerOnData();
       String selectApplicationResponse = HexUtil.toHex(smartCard.getSelectApplicationResponse());
       String selectionIsActive =

@@ -11,11 +11,11 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.pcsc.example.UseCase1_ReaderTypeAutoIdentification;
 
-import org.calypsonet.terminal.reader.CardReader;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keypop.reader.CardReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -18,10 +18,6 @@ import androidx.core.view.GravityCompat
 import kotlinx.android.synthetic.main.activity_core_examples.drawerLayout
 import kotlinx.android.synthetic.main.activity_core_examples.eventRecyclerView
 import kotlinx.android.synthetic.main.activity_core_examples.toolbar
-import org.calypsonet.terminal.reader.CardCommunicationException
-import org.calypsonet.terminal.reader.CardReader
-import org.calypsonet.terminal.reader.ReaderCommunicationException
-import org.calypsonet.terminal.reader.selection.CardSelectionManager
 import org.eclipse.keyple.card.generic.GenericExtensionService
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
 import org.eclipse.keyple.core.util.HexUtil
@@ -30,6 +26,11 @@ import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiPluginFactoryProvider
 import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiReader
 import org.eclipse.keyple.plugin.android.omapi.example.R
 import org.eclipse.keyple.plugin.android.omapi.example.util.CalypsoClassicInfo
+import org.eclipse.keypop.reader.CardCommunicationException
+import org.eclipse.keypop.reader.CardReader
+import org.eclipse.keypop.reader.ReaderCommunicationException
+import org.eclipse.keypop.reader.selection.CardSelectionManager
+import org.eclipse.keypop.reader.selection.spi.IsoSmartCard
 
 class CoreExamplesActivity : AbstractExampleActivity() {
 
@@ -85,7 +86,8 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                 /**
                  * Prepare a card selection
                  */
-                cardSelectionManager = smartCardService.createCardSelectionManager()
+                var readerApiFactory = smartCardService.readerApiFactory
+                cardSelectionManager = readerApiFactory.createCardSelectionManager()
 
                 /**
                  * Get the generic card extension service
@@ -109,13 +111,13 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                  * Generic selection: configures a CardSelector with all the desired attributes to make
                  * the selection and read additional information afterwards
                  */
-                val cardSelection = cardExtension.createCardSelection()
-                    .filterByDfName(aid)
+                val cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(aid)
 
                 /**
-                 * Create a card selection using the generic card extension.
+                 * Create a card selection extension using the generic card extension.
                  */
-                cardSelectionManager.prepareSelection(cardSelection)
+                val cardSelectionExtension = GenericExtensionService.getInstance().createGenericCardSelectionExtension()
+                cardSelectionManager.prepareSelection(cardSelector, cardSelectionExtension)
 
                 /**
                  * Release the channel after the selection is done
@@ -134,7 +136,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                     if (cardSelectionsResult.activeSmartCard != null) {
                         val matchedCard = cardSelectionsResult.activeSmartCard
                         addResultEvent("The selection of the card has succeeded.")
-                        addResultEvent("Application FCI = ${HexUtil.toHex(matchedCard.selectApplicationResponse)}")
+                        addResultEvent("Application FCI = ${HexUtil.toHex((matchedCard as IsoSmartCard).selectApplicationResponse)}")
                         addResultEvent("End of the generic card processing.")
                     } else {
                         addResultEvent("The selection of the card has failed.")

@@ -26,16 +26,17 @@ import kotlinx.android.synthetic.main.activity_core_examples.drawerLayout
 import kotlinx.android.synthetic.main.activity_core_examples.eventRecyclerView
 import kotlinx.android.synthetic.main.activity_core_examples.navigationView
 import kotlinx.android.synthetic.main.activity_core_examples.toolbar
-import org.calypsonet.terminal.reader.CardReaderEvent
-import org.calypsonet.terminal.reader.selection.CardSelectionManager
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi
-import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi
 import org.eclipse.keyple.plugin.android.nfc.example.R
 import org.eclipse.keyple.plugin.android.nfc.example.adapter.EventAdapter
 import org.eclipse.keyple.plugin.android.nfc.example.model.EventModel
+import org.eclipse.keypop.reader.CardReaderEvent
+import org.eclipse.keypop.reader.selection.CardSelectionManager
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi
+import org.eclipse.keypop.reader.spi.CardReaderObserverSpi
 import timber.log.Timber
 
-abstract class AbstractExampleActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
+abstract class AbstractExampleActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+    CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
 
     /**
      * Use to modify event update behaviour regarding current use case execution

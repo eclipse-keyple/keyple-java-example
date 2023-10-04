@@ -13,8 +13,6 @@ package org.eclipse.keyple.distributed.example.readerclientside.websocket.client
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.eclipse.keyple.core.service.ObservablePlugin;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.PluginEvent;
@@ -34,6 +32,8 @@ import org.eclipse.keyple.plugin.stub.StubPlugin;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.stub.StubReader;
 import org.eclipse.keyple.plugin.stub.StubSmartCard;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

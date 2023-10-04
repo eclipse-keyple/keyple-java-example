@@ -11,12 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.UseCase5_SequentialMultiSelection;
 
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.calypsonet.terminal.reader.selection.spi.SmartCard;
-import org.eclipse.keyple.card.generic.GenericCardSelection;
+import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
@@ -24,6 +19,11 @@ import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.*;
+import org.eclipse.keypop.reader.selection.spi.IsoSmartCard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,33 +100,37 @@ public class Main_SequentialMultiSelection_Pcsc {
 
     logger.info("= #### Select application with AID = '{}'.", ConfigurationUtil.AID_KEYPLE_PREFIX);
 
-    // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
     // AID based selection: get the first application occurrence matching the AID, keep the
     // physical channel open
-    GenericCardSelection cardSelection =
-        genericCardService
-            .createCardSelection()
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
-            .setFileOccurrence(GenericCardSelection.FileOccurrence.FIRST);
+            .setFileOccurrence(CommonIsoCardSelector.FileOccurrence.FIRST);
+
+    GenericCardSelectionExtension genericCardSelectionExtension =
+        GenericExtensionService.getInstance().createGenericCardSelectionExtension();
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(cardSelector, genericCardSelectionExtension);
 
     // Do the selection and display the result
     doAndAnalyseSelection(cardReader, cardSelectionManager, 1);
 
     // New selection: get the next application occurrence matching the same AID, close the
     // physical channel after
-    cardSelection =
-        genericCardService
-            .createCardSelection()
+    cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
-            .setFileOccurrence(GenericCardSelection.FileOccurrence.NEXT);
+            .setFileOccurrence(CommonIsoCardSelector.FileOccurrence.NEXT);
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(cardSelector, genericCardSelectionExtension);
 
     // close the channel after the selection
     cardSelectionManager.prepareReleaseChannel();
@@ -153,10 +157,10 @@ public class Main_SequentialMultiSelection_Pcsc {
     CardSelectionResult cardSelectionsResult =
         cardSelectionsService.processCardSelectionScenario(cardReader);
     if (cardSelectionsResult.getActiveSmartCard() != null) {
-      SmartCard smartCard = cardSelectionsResult.getActiveSmartCard();
+      IsoSmartCard isoSmartCard = (IsoSmartCard) cardSelectionsResult.getActiveSmartCard();
       logger.info("The card matched the selection {}.", index);
-      String powerOnData = smartCard.getPowerOnData();
-      String selectApplicationResponse = HexUtil.toHex(smartCard.getSelectApplicationResponse());
+      String powerOnData = isoSmartCard.getPowerOnData();
+      String selectApplicationResponse = HexUtil.toHex(isoSmartCard.getSelectApplicationResponse());
       logger.info(
           "Selection status for case {}: \n\t\tpower-on data: {}\n\t\tSelect Application response: {}",
           index,

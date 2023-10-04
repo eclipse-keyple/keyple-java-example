@@ -23,11 +23,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import java.io.IOException
 import kotlinx.android.synthetic.main.activity_core_examples.*
-import org.calypsonet.terminal.reader.CardReaderEvent
 import org.eclipse.keyple.plugin.android.omapi.example.R
 import org.eclipse.keyple.plugin.android.omapi.example.adapter.EventAdapter
 import org.eclipse.keyple.plugin.android.omapi.example.model.ChoiceEventModel
 import org.eclipse.keyple.plugin.android.omapi.example.model.EventModel
+import org.eclipse.keypop.reader.CardReaderEvent
 import timber.log.Timber
 
 abstract class AbstractExampleActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {

@@ -11,13 +11,12 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.UseCase4_ScheduledSelection;
 
-import org.calypsonet.terminal.reader.CardReaderEvent;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.spi.SmartCard;
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
-import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
-import org.eclipse.keyple.core.service.*;
+import org.eclipse.keypop.reader.CardReaderEvent;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.spi.SmartCard;
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
+import org.eclipse.keypop.reader.spi.CardReaderObserverSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

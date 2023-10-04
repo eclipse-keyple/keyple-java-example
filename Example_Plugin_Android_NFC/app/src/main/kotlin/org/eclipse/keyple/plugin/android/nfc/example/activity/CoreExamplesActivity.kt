@@ -22,12 +22,6 @@ import kotlinx.android.synthetic.main.activity_core_examples.toolbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.calypsonet.terminal.reader.CardCommunicationException
-import org.calypsonet.terminal.reader.CardReader
-import org.calypsonet.terminal.reader.CardReaderEvent
-import org.calypsonet.terminal.reader.ConfigurableCardReader
-import org.calypsonet.terminal.reader.ObservableCardReader
-import org.calypsonet.terminal.reader.ReaderCommunicationException
 import org.eclipse.keyple.card.generic.GenericExtensionService
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
 import org.eclipse.keyple.core.util.HexUtil
@@ -37,6 +31,8 @@ import org.eclipse.keyple.plugin.android.nfc.AndroidNfcReader
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcSupportedProtocols
 import org.eclipse.keyple.plugin.android.nfc.example.R
 import org.eclipse.keyple.plugin.android.nfc.example.util.CalypsoClassicInfo
+import org.eclipse.keypop.reader.*
+import org.eclipse.keypop.reader.selection.spi.IsoSmartCard
 import timber.log.Timber
 
 /**
@@ -44,6 +40,7 @@ import timber.log.Timber
  */
 class CoreExamplesActivity : AbstractExampleActivity() {
 
+    private var readerApiFactory: ReaderApiFactory = SmartCardServiceProvider.getService().readerApiFactory
     private lateinit var reader: CardReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,7 +122,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
             /**
              * Prepare a card selection
              */
-            cardSelectionManager = SmartCardServiceProvider.getService().createCardSelectionManager()
+            cardSelectionManager = readerApiFactory.createCardSelectionManager()
 
             /**
              * Setting of an AID based selection
@@ -139,14 +136,13 @@ class CoreExamplesActivity : AbstractExampleActivity() {
              * Generic selection: configures a CardSelector with all the desired attributes to make the
              * selection
              */
-            val cardSelection = GenericExtensionService.getInstance().createCardSelection()
-                .filterByCardProtocol(CalypsoClassicInfo.CARD_PROTOCOL)
-                .filterByDfName(aid)
+            val cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(aid)
+            val cardSelectionExtension = GenericExtensionService.getInstance().createGenericCardSelectionExtension()
 
             /**
              * Add the selection case to the current selection (we could have added other cases here)
              */
-            cardSelectionManager.prepareSelection(cardSelection)
+            cardSelectionManager.prepareSelection(cardSelector, cardSelectionExtension)
 
             cardSelectionManager.scheduleCardSelectionScenario(reader as ObservableCardReader, ObservableCardReader.DetectionMode.REPEATING, ObservableCardReader.NotificationMode.MATCHED_ONLY)
 
@@ -159,7 +155,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                                 val selectedCard = cardSelectionManager.parseScheduledCardSelectionsResponse(event.scheduledCardSelectionsResponse).activeSmartCard
                                 if (selectedCard != null) {
                                     addResultEvent("Observer notification: the selection of the card has succeeded. End of the card processing.")
-                                    addResultEvent("Application FCI = ${HexUtil.toHex(selectedCard.selectApplicationResponse)}")
+                                    addResultEvent("Application FCI = ${HexUtil.toHex((selectedCard as IsoSmartCard).selectApplicationResponse)}")
                                 } else {
                                     addResultEvent("The selection of the card has failed. Should not have occurred due to the MATCHED_ONLY selection mode.")
                                 }
@@ -216,14 +212,13 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                  * Generic selection: configures a CardSelector with all the desired attributes to make
                  * the selection and read additional information afterwards
                  */
-                val cardSelection = cardExtension.createCardSelection()
-                    .filterByCardProtocol(CalypsoClassicInfo.CARD_PROTOCOL)
-                    .filterByDfName(aid)
+                val cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(aid)
+                val cardSelectionExtension = GenericExtensionService.getInstance().createGenericCardSelectionExtension()
 
                 /**
                  * Create a card selection using the generic card extension.
                  */
-                cardSelectionManager.prepareSelection(cardSelection)
+                cardSelectionManager.prepareSelection(cardSelector, cardSelectionExtension)
 
                 /**
                  * Provide the Reader with the selection operation to be processed when a card is inserted.
@@ -242,7 +237,7 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                     if (cardSelectionsResult.activeSmartCard != null) {
                         val matchedCard = cardSelectionsResult.activeSmartCard
                         addResultEvent("The selection of the card has succeeded.")
-                        addResultEvent("Application FCI = ${HexUtil.toHex(matchedCard.selectApplicationResponse)}")
+                        addResultEvent("Application FCI = ${HexUtil.toHex((matchedCard as IsoSmartCard).selectApplicationResponse)}")
                         addResultEvent("End of the generic card processing.")
                     } else {
                         addResultEvent("The selection of the card has failed.")

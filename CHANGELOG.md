@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+:warning: Major version! Following the migration of the "Calypsonet Terminal" APIs to the
+[Eclipse Keypop project](https://keypop.org), this library now implements Keypop interfaces.
+- "Keyple Service Library" to version `3.0.0`.
+- "Keyple Service Resource Library" to version `3.0.0`.
+- "Keyple Generic Card Library" to version `3.0.0`.
+- "Keyple Calypso Card Library" to version `3.0.0`.
+- "Keyple Calypso Crypto LegacySAM Library" to version `0.4.0`.
 
 ## [2023-04-27]
 ### Upgraded
