@@ -20,7 +20,6 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.CardResource;
@@ -61,6 +60,12 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
   private static final String ANSI_GREEN = "\u001B[32m";
   private static final String ANSI_YELLOW = "\u001B[33m";
 
+  // A regular expression for matching common contactless card readers. Adapt as needed.
+  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  // A regular expression for matching common SAM readers. Adapt as needed.
+  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  // The logical name of the protocol for communicating with the card (optional).
+
   // operating parameters
   private static String cardReaderRegex;
   private static String samReaderRegex;
@@ -71,6 +76,14 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
   private static byte[] newContractRecord;
   private static String builtDate;
   private static String builtTime;
+
+  // File identifiers
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+  private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
+  private static final byte SFI_CONTRACTS = (byte) 0x09;
+  private static final byte SFI_COUNTERS = (byte) 0x19;
+  // Security settings
+  private static final String SAM_PROFILE_NAME = "SAM C1";
 
   public static void main(String[] args) throws IOException {
 
@@ -100,8 +113,7 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the card readers whose name matches the provided regex
-    CardReader cardReader =
-        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader cardReader = ConfigurationUtil.getCardReader(plugin, CARD_READER_NAME_REGEX);
 
     // Get the Calypso card extension service
     CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
@@ -127,18 +139,16 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
         calypsoCardApiFactory
             .createCalypsoCardSelectionExtension()
             .acceptInvalidatedCard()
-            .prepareReadRecord(
-                CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
-            .prepareReadRecord(
-                CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1));
+            .prepareReadRecord(SFI_ENVIRONMENT_AND_HOLDER, 1)
+            .prepareReadRecord(SFI_CONTRACT_LIST, 1));
 
     // Configure the card resource service for the targeted SAM.
-    setupCardResourceService(plugin, samReaderRegex, CalypsoConstants.SAM_PROFILE_NAME);
+    setupCardResourceService(plugin, samReaderRegex, SAM_PROFILE_NAME);
 
     // Create security settings that reference the same SAM profile requested from the card resource
     // service.
     CardResource samResource =
-        CardResourceServiceProvider.getService().getCardResource(CalypsoConstants.SAM_PROFILE_NAME);
+        CardResourceServiceProvider.getService().getCardResource(SAM_PROFILE_NAME);
 
     if (samResource == null) {
       throw new IllegalStateException("No SAM resource available.");
@@ -192,16 +202,10 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
           }
 
           byte[] environmentAndHolderData =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+              calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER).getData().getContent(1);
 
           byte[] contractListData =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+              calypsoCard.getFileBySfi(SFI_CONTRACT_LIST).getData().getContent(1);
 
           // TODO Place here the pre-analysis of the context and the contract list
 
@@ -211,72 +215,41 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
                   .createSecureRegularModeTransactionManager(
                       cardReader, calypsoCard, cardSecuritySetting)
                   .prepareOpenSecureSession(LOAD)
-                  .prepareReadRecord(
-                      CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
-                  .prepareReadRecord(
-                      CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
+                  .prepareReadRecord(SFI_ENVIRONMENT_AND_HOLDER, 1)
+                  .prepareReadRecord(SFI_CONTRACT_LIST, 1)
                   .prepareReadRecords(
-                      CalypsoConstants.SFI_CONTRACTS,
-                      CalypsoConstants.RECORD_NUMBER_1,
-                      calypsoCard.getProductType() == CalypsoCard.ProductType.BASIC
-                          ? CalypsoConstants.RECORD_NUMBER_1
-                          : CalypsoConstants.RECORD_NUMBER_2,
-                      CalypsoConstants.RECORD_SIZE)
+                      SFI_CONTRACTS,
+                      1,
+                      calypsoCard.getProductType() == CalypsoCard.ProductType.BASIC ? 1 : 2,
+                      29)
                   .prepareReadCounter(
-                      CalypsoConstants.SFI_COUNTERS,
+                      SFI_COUNTERS,
                       calypsoCard.getProductType() == CalypsoCard.ProductType.BASIC ? 1 : 2)
                   .processCommands(ChannelControl.KEEP_OPEN);
 
           environmentAndHolderData =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+              calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER).getData().getContent(1);
 
-          contractListData =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+          contractListData = calypsoCard.getFileBySfi(SFI_CONTRACT_LIST).getData().getContent(1);
 
-          byte[] contract1Data =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+          byte[] contract1Data = calypsoCard.getFileBySfi(SFI_CONTRACTS).getData().getContent(1);
 
-          byte[] contract2Data =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_2);
+          byte[] contract2Data = calypsoCard.getFileBySfi(SFI_CONTRACTS).getData().getContent(2);
 
           int counter1Value =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                  .getData()
-                  .getContentAsCounterValue(1);
+              calypsoCard.getFileBySfi(SFI_CONTRACT_LIST).getData().getContentAsCounterValue(1);
 
           int counter2Value =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                  .getData()
-                  .getContentAsCounterValue(2);
+              calypsoCard.getFileBySfi(SFI_CONTRACT_LIST).getData().getContentAsCounterValue(2);
 
           //  TODO Place here the analysis of the context, the contract list, the contracts, the
           // counters and the preparation of the card's content update
 
           // update contract list and contract, increase counter and close the Secure Session
           cardTransactionManager
-              .prepareUpdateRecord(
-                  CalypsoConstants.SFI_CONTRACT_LIST,
-                  CalypsoConstants.RECORD_NUMBER_1,
-                  newContractListRecord)
-              .prepareUpdateRecord(
-                  CalypsoConstants.SFI_CONTRACTS,
-                  CalypsoConstants.RECORD_NUMBER_1,
-                  newContractRecord)
-              .prepareIncreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterIncrement)
+              .prepareUpdateRecord(SFI_CONTRACT_LIST, 1, newContractListRecord)
+              .prepareUpdateRecord(SFI_CONTRACTS, 1, newContractRecord)
+              .prepareIncreaseCounter(SFI_COUNTERS, 1, counterIncrement)
               .prepareCloseSecureSession()
               .processCommands(ChannelControl.CLOSE_AFTER);
 

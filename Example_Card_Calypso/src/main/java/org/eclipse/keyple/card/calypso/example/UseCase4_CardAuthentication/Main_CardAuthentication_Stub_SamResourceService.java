@@ -1,5 +1,5 @@
 /* **************************************************************************************
- * Copyright (c) 2023 Calypso Networks Association https://calypsonet.org/
+ * Copyright (c) 2018 Calypso Networks Association https://calypsonet.org/
  *
  * See the NOTICE file(s) distributed with this work for additional information
  * regarding copyright ownership.
@@ -14,7 +14,7 @@ package org.eclipse.keyple.card.calypso.example.UseCase4_CardAuthentication;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
-import org.eclipse.keyple.core.common.KeypleReaderExtension;
+import org.eclipse.keyple.card.calypso.example.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
@@ -22,9 +22,7 @@ import org.eclipse.keyple.core.service.resource.*;
 import org.eclipse.keyple.core.service.resource.spi.CardResourceProfileExtension;
 import org.eclipse.keyple.core.service.resource.spi.ReaderConfiguratorSpi;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.WriteAccessLevel;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
@@ -35,18 +33,18 @@ import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySamSelectionExtension;
 import org.eclipse.keypop.reader.CardReader;
-import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handles the process of a Calypso card authentication using the PC/SC plugin and the Calypso Card
- * Extension Service.
+ * Handles the process of a Calypso card authentication using the Stub plugin and the Calypso Card
+ * Extension Service. The Stub plugin is used to simulate card and reader hardware for testing and
+ * development purposes.
  *
  * <p>This class demonstrates the card authentication process, including the initialization of the
- * Smart Card Service, registering the PC/SC plugin, checking the compatibility of the Calypso card
+ * Smart Card Service, registering the Stub plugin, checking the compatibility of the Calypso card
  * extension service, and performing operations with the Keypop Reader and Calypso Card APIs.
  *
  * <p>The class also demonstrates how to set up the Card Resource Service to manage the SAM and how
@@ -55,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * <h2>Key Functionalities</h2>
  *
  * <ul>
- *   <li>Initialization of the Smart Card Service and registering the PC/SC plugin.
+ *   <li>Initialization of the Smart Card Service and registering the Stub plugin.
  *   <li>Configuration of the card and SAM readers.
  *   <li>Selection of the card and the SAM.
  *   <li>Authentication of the Calypso Card by reading its content in a secure session.
@@ -65,14 +63,12 @@ import org.slf4j.LoggerFactory;
  * card authentication process, an {@link IllegalStateException} is thrown and logged to the
  * console.
  */
-public class Main_CardAuthentication_Pcsc_SamResourceService {
+public class Main_CardAuthentication_Stub_SamResourceService {
   private static final Logger logger =
-      LoggerFactory.getLogger(Main_CardAuthentication_Pcsc_SamResourceService.class);
+      LoggerFactory.getLogger(Main_CardAuthentication_Stub_SamResourceService.class);
 
-  // A regular expression for matching common contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
-  // A regular expression for matching common SAM readers. Adapt as needed.
-  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  static final String CARD_READER_NAME = "Stub card reader";
+  static final String SAM_READER_NAME = "Stub SAM reader";
   // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
   // The logical name of the protocol for communicating with the SAM (optional).
@@ -110,7 +106,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
    */
   public static void main(String[] args) {
     logger.info(
-        "= UseCase Calypso #4: Calypso card authentication (Card Resource Service) ==================");
+        "= UseCase Calypso #4: Calypso card authentication (Stub, Card Resource Service) ==================");
 
     // Initialize the context
     initKeypleService();
@@ -151,14 +147,21 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
   /**
    * Initializes the Keyple service.
    *
-   * <p>Gets an instance of the smart card service, registers the PC/SC plugin, and prepares the
+   * <p>Gets an instance of the smart card service, registers the Stub plugin, and prepares the
    * reader API factory for use.
    *
    * <p>Retrieves the {@link ReaderApiFactory}.
    */
   private static void initKeypleService() {
     SmartCardService smartCardService = SmartCardServiceProvider.getService();
-    plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
+    // Register the StubPlugin with the SmartCardService and plug in stubs for both a Calypso card
+    // and a Calypso SAM.
+    plugin =
+        smartCardService.registerPlugin(
+            StubPluginFactoryBuilder.builder()
+                .withStubReader(CARD_READER_NAME, true, StubSmartCardFactory.getStubCard())
+                .withStubReader(SAM_READER_NAME, false, StubSmartCardFactory.getStubSam())
+                .build());
     readerApiFactory = smartCardService.getReaderApiFactory();
   }
 
@@ -169,15 +172,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
    * name regex, ISO protocol, and sharing mode.
    */
   private static void initCardReader() {
-    cardReader =
-        getReader(
-            plugin,
-            CARD_READER_NAME_REGEX,
-            true,
-            PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
-            ISO_CARD_PROTOCOL);
+    cardReader = plugin.getReader(CARD_READER_NAME);
   }
 
   /**
@@ -222,7 +217,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
             PluginsConfigurator.builder().addPlugin(plugin, new ReaderConfigurator()).build())
         .withCardResourceProfiles(
             CardResourceProfileConfigurator.builder(SAM_PROFILE_NAME, samCardResourceExtension)
-                .withReaderNameRegex(SAM_READER_NAME_REGEX)
+                .withReaderNameRegex(SAM_READER_NAME)
                 .build())
         .configure();
     cardResourceService.start();
@@ -234,7 +229,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
       throw new IllegalStateException(
           String.format(
               "Failed to retrieve a SAM card resource. No card resource found for profile '%s' with reader matching '%s' in plugin '%s'.",
-              SAM_PROFILE_NAME, SAM_READER_NAME_REGEX, plugin.getName()));
+              SAM_PROFILE_NAME, SAM_READER_NAME, plugin.getName()));
     }
 
     // Release the card resource.
@@ -246,28 +241,13 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
    * required settings.
    */
   private static class ReaderConfigurator implements ReaderConfiguratorSpi {
-
     /** Constructor. */
     private ReaderConfigurator() {}
 
     /** {@inheritDoc} */
     @Override
     public void setupReader(CardReader cardReader) {
-      // Configure the reader with parameters suitable for contactless operations.
-      try {
-        KeypleReaderExtension readerExtension =
-            SmartCardServiceProvider.getService()
-                .getPlugin(cardReader)
-                .getReaderExtension(KeypleReaderExtension.class, cardReader.getName());
-        if (readerExtension instanceof PcscReader) {
-          ((PcscReader) readerExtension)
-              .setContactless(false)
-              .setIsoProtocol(PcscReader.IsoProtocol.ANY)
-              .setSharingMode(PcscReader.SharingMode.SHARED);
-        }
-      } catch (Exception e) {
-        logger.error("Exception raised while setting up the reader {}", cardReader.getName(), e);
-      }
+      // No specific configuration in the case of a Stub reader.
     }
   }
 
@@ -297,85 +277,6 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
     CalypsoExtensionService calypsoExtensionService = CalypsoExtensionService.getInstance();
     SmartCardServiceProvider.getService().checkCardExtension(calypsoExtensionService);
     calypsoCardApiFactory = calypsoExtensionService.getCalypsoCardApiFactory();
-  }
-
-  /**
-   * Configures and returns a card reader based on the provided parameters.
-   *
-   * <p>It finds the reader name by matching with a regular expression, then configures the reader
-   * with the specified settings.
-   *
-   * @param plugin The plugin used to interact with the card reader.
-   * @param readerNameRegex The regular expression to match the card reader's name.
-   * @param isContactless A boolean indicating whether the card reader is contactless.
-   * @param isoProtocol The ISO protocol used by the card reader.
-   * @param sharingMode The sharing mode of the PC/SC reader.
-   * @param physicalProtocolName The name of the protocol used by the reader to communicate with
-   *     card.
-   * @param logicalProtocolName The name of the protocol known by the application.
-   * @return The configured card reader.
-   */
-  private static CardReader getReader(
-      Plugin plugin,
-      String readerNameRegex,
-      boolean isContactless,
-      PcscReader.IsoProtocol isoProtocol,
-      PcscReader.SharingMode sharingMode,
-      String physicalProtocolName,
-      String logicalProtocolName) {
-    String readerName = getReaderName(plugin, readerNameRegex);
-    CardReader reader = plugin.getReader(readerName);
-
-    plugin
-        .getReaderExtension(PcscReader.class, readerName)
-        .setContactless(isContactless)
-        .setIsoProtocol(isoProtocol)
-        .setSharingMode(sharingMode);
-
-    ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
-
-    return reader;
-  }
-
-  /**
-   * Searches for and retrieves the name of the reader from the provided plugin's available reader
-   * names that matches the given regular expression.
-   *
-   * <p>This method iterates through the reader names available to the provided plugin, returning
-   * the first reader name that matches the supplied regular expression. If no match is found, an
-   * IllegalStateException is thrown, indicating the absence of a matching reader name.
-   *
-   * @param plugin The plugin containing the available reader names to search through.
-   * @param readerNameRegex The regular expression used to find a matching reader name among the
-   *     available names provided by the plugin.
-   * @return The name of the reader that matches the given regular expression from the available
-   *     reader names of the provided plugin.
-   * @throws IllegalArgumentException if the provided plugin is null, or if the reader name regex is
-   *     null or empty.
-   * @throws IllegalStateException if no reader name from the available names of the provided plugin
-   *     matches the given regular expression.
-   */
-  private static String getReaderName(Plugin plugin, String readerNameRegex) {
-    if (plugin == null) {
-      throw new IllegalArgumentException("Plugin cannot be null");
-    }
-
-    if (readerNameRegex == null || readerNameRegex.trim().isEmpty()) {
-      throw new IllegalArgumentException("Reader name regex cannot be null or empty");
-    }
-
-    for (String readerName : plugin.getReaderNames()) {
-      if (readerName.matches(readerNameRegex)) {
-        logger.info("Card reader found, plugin: {}, name: {}", plugin.getName(), readerName);
-        return readerName;
-      }
-    }
-
-    String errorMsg =
-        String.format(
-            "Reader matching '%s' not found in plugin '%s'", readerNameRegex, plugin.getName());
-    logger.error(errorMsg);
-    throw new IllegalStateException(errorMsg);
   }
 
   /**

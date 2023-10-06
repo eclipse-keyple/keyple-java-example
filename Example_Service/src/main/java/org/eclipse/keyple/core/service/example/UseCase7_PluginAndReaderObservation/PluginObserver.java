@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * (package-private)<br>
  * Implements the plugin observation SPIs. A plugin Observer to handle reader events such as
  * READER_CONNECTED or READER_DISCONNECTED.
  *
@@ -38,7 +37,6 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
   private final ReaderObserver readerObserver;
 
   /**
-   * (package-private)<br>
    * Constructor.
    *
    * <p>Add an observer to all provided readers that are observable.

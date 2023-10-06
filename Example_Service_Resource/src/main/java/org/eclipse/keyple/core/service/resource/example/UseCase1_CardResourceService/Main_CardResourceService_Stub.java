@@ -244,7 +244,7 @@ public class Main_CardResourceService_Stub {
     private static final Logger logger = LoggerFactory.getLogger(ReaderConfigurator.class);
 
     /**
-     * (private)<br>
+     * 
      * Constructor.
      */
     private ReaderConfigurator() {}

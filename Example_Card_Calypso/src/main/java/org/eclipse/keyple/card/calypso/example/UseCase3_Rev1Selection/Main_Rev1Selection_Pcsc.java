@@ -12,7 +12,6 @@
 package org.eclipse.keyple.card.calypso.example.UseCase3_Rev1Selection;
 
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
@@ -61,6 +60,15 @@ import org.slf4j.LoggerFactory;
 public class Main_Rev1Selection_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_Rev1Selection_Pcsc.class);
 
+  // A regular expression for matching common contactless card readers. Adapt as needed.
+  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  // A regular expression for matching common SAM readers. Adapt as needed.
+  private static final String INNOVATRON_CARD_PROTOCOL = "INNOVATRON_B_PRIME_CARD";
+
+  // File identifiers
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+  private static final byte SFI_EVENT_LOG = (byte) 0x08;
+
   public static void main(String[] args) {
 
     // Get the instance of the SmartCardService
@@ -70,14 +78,13 @@ public class Main_Rev1Selection_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the contactless reader whose name matches the provided regex
-    CardReader cardReader =
-        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    CardReader cardReader = ConfigurationUtil.getCardReader(plugin, CARD_READER_NAME_REGEX);
 
     // Activate Innovatron protocol.
     ((ConfigurableCardReader) cardReader)
         .activateProtocol(
             PcscSupportedContactlessProtocol.INNOVATRON_B_PRIME_CARD.name(),
-            ConfigurationUtil.INNOVATRON_CARD_PROTOCOL);
+            INNOVATRON_CARD_PROTOCOL);
 
     // Get the Calypso card extension service
     CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
@@ -101,9 +108,7 @@ public class Main_Rev1Selection_Pcsc {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
     CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory
-            .createIsoCardSelector()
-            .filterByCardProtocol(ConfigurationUtil.INNOVATRON_CARD_PROTOCOL);
+        readerApiFactory.createIsoCardSelector().filterByCardProtocol(INNOVATRON_CARD_PROTOCOL);
 
     CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
@@ -116,8 +121,7 @@ public class Main_Rev1Selection_Pcsc {
         calypsoCardApiFactory
             .createCalypsoCardSelectionExtension()
             .acceptInvalidatedCard()
-            .prepareReadRecord(
-                CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1));
+            .prepareReadRecord(SFI_ENVIRONMENT_AND_HOLDER, 1));
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -140,20 +144,18 @@ public class Main_Rev1Selection_Pcsc {
 
     calypsoCardApiFactory
         .createFreeTransactionManager(cardReader, calypsoCard)
-        .prepareReadRecord(CalypsoConstants.SFI_EVENT_LOG, 1)
+        .prepareReadRecord(SFI_EVENT_LOG, 1)
         .processCommands(ChannelControl.CLOSE_AFTER);
 
-    String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
+    String sfiEnvHolder = HexUtil.toHex(SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(
         "File {}h, rec 1: FILE_CONTENT = {}",
         sfiEnvHolder,
-        calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
+        calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER));
 
-    String sfiEventLog = HexUtil.toHex(CalypsoConstants.SFI_EVENT_LOG);
+    String sfiEventLog = HexUtil.toHex(SFI_EVENT_LOG);
     logger.info(
-        "File {}h, rec 1: FILE_CONTENT = {}",
-        sfiEventLog,
-        calypsoCard.getFileBySfi(CalypsoConstants.SFI_EVENT_LOG));
+        "File {}h, rec 1: FILE_CONTENT = {}", sfiEventLog, calypsoCard.getFileBySfi(SFI_EVENT_LOG));
 
     logger.info("= #### End of the Calypso card processing.");
 

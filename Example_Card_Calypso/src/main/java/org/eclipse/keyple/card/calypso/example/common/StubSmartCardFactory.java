@@ -17,10 +17,12 @@ import org.eclipse.keyple.plugin.stub.StubSmartCard;
 /** Factory for a Calypso Card emulation via a smart card stub */
 public class StubSmartCardFactory {
   private static final String CARD_POWER_ON_DATA = "3B888001000000009171710098";
+  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+  private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
   private static final StubSmartCard stubCard =
       StubSmartCard.builder()
           .withPowerOnData(HexUtil.toByteArray(CARD_POWER_ON_DATA))
-          .withProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
+          .withProtocol(ISO_CARD_PROTOCOL)
           // select application
           .withSimulatedCommand(
               "00A4040009315449432E4943413100",
@@ -42,7 +44,7 @@ public class StubSmartCardFactory {
   private static final StubSmartCard stubSam =
       StubSmartCard.builder()
           .withPowerOnData(HexUtil.toByteArray(SAM_POWER_ON_DATA))
-          .withProtocol(ConfigurationUtil.SAM_PROTOCOL)
+          .withProtocol(SAM_PROTOCOL)
           // select diversifier
           .withSimulatedCommand("801400000800000000AABBCCDD", "9000")
           // get challenge
@@ -56,10 +58,7 @@ public class StubSmartCardFactory {
           // digest authenticate
           .withSimulatedCommand("808200000487654321", "9000")
           .build();
-  /**
-   * (private)<br>
-   * Constructor
-   */
+  /** Constructor */
   private StubSmartCardFactory() {}
 
   /**

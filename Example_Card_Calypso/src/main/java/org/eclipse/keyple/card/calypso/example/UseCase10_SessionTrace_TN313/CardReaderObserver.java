@@ -16,7 +16,6 @@ import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_INSERTED;
 import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_MATCHED;
 
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
@@ -32,11 +31,7 @@ import org.eclipse.keypop.reader.spi.CardReaderObserverSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * (package-private)
- *
- * <p>A reader Observer handles card event such as CARD_INSERTED, CARD_MATCHED, CARD_REMOVED
- */
+/** A reader Observer handles card event such as CARD_INSERTED, CARD_MATCHED, CARD_REMOVED */
 class CardReaderObserver
     implements CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
 
@@ -46,19 +41,24 @@ class CardReaderObserver
   private final CardSelectionManager cardSelectionManager;
   private final byte[] newEventRecord =
       HexUtil.toByteArray("8013C8EC55667788112233445566778811223344556677881122334455");
-  public static final String ANSI_RESET = "\u001B[0m";
-  public static final String ANSI_BLACK = "\u001B[30m";
-  public static final String ANSI_RED = "\u001B[31m";
-  public static final String ANSI_GREEN = "\u001B[32m";
-  public static final String ANSI_YELLOW = "\u001B[33m";
-  public static final String ANSI_BLUE = "\u001B[34m";
-  public static final String ANSI_PURPLE = "\u001B[35m";
-  public static final String ANSI_CYAN = "\u001B[36m";
-  public static final String ANSI_WHITE = "\u001B[37m";
+  private static final String ANSI_RESET = "\u001B[0m";
+  private static final String ANSI_BLACK = "\u001B[30m";
+  private static final String ANSI_RED = "\u001B[31m";
+  private static final String ANSI_GREEN = "\u001B[32m";
+  private static final String ANSI_YELLOW = "\u001B[33m";
+  private static final String ANSI_BLUE = "\u001B[34m";
+  private static final String ANSI_PURPLE = "\u001B[35m";
+  private static final String ANSI_CYAN = "\u001B[36m";
+  private static final String ANSI_WHITE = "\u001B[37m";
   private final CalypsoCardApiFactory calypsoCardApiFactory;
 
+  // File identifiers
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+  private static final byte SFI_EVENT_LOG = (byte) 0x08;
+  private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
+  private static final byte SFI_CONTRACTS = (byte) 0x09;
+
   /**
-   * (package-private)<br>
    * Constructor.
    *
    * @param cardReader The card reader.
@@ -98,12 +98,9 @@ class CardReaderObserver
                   .createSecureRegularModeTransactionManager(
                       cardReader, calypsoCard, cardSecuritySetting)
                   .prepareOpenSecureSession(DEBIT)
-                  .prepareReadRecord(
-                      CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
-                  .prepareReadRecord(
-                      CalypsoConstants.SFI_EVENT_LOG, CalypsoConstants.RECORD_NUMBER_1)
-                  .prepareReadRecord(
-                      CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
+                  .prepareReadRecord(SFI_ENVIRONMENT_AND_HOLDER, 1)
+                  .prepareReadRecord(SFI_EVENT_LOG, 1)
+                  .prepareReadRecord(SFI_CONTRACT_LIST, 1)
                   .processCommands(ChannelControl.KEEP_OPEN);
 
           /*
@@ -112,7 +109,7 @@ class CardReaderObserver
 
           // read the elected contract
           cardTransactionManager
-              .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
+              .prepareReadRecord(SFI_CONTRACTS, 1)
               .processCommands(ChannelControl.KEEP_OPEN);
 
           /*
@@ -121,7 +118,7 @@ class CardReaderObserver
 
           // add an event record and close the Secure Session
           cardTransactionManager
-              .prepareAppendRecord(CalypsoConstants.SFI_EVENT_LOG, newEventRecord)
+              .prepareAppendRecord(SFI_EVENT_LOG, newEventRecord)
               .prepareCloseSecureSession()
               .processCommands(ChannelControl.CLOSE_AFTER);
 

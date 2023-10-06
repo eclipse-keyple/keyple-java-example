@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * (package-private)<br>
  * Implements the reader observation SPIs.<br>
  * A reader Observer to handle card events such as CARD_INSERTED, CARD_MATCHED, CARD_REMOVED
  *

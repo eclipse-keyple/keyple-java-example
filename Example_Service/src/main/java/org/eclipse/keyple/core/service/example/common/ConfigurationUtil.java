@@ -34,7 +34,7 @@ public class ConfigurationUtil {
   public static final String CONTACT_READER_NAME_REGEX = ".*Identive.*|.*HID.*";
 
   /**
-   * (private)<br>
+   * 
    * Constructor.
    */
   private ConfigurationUtil() {}

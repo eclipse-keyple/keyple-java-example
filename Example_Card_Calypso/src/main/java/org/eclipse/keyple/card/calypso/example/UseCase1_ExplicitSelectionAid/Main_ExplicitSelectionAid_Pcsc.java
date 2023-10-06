@@ -12,14 +12,16 @@
 package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
 
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
-import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
 import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
@@ -29,48 +31,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Handles the process of explicit selection of a Calypso card using the PC/SC plugin, without
+ * implementing the observation of the reader. Ensure the Calypso card is inserted before launching
+ * the program.
  *
+ * <p>This class demonstrates the explicit selection of a Calypso card, including the initialization
+ * of the card selection manager after verifying the presence of an ISO 14443-4 card in the reader,
+ * and the attempt to select the specified Calypso card characterized by its AID.
  *
- * <h1>Use Case Calypso 1 – Explicit Selection Aid (PC/SC)</h1>
+ * <p>It also demonstrates how to retrieve and output collected data such as serial number and file
+ * record content after the selection scenario based on AID.
  *
- * <p>We demonstrate here the direct selection of a Calypso card inserted in a reader. No
- * observation of the reader is implemented in this example, so the card must be present in the
- * reader before the program is launched.
- *
- * <h2>Scenario:</h2>
+ * <h2>Key Functionalities</h2>
  *
  * <ul>
- *   <li>Checks if an ISO 14443-4 card is in the reader, enables the card selection manager.
- *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
- *       an AID-based application selection scenario, including reading a file record.
- *   <li>Output the collected data (FCI, ATR and file record content).
+ *   <li>Check for an ISO 14443-4 card in the reader and enable the card selection manager.
+ *   <li>Attempt to select a specified Calypso card using AID-based application selection scenario.
+ *   <li>Read and output the collected data including Calypso serial number and file record content.
  * </ul>
  *
- * All results are logged with slf4j.
- *
- * <p>Any unexpected behavior will result in a runtime exceptions.
+ * <p>All operations and results are logged using slf4j for tracking and debugging. In the case of
+ * unexpected behavior, a runtime exception is thrown.
  */
 public class Main_ExplicitSelectionAid_Pcsc {
   private static final Logger logger =
       LoggerFactory.getLogger(Main_ExplicitSelectionAid_Pcsc.class);
 
+  // A regular expression for matching common contactless card readers. Adapt as needed.
+  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  // The logical name of the protocol for communicating with the card (optional).
+  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+
+  /** AID: Keyple test kit profile 1, Application 2 */
+  private static final String AID = "315449432E49434131";
+
+  // File identifiers
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+
+  // The plugin used to manage the reader.
+  private static Plugin plugin;
+  // The reader used to communicate with the card.
+  private static CardReader cardReader;
+  // The factory used to create the selection manager and card selectors.
+  private static ReaderApiFactory readerApiFactory;
+  // The Calypso factory used to create the selection extension and transaction managers.
+  private static CalypsoCardApiFactory calypsoCardApiFactory;
+
   public static void main(String[] args) {
+    logger.info("= UseCase Calypso #1: AID based explicit selection ==================");
 
-    // Get the instance of the SmartCardService
-    SmartCardService smartCardService = SmartCardServiceProvider.getService();
-
-    // Register the PcscPlugin, get the corresponding generic plugin in return
-    Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
-
-    // Get the Calypso card extension service
-    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
-
-    // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(calypsoCardService);
-
-    // Get the contactless reader whose name matches the provided regex
-    CardReader cardReader =
-        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
+    // Initialize the context
+    initKeypleService();
+    initCardReader();
+    initCalypsoCardExtensionService();
 
     logger.info(
         "=============== UseCase Calypso #1: AID based explicit selection ==================");
@@ -80,28 +93,17 @@ public class Main_ExplicitSelectionAid_Pcsc {
       throw new IllegalStateException("No card is present in the reader.");
     }
 
-    logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
+    logger.info("= #### Select application with AID = '{}'.", AID);
 
-    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
-
-    // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
-
     CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
-
-    CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
-
-    // Create a card selection using the Calypso card extension.
-    // Prepare the selection by adding the created Calypso card selection to the card selection
-    // scenario.
-    cardSelectionManager.prepareSelection(
-        cardSelector,
+        readerApiFactory.createIsoCardSelector().filterByDfName(AID);
+    CalypsoCardSelectionExtension calypsoCardSelectionExtension =
         calypsoCardApiFactory
             .createCalypsoCardSelectionExtension()
             .acceptInvalidatedCard()
-            .prepareReadRecord(
-                CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1));
+            .prepareReadRecord(SFI_ENVIRONMENT_AND_HOLDER, 1);
+    cardSelectionManager.prepareSelection(cardSelector, calypsoCardSelectionExtension);
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =
@@ -109,8 +111,7 @@ public class Main_ExplicitSelectionAid_Pcsc {
 
     // Check the selection result.
     if (selectionResult.getActiveSmartCard() == null) {
-      throw new IllegalStateException(
-          "The selection of the application '" + CalypsoConstants.AID + "' failed.");
+      throw new IllegalStateException("The selection of the application '" + AID + "' failed.");
     }
 
     // Get the SmartCard resulting of the selection.
@@ -121,14 +122,136 @@ public class Main_ExplicitSelectionAid_Pcsc {
     String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
     logger.info("Calypso Serial Number = {}", csn);
 
-    String sfiEnvHolder = HexUtil.toHex(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER);
+    String sfiEnvHolder = HexUtil.toHex(SFI_ENVIRONMENT_AND_HOLDER);
     logger.info(
         "File SFI {}h, rec 1: FILE_CONTENT = {}",
         sfiEnvHolder,
-        calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
+        calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER));
 
     logger.info("= #### End of the Calypso card processing.");
 
     System.exit(0);
+  }
+
+  /**
+   * Initializes the Keyple service.
+   *
+   * <p>Gets an instance of the smart card service, registers the PC/SC plugin, and prepares the
+   * reader API factory for use.
+   *
+   * <p>Retrieves the {@link ReaderApiFactory}.
+   */
+  private static void initKeypleService() {
+    SmartCardService smartCardService = SmartCardServiceProvider.getService();
+    plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
+    readerApiFactory = smartCardService.getReaderApiFactory();
+  }
+
+  /**
+   * Initializes the card reader with specific configurations.
+   *
+   * <p>Prepares the card reader using a predefined set of configurations, including the card reader
+   * name regex, ISO protocol, and sharing mode.
+   */
+  private static void initCardReader() {
+    cardReader =
+        getReader(
+            plugin,
+            CARD_READER_NAME_REGEX,
+            true,
+            PcscReader.IsoProtocol.T1,
+            PcscReader.SharingMode.EXCLUSIVE,
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ISO_CARD_PROTOCOL);
+  }
+
+  /**
+   * Initializes the Calypso card extension service.
+   *
+   * <p>Retrieves the {@link CalypsoCardApiFactory}.
+   */
+  private static void initCalypsoCardExtensionService() {
+    CalypsoExtensionService calypsoExtensionService = CalypsoExtensionService.getInstance();
+    SmartCardServiceProvider.getService().checkCardExtension(calypsoExtensionService);
+    calypsoCardApiFactory = calypsoExtensionService.getCalypsoCardApiFactory();
+  }
+
+  /**
+   * Configures and returns a card reader based on the provided parameters.
+   *
+   * <p>It finds the reader name by matching with a regular expression, then configures the reader
+   * with the specified settings.
+   *
+   * @param plugin The plugin used to interact with the card reader.
+   * @param readerNameRegex The regular expression to match the card reader's name.
+   * @param isContactless A boolean indicating whether the card reader is contactless.
+   * @param isoProtocol The ISO protocol used by the card reader.
+   * @param sharingMode The sharing mode of the PC/SC reader.
+   * @param physicalProtocolName The name of the protocol used by the reader to communicate with
+   *     card.
+   * @param logicalProtocolName The name of the protocol known by the application.
+   * @return The configured card reader.
+   */
+  private static CardReader getReader(
+      Plugin plugin,
+      String readerNameRegex,
+      boolean isContactless,
+      PcscReader.IsoProtocol isoProtocol,
+      PcscReader.SharingMode sharingMode,
+      String physicalProtocolName,
+      String logicalProtocolName) {
+    String readerName = getReaderName(plugin, readerNameRegex);
+    CardReader reader = plugin.getReader(readerName);
+
+    plugin
+        .getReaderExtension(PcscReader.class, readerName)
+        .setContactless(isContactless)
+        .setIsoProtocol(isoProtocol)
+        .setSharingMode(sharingMode);
+
+    ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
+
+    return reader;
+  }
+
+  /**
+   * Searches for and retrieves the name of the reader from the provided plugin's available reader
+   * names that matches the given regular expression.
+   *
+   * <p>This method iterates through the reader names available to the provided plugin, returning
+   * the first reader name that matches the supplied regular expression. If no match is found, an
+   * IllegalStateException is thrown, indicating the absence of a matching reader name.
+   *
+   * @param plugin The plugin containing the available reader names to search through.
+   * @param readerNameRegex The regular expression used to find a matching reader name among the
+   *     available names provided by the plugin.
+   * @return The name of the reader that matches the given regular expression from the available
+   *     reader names of the provided plugin.
+   * @throws IllegalArgumentException if the provided plugin is null, or if the reader name regex is
+   *     null or empty.
+   * @throws IllegalStateException if no reader name from the available names of the provided plugin
+   *     matches the given regular expression.
+   */
+  private static String getReaderName(Plugin plugin, String readerNameRegex) {
+    if (plugin == null) {
+      throw new IllegalArgumentException("Plugin cannot be null");
+    }
+
+    if (readerNameRegex == null || readerNameRegex.trim().isEmpty()) {
+      throw new IllegalArgumentException("Reader name regex cannot be null or empty");
+    }
+
+    for (String readerName : plugin.getReaderNames()) {
+      if (readerName.matches(readerNameRegex)) {
+        logger.info("Card reader found, plugin: {}, name: {}", plugin.getName(), readerName);
+        return readerName;
+      }
+    }
+
+    String errorMsg =
+        String.format(
+            "Reader matching '%s' not found in plugin '%s'", readerNameRegex, plugin.getName());
+    logger.error(errorMsg);
+    throw new IllegalStateException(errorMsg);
   }
 }

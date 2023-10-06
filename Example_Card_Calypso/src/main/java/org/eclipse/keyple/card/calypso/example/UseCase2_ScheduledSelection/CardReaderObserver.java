@@ -14,7 +14,6 @@ package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_INSERTED;
 import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_MATCHED;
 
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
@@ -32,11 +31,12 @@ class CardReaderObserver
     implements CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
 
   private static final Logger logger = LoggerFactory.getLogger(CardReaderObserver.class);
+  // File identifiers
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
   private final CardReader reader;
   private final CardSelectionManager cardSelectionManager;
 
   /**
-   * (package-private)<br>
    * Constructor.
    *
    * <p>Note: the reader is provided here for convenience but could also be retrieved from the
@@ -73,8 +73,8 @@ class CardReaderObserver
         logger.info("Data read during the scheduled selection process:");
         logger.info(
             "File {}h, rec 1: FILE_CONTENT = {}",
-            String.format("%02X", CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER),
-            calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
+            SFI_ENVIRONMENT_AND_HOLDER,
+            calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER));
 
         logger.info("= #### End of the card processing.");
 

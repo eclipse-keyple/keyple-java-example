@@ -19,7 +19,6 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
@@ -51,6 +50,12 @@ import org.slf4j.impl.SimpleLogger;
  */
 public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
 
+  // A regular expression for matching common contactless card readers. Adapt as needed.
+  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  // A regular expression for matching common SAM readers. Adapt as needed.
+  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  // The logical name of the protocol for communicating with the card (optional).
+
   // user interface management
   private static final String ANSI_RESET = "\u001B[0m";
   private static final String ANSI_RED = "\u001B[31m";
@@ -66,6 +71,16 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
   private static byte[] newEventRecord;
   private static String builtDate;
   private static String builtTime;
+
+  // File structure
+  /** AID: Keyple test kit profile 1, Application 2 */
+  private static final String AID = "315449432E49434131";
+
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+  private static final byte SFI_EVENT_LOG = (byte) 0x08;
+  private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
+  private static final byte SFI_CONTRACTS = (byte) 0x09;
+  private static final byte SFI_COUNTERS = (byte) 0x19;
 
   public static void main(String[] args) throws IOException {
 
@@ -95,10 +110,8 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
     Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
 
     // Get the card and SAM readers whose name matches the provided regexs
-    CardReader cardReader =
-        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
-    CardReader samReader =
-        ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
+    CardReader cardReader = ConfigurationUtil.getCardReader(plugin, CARD_READER_NAME_REGEX);
+    CardReader samReader = ConfigurationUtil.getSamReader(plugin, SAM_READER_NAME_REGEX);
 
     // Get the Calypso card extension service
     CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
@@ -111,15 +124,14 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
 
     logger.info("= SAM = {}", sam);
 
-    logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
+    logger.info("= #### Select application with AID = '{}'.", AID);
 
     ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
 
     // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    CardSelector cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(CalypsoConstants.AID);
+    CardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(AID);
 
     CalypsoCardApiFactory calypsoCardApiFactory = calypsoCardService.getCalypsoCardApiFactory();
 
@@ -183,70 +195,50 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
                   .createSecureRegularModeTransactionManager(
                       cardReader, calypsoCard, cardSecuritySetting)
                   .prepareOpenSecureSession(DEBIT)
-                  .prepareReadRecord(
-                      CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER, CalypsoConstants.RECORD_NUMBER_1)
-                  .prepareReadRecord(
-                      CalypsoConstants.SFI_EVENT_LOG, CalypsoConstants.RECORD_NUMBER_1)
+                  .prepareReadRecord(SFI_ENVIRONMENT_AND_HOLDER, 1)
+                  .prepareReadRecord(SFI_EVENT_LOG, 1)
                   .processCommands(ChannelControl.KEEP_OPEN);
 
           byte[] environmentAndHolderData =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+              calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER).getData().getContent(1);
 
-          byte[] eventLogData =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_EVENT_LOG)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+          byte[] eventLogData = calypsoCard.getFileBySfi(SFI_EVENT_LOG).getData().getContent(1);
 
           // TODO Place here the analysis of the context and the last event log
 
           // read the contract list
           cardTransactionManager
-              .prepareReadRecord(
-                  CalypsoConstants.SFI_CONTRACT_LIST, CalypsoConstants.RECORD_NUMBER_1)
+              .prepareReadRecord(SFI_CONTRACT_LIST, 1)
               .processCommands(ChannelControl.KEEP_OPEN);
 
           byte[] contractListData =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+              calypsoCard.getFileBySfi(SFI_CONTRACT_LIST).getData().getContent(1);
 
           // TODO Place here the analysis of the contract list
 
           // read the elected contract
           cardTransactionManager
-              .prepareReadRecord(CalypsoConstants.SFI_CONTRACTS, CalypsoConstants.RECORD_NUMBER_1)
+              .prepareReadRecord(SFI_CONTRACTS, 1)
               .processCommands(ChannelControl.KEEP_OPEN);
 
-          byte[] contractData =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACTS)
-                  .getData()
-                  .getContent(CalypsoConstants.RECORD_NUMBER_1);
+          byte[] contractData = calypsoCard.getFileBySfi(SFI_CONTRACTS).getData().getContent(1);
 
           // TODO Place here the analysis of the contract
 
           // read the contract counter
           cardTransactionManager
-              .prepareReadCounter(CalypsoConstants.SFI_COUNTERS, 1)
+              .prepareReadCounter(SFI_COUNTERS, 1)
               .processCommands(ChannelControl.KEEP_OPEN);
 
           int counterValue =
-              calypsoCard
-                  .getFileBySfi(CalypsoConstants.SFI_CONTRACT_LIST)
-                  .getData()
-                  .getContentAsCounterValue(1);
+              calypsoCard.getFileBySfi(SFI_CONTRACT_LIST).getData().getContentAsCounterValue(1);
 
           // TODO Place here the preparation of the card's content update
 
           // add an event record and close the Secure Session
           cardTransactionManager
-              .prepareDecreaseCounter(CalypsoConstants.SFI_COUNTERS, 1, counterDecrement)
-              .prepareAppendRecord(CalypsoConstants.SFI_EVENT_LOG, newEventRecord)
+              .prepareDecreaseCounter(SFI_COUNTERS, 1, counterDecrement)
+              .prepareAppendRecord(SFI_EVENT_LOG, newEventRecord)
               .prepareCloseSecureSession()
               .processCommands(ChannelControl.KEEP_OPEN);
 

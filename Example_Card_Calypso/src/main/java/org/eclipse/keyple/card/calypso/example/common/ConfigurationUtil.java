@@ -42,16 +42,13 @@ public class ConfigurationUtil {
   // Common reader identifiers
   // These two regular expressions can be modified to fit the names of the readers used to run these
   // examples.
-  public static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
-  public static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
-  public static final String SAM_PROTOCOL = "ISO_7816_3_T0";
-  public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
-  public static final String INNOVATRON_CARD_PROTOCOL = "INNOVATRON_B_PRIME_CARD";
+  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
+  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+  private static final String INNOVATRON_CARD_PROTOCOL = "INNOVATRON_B_PRIME_CARD";
 
-  /**
-   * (private)<br>
-   * Constructor.
-   */
+  /** Constructor. */
   private ConfigurationUtil() {}
 
   private static String getReaderName(Plugin plugin, String readerNameRegex) {
@@ -230,10 +227,7 @@ public class ConfigurationUtil {
   private static class ReaderConfigurator implements ReaderConfiguratorSpi {
     private static final Logger logger = LoggerFactory.getLogger(ReaderConfigurator.class);
 
-    /**
-     * (private)<br>
-     * Constructor.
-     */
+    /** Constructor. */
     private ReaderConfigurator() {}
 
     /** {@inheritDoc} */

@@ -14,7 +14,6 @@ package org.eclipse.keyple.card.calypso.example.UseCase4_CardAuthentication;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
@@ -47,7 +46,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This class demonstrates the card authentication process, including the initialization of the
  * Smart Card Service, registering the PC/SC plugin, checking the compatibility of the Calypso card
- * extension service, and performing operations with the Reader and Calypso Card APIs.
+ * extension service, and performing operations with the Keypop Reader and Calypso Card APIs.
  *
  * <p>The class also demonstrates how to retrieve the card and SAM readers using regular expressions
  * to match their names and how to operate the security of transactions using SAM.
@@ -68,17 +67,33 @@ import org.slf4j.LoggerFactory;
 public class Main_CardAuthentication_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_CardAuthentication_Pcsc.class);
 
-  public static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
-  public static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
-  public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
-  public static final String SAM_PROTOCOL = "ISO_7816_3_T0";
+  // A regular expression for matching common contactless card readers. Adapt as needed.
+  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  // A regular expression for matching common SAM readers. Adapt as needed.
+  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  // The logical name of the protocol for communicating with the card (optional).
+  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+  // The logical name of the protocol for communicating with the SAM (optional).
+  private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
-  private static CardReader cardReader;
-  private static CardReader samReader;
-  private static ReaderApiFactory readerApiFactory;
-  private static CalypsoCardApiFactory calypsoCardApiFactory;
-  private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
+  /** AID: Keyple test kit profile 1, Application 2 */
+  private static final String AID = "315449432E49434131";
+
+  // File identifiers
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+
+  // The plugin used to manage the readers.
   private static Plugin plugin;
+  // The reader used to communicate with the card.
+  private static CardReader cardReader;
+  // The reader used to communicate with the SAM.
+  private static CardReader samReader;
+  // The factory used to create the selection manager and card selectors.
+  private static ReaderApiFactory readerApiFactory;
+  // The Calypso factory used to create the selection extension and transaction managers.
+  private static CalypsoCardApiFactory calypsoCardApiFactory;
+  // The security settings for the card transaction.
+  private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
 
   /**
    * The main method to execute the card authentication process.
@@ -105,30 +120,27 @@ public class Main_CardAuthentication_Pcsc {
     }
 
     // Select the card
-    CalypsoCard calypsoCard = selectCard(cardReader, CalypsoConstants.AID);
+    CalypsoCard calypsoCard = selectCard(cardReader, AID);
 
-    // Operate the transaction
+    // Execute the transaction: the environment file is read within a secure session to ensure data
+    // authenticity.
     calypsoCardApiFactory
         .createSecureRegularModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting)
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
-        .prepareReadRecords(
-            CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
-            CalypsoConstants.RECORD_NUMBER_1,
-            CalypsoConstants.RECORD_NUMBER_1,
-            CalypsoConstants.RECORD_SIZE)
+        .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29)
         .prepareCloseSecureSession()
         .processCommands(ChannelControl.CLOSE_AFTER);
 
     logger.info(
-        "The Secure Session ended successfully, the card is authenticated and the data read are certified.");
+        "The secure session has ended successfully; the card is authenticated, and the read data is certified.");
 
     String serialNumberString = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
     logger.info("Calypso Serial Number = {}", serialNumberString);
     logger.info(
         "File {}h, rec 1: FILE_CONTENT = {}",
-        CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER,
-        calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
+        SFI_ENVIRONMENT_AND_HOLDER,
+        calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER));
   }
 
   /**
