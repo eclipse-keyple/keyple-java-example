@@ -104,8 +104,11 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
     // load operating parameters
     readConfigurationFile();
 
-    // init logger
+    // Set log level
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel);
+
+    // Create logger
+    logger = LoggerFactory.getLogger(Main_PerformanceMeasurement_DistributedReloading_Pcsc.class);
 
     System.out.printf(
         "%s=============== Performance measurement: validation transaction ===============\n",
