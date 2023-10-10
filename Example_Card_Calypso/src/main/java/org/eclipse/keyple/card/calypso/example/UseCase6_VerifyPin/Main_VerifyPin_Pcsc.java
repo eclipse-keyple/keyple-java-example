@@ -102,7 +102,7 @@ public class Main_VerifyPin_Pcsc {
   // The security settings for the card transaction.
   private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
 
-  private static void main(String[] args) {
+  public static void main(String[] args) {
     logger.info("= UseCase Calypso #6: Calypso card Verify PIN ==================");
 
     // Initialize the context

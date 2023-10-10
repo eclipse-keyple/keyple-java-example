@@ -51,9 +51,7 @@ class CardReaderObserver
     this.cardSelectionManager = cardSelectionManager;
   }
 
-  /**
-   * {@inheritDoc} ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX)
-   */
+  /** {@inheritDoc} */
   @Override
   public void onReaderEvent(CardReaderEvent event) {
     switch (event.getType()) {
@@ -100,9 +98,7 @@ class CardReaderObserver
     }
   }
 
-  /**
-   * {@inheritDoc} ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX)
-   */
+  /** {@inheritDoc} */
   @Override
   public void onReaderObservationError(String pluginName, String readerName, Throwable e) {
     logger.error("An exception occurred in plugin '{}', reader '{}'.", pluginName, readerName, e);
