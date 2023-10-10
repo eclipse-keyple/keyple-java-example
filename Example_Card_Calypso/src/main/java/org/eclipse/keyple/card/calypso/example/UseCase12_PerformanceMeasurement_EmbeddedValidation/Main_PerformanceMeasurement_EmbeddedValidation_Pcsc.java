@@ -56,8 +56,7 @@ import org.slf4j.impl.SimpleLogger;
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
 public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
-  private static Logger logger =
-      LoggerFactory.getLogger(Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.class);
+  private static Logger logger;
 
   // user interface management
   private static final String ANSI_RESET = "\u001B[0m";
@@ -104,8 +103,11 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
     // load operating parameters
     readConfigurationFile();
 
-    // init logger
+    // Set log level
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel);
+
+    // Create logger
+    logger = LoggerFactory.getLogger(Main_PerformanceMeasurement_EmbeddedValidation_Pcsc.class);
 
     System.out.printf(
         "%s=============== Performance measurement: validation transaction ===============\n",
