@@ -33,10 +33,7 @@ public class ConfigurationUtil {
   public static final String CONTACTLESS_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
   public static final String CONTACT_READER_NAME_REGEX = ".*Identive.*|.*HID.*";
 
-  /**
-   * 
-   * Constructor.
-   */
+  /** Constructor. */
   private ConfigurationUtil() {}
 
   /**

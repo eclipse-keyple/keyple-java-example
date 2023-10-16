@@ -109,9 +109,7 @@ public class Main_ScheduledSelection_Pcsc {
 
     // Schedule the selection scenario.
     cardSelectionManager.scheduleCardSelectionScenario(
-        observableCardReader,
-        ObservableCardReader.DetectionMode.REPEATING,
-        ObservableCardReader.NotificationMode.MATCHED_ONLY);
+        observableCardReader, ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Create and add an observer
     CardReaderObserver cardReaderObserver =

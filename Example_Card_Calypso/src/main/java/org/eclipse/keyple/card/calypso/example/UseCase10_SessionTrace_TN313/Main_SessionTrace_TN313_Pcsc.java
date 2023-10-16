@@ -140,9 +140,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     // Schedule the selection scenario, request notification only if the card matches the selection
     // case.
     cardSelectionManager.scheduleCardSelectionScenario(
-        (ObservableCardReader) cardReader,
-        ObservableCardReader.DetectionMode.REPEATING,
-        ObservableCardReader.NotificationMode.MATCHED_ONLY);
+        (ObservableCardReader) cardReader, ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Create and add a card observer for this reader
     CardReaderObserver cardReaderObserver =

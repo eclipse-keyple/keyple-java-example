@@ -243,10 +243,7 @@ public class Main_CardResourceService_Stub {
   private static class ReaderConfigurator implements ReaderConfiguratorSpi {
     private static final Logger logger = LoggerFactory.getLogger(ReaderConfigurator.class);
 
-    /**
-     * 
-     * Constructor.
-     */
+    /** Constructor. */
     private ReaderConfigurator() {}
 
     /** {@inheritDoc} */

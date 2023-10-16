@@ -31,7 +31,13 @@ import org.eclipse.keyple.plugin.android.nfc.AndroidNfcReader
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcSupportedProtocols
 import org.eclipse.keyple.plugin.android.nfc.example.R
 import org.eclipse.keyple.plugin.android.nfc.example.util.CalypsoClassicInfo
-import org.eclipse.keypop.reader.*
+import org.eclipse.keypop.reader.CardCommunicationException
+import org.eclipse.keypop.reader.CardReader
+import org.eclipse.keypop.reader.CardReaderEvent
+import org.eclipse.keypop.reader.ConfigurableCardReader
+import org.eclipse.keypop.reader.ObservableCardReader
+import org.eclipse.keypop.reader.ReaderApiFactory
+import org.eclipse.keypop.reader.ReaderCommunicationException
 import org.eclipse.keypop.reader.selection.spi.IsoSmartCard
 import timber.log.Timber
 
@@ -144,7 +150,12 @@ class CoreExamplesActivity : AbstractExampleActivity() {
              */
             cardSelectionManager.prepareSelection(cardSelector, cardSelectionExtension)
 
-            cardSelectionManager.scheduleCardSelectionScenario(reader as ObservableCardReader, ObservableCardReader.DetectionMode.REPEATING, ObservableCardReader.NotificationMode.MATCHED_ONLY)
+            cardSelectionManager.scheduleCardSelectionScenario(reader as ObservableCardReader, ObservableCardReader.NotificationMode.MATCHED_ONLY)
+
+            /**
+             * Initiate the repeating card detection
+             */
+            (reader as ObservableCardReader).startCardDetection(ObservableCardReader.DetectionMode.REPEATING)
 
             useCase = object : UseCase {
                 override fun onEventUpdate(event: CardReaderEvent) {
@@ -219,11 +230,6 @@ class CoreExamplesActivity : AbstractExampleActivity() {
                  * Create a card selection using the generic card extension.
                  */
                 cardSelectionManager.prepareSelection(cardSelector, cardSelectionExtension)
-
-                /**
-                 * Provide the Reader with the selection operation to be processed when a card is inserted.
-                 */
-                cardSelectionManager.scheduleCardSelectionScenario(reader as ObservableCardReader, ObservableCardReader.DetectionMode.SINGLESHOT, ObservableCardReader.NotificationMode.MATCHED_ONLY)
 
                 /**
                  * We won't be listening for event update within this use case

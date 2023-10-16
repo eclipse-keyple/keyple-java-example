@@ -121,7 +121,6 @@ public class Main_TransmitControl_Pcsc {
     // Schedule the selection scenario, always notify card presence.
     cardSelectionManager.scheduleCardSelectionScenario(
         reader,
-        ObservableCardReader.DetectionMode.REPEATING,
         ObservableCardReader.NotificationMode.ALWAYS);
 
     CardObserver cardObserver = new CardObserver(pcscReader);

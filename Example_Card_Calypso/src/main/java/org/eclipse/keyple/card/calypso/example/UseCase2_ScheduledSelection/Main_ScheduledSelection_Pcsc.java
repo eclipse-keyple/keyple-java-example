@@ -115,9 +115,7 @@ public class Main_ScheduledSelection_Pcsc {
     // Schedule the card selection scenario with a configuration to notify only if a card matches
     // the selection criteria.
     cardSelectionManager.scheduleCardSelectionScenario(
-        (ObservableCardReader) cardReader,
-        ObservableCardReader.DetectionMode.REPEATING,
-        ObservableCardReader.NotificationMode.MATCHED_ONLY);
+        (ObservableCardReader) cardReader, ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Establish a card reader observer to manage card reader events and errors and initiate the
     // card detection process.
