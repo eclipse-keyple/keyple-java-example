@@ -219,6 +219,9 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
           System.out.printf(
               "%sTransaction succeeded. Execution time: %d ms%s\n",
               ANSI_GREEN, System.currentTimeMillis() - timeStamp, ANSI_RESET);
+
+          // preload the SAM challenge for the next transaction
+          symmetricCryptoSecuritySetting.initCryptoContextForNextTransaction();
         } catch (Exception e) {
           System.out.printf(
               "%sTransaction failed with exception: %s%s", ANSI_RED, e.getMessage(), ANSI_RESET);
