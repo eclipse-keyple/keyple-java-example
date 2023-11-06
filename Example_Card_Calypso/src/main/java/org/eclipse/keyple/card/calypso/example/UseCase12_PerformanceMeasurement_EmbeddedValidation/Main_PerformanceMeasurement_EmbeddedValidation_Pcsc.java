@@ -220,7 +220,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
               "%sTransaction succeeded. Execution time: %d ms%s\n",
               ANSI_GREEN, System.currentTimeMillis() - timeStamp, ANSI_RESET);
 
-          // preload the SAM challenge for the next transaction
+          // Optimization: preload the SAM challenge for the next transaction
           symmetricCryptoSecuritySetting.initCryptoContextForNextTransaction();
         } catch (Exception e) {
           System.out.printf(
@@ -330,6 +330,8 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
                     .getLegacySamApiFactory()
                     .createSymmetricCryptoTransactionManagerFactory(samReader, sam))
             .enableRatificationMechanism();
+    // Optimization: preload the SAM challenge for the next transaction
+    symmetricCryptoSecuritySetting.initCryptoContextForNextTransaction();
   }
 
   /**

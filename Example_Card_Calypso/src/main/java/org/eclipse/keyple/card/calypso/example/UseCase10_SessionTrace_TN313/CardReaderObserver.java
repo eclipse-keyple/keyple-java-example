@@ -128,6 +128,10 @@ class CardReaderObserver
               ANSI_GREEN,
               System.currentTimeMillis() - timeStamp,
               ANSI_RESET);
+
+          // Optimization: preload the SAM challenge for the next transaction
+          cardSecuritySetting.initCryptoContextForNextTransaction();
+
         } catch (Exception e) {
           logger.error(
               "{}Transaction failed with exception: {}{}", ANSI_RED, e.getMessage(), ANSI_RESET);

@@ -315,6 +315,8 @@ public class Main_SessionTrace_TN313_Pcsc {
             .assignDefaultKif(LOAD, (byte) 0x27)
             .assignDefaultKif(DEBIT, (byte) 0x30)
             .enableRatificationMechanism();
+    // Optimization: preload the SAM challenge for the next transaction
+    symmetricCryptoSecuritySetting.initCryptoContextForNextTransaction();
   }
 
   /**
