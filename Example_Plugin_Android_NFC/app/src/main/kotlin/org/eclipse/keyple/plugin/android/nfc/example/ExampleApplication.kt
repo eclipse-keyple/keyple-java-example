@@ -1,5 +1,5 @@
 /* **************************************************************************************
- * Copyright (c) 2020 Calypso Networks Association https://calypsonet.org/
+ * Copyright (c) 2023 Calypso Networks Association https://calypsonet.org/
  *
  * See the NOTICE file(s) distributed with this work for additional information
  * regarding copyright ownership.
@@ -12,11 +12,13 @@
 package org.eclipse.keyple.plugin.android.nfc.example
 
 import android.app.Application
+import androidx.multidex.MultiDex
 import timber.log.Timber
 
 class ExampleApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        Timber.plant(Timber.DebugTree())
-    }
+  override fun onCreate() {
+    super.onCreate()
+    MultiDex.install(this)
+    Timber.plant(Timber.DebugTree())
+  }
 }
