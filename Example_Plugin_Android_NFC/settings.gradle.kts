@@ -40,6 +40,7 @@ dependencyResolutionManagement {
         maven {
             url = uri("${System.getProperty("user.home")}/.m2/repository/")
         }
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 include(":app")
