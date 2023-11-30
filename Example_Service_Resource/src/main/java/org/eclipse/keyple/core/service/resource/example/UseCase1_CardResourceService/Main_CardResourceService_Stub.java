@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ *
+ *
  * <h1>Use Case "resource service 1" – Card resource service (Stub)</h1>
  *
  * <p>We demonstrate here the usage of the card resource service with a local pool of Stub readers.
@@ -273,21 +275,12 @@ public class Main_CardResourceService_Stub {
   }
 
   /**
-   * This method prompts the user to select an option from a menu and returns the selected option as a char.
-   * The available options are:
-   * '1': Insert stub card A
-   * '2': Remove stub card A
-   * '3': Insert stub card B
-   * '4': Remove stub card B
-   * '5': Get resource A
-   * '6': Release resource A
-   * '7': Get resource B
-   * '8': Release resource B
-   * 'q': quit
+   * This method prompts the user to select an option from a menu and returns the selected option as
+   * a char.
    *
    * @return The selected option as a char
    */
-  public static char getInput() {
+  private static char getInput() {
 
     int key = 0;
 
