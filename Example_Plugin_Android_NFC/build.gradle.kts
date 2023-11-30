@@ -12,6 +12,7 @@ buildscript {
         mavenLocal()
         maven(url = "https://repo.eclipse.org/service/local/repositories/maven_central/content")
         mavenCentral()
+        maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         google()
     }
     dependencies {
