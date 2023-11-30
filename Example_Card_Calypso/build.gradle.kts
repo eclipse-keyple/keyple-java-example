@@ -1,5 +1,6 @@
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+
 ///////////////////////////////////////////////////////////////////////////////
 //  GRADLE CONFIGURATION
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,17 +31,17 @@ repositories {
     maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
 }
 dependencies {
-    implementation("org.calypsonet.terminal:calypsonet-terminal-reader-java-api:1.2.0")
-    implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-java-api:1.8.0")
-    implementation("org.calypsonet.terminal:calypsonet-terminal-calypso-crypto-legacysam-java-api:0.2.0")
+    implementation("org.eclipse.keypop:keypop-reader-java-api:2.0.0")
+    implementation("org.eclipse.keypop:keypop-calypso-card-java-api:2.0.0")
+    implementation("org.eclipse.keypop:keypop-calypso-crypto-legacysam-java-api:0.3.0")
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.0")
-    implementation("org.eclipse.keyple:keyple-service-java-lib:2.2.0")
-    implementation("org.eclipse.keyple:keyple-service-resource-java-lib:2.1.1")
-    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.1")
+    implementation("org.eclipse.keyple:keyple-service-java-lib:3.0.0")
+    implementation("org.eclipse.keyple:keyple-service-resource-java-lib:3.0.0")
+    implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.2")
     implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.1.0")
-    implementation("org.eclipse.keyple:keyple-card-calypso-crypto-legacysam-java-lib:0.3.0")
-    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:2.3.4")
-    implementation("org.eclipse.keyple:keyple-util-java-lib:2.3.0")
+    implementation("org.eclipse.keyple:keyple-card-calypso-crypto-legacysam-java-lib:0.4.0")
+    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:3.0.0")
+    implementation("org.eclipse.keyple:keyple-util-java-lib:2.3.1")
     implementation("org.slf4j:slf4j-simple:1.7.32")
     implementation("com.google.code.gson:gson:2.10.1")
 }
@@ -76,7 +77,11 @@ tasks {
         manifest {
             attributes(
                 "Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313.Main_SessionTrace_TN313_Pcsc",
-                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${System.getProperty("java.vm.version")})",
+                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${
+                    System.getProperty(
+                        "java.vm.version"
+                    )
+                })",
                 "Build-Date" to buildDate,
                 "Build-Time" to buildTime,
                 "Specification-Title" to project.name,
@@ -98,7 +103,11 @@ tasks {
         manifest {
             attributes(
                 "Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase12_PerformanceMeasurement_EmbeddedValidation.Main_PerformanceMeasurement_EmbeddedValidation_Pcsc",
-                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${System.getProperty("java.vm.version")})",
+                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${
+                    System.getProperty(
+                        "java.vm.version"
+                    )
+                })",
                 "Build-Date" to buildDate,
                 "Build-Time" to buildTime,
                 "Specification-Title" to project.name,
@@ -120,7 +129,11 @@ tasks {
         manifest {
             attributes(
                 "Main-Class" to "org.eclipse.keyple.card.calypso.example.UseCase13_PerformanceMeasurement_DistributedReloading.Main_PerformanceMeasurement_DistributedReloading_Pcsc",
-                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${System.getProperty("java.vm.version")})",
+                "Created-By" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${
+                    System.getProperty(
+                        "java.vm.version"
+                    )
+                })",
                 "Build-Date" to buildDate,
                 "Build-Time" to buildTime,
                 "Specification-Title" to project.name,

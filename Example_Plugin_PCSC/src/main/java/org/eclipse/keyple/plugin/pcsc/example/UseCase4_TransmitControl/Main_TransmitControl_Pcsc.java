@@ -11,18 +11,20 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.pcsc.example.UseCase4_TransmitControl;
 
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.CardReaderEvent;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
-import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
-import org.eclipse.keyple.card.generic.GenericCardSelection;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.CardReaderEvent;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
+import org.eclipse.keypop.reader.spi.CardReaderObserverSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,21 +106,21 @@ public class Main_TransmitControl_Pcsc {
     // check the extension
     smartCardService.checkCardExtension(genericExtensionService);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    // Create a card selection using the generic card extension.
-    GenericCardSelection cardSelection =
-        genericExtensionService.createCardSelection().filterByDfName(AID);
+    // Create a card selection using the generic card extension without specifying any filter
+    // (protocol/ATR/DFName).
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(AID);
 
-    // Prepare the selection by adding the created selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    // Prepare the selection by adding the created generic selection to the card selection scenario.
+    cardSelectionManager.prepareSelection(cardSelector, null);
 
     // Schedule the selection scenario, always notify card presence.
     cardSelectionManager.scheduleCardSelectionScenario(
-        reader,
-        ObservableCardReader.DetectionMode.REPEATING,
-        ObservableCardReader.NotificationMode.ALWAYS);
+        reader, ObservableCardReader.NotificationMode.ALWAYS);
 
     CardObserver cardObserver = new CardObserver(pcscReader);
 

@@ -13,8 +13,6 @@ package org.eclipse.keyple.distributed.example.readerclientside.webservice.clien
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
 import org.eclipse.keyple.core.service.ObservablePlugin;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.PluginEvent;
@@ -31,6 +29,8 @@ import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keyple.plugin.stub.*;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

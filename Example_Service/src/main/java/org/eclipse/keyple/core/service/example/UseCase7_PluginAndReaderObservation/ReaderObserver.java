@@ -11,17 +11,16 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.UseCase7_PluginAndReaderObservation;
 
-import org.calypsonet.terminal.reader.CardReaderEvent;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
-import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
+import org.eclipse.keypop.reader.CardReaderEvent;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
+import org.eclipse.keypop.reader.spi.CardReaderObserverSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * (package-private)<br>
  * Implements the reader observation SPIs.<br>
  * A reader Observer to handle card events such as CARD_INSERTED, CARD_MATCHED, CARD_REMOVED
  *

@@ -11,16 +11,18 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.pcsc.example.UseCase3_ChangeProtocolRules;
 
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.calypsonet.terminal.reader.selection.spi.CardSelection;
-import org.calypsonet.terminal.reader.selection.spi.SmartCard;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.BasicCardSelector;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.spi.SmartCard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,16 +99,20 @@ public class Main_ChangeProtocolRules_Pcsc {
       System.exit(0);
     }
 
-    // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    // Retrieve the reader API factory.
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
 
-    // Create a card selection using the generic card extension without specifying any filter
-    // (protocol/ATR/DFName).
-    CardSelection cardSelection =
-        cardExtension.createCardSelection().filterByCardProtocol(CARD_PROTOCOL_MIFARE_CLASSIC_4_K);
+    // Get the core card selection manager.
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    // Create a generic card selection with a MIFARE CLASSIC protocol filter
+    CardSelector<BasicCardSelector> cardSelector =
+        readerApiFactory
+            .createBasicCardSelector()
+            .filterByCardProtocol(CARD_PROTOCOL_MIFARE_CLASSIC_4_K);
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(cardSelector, null);
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult = cardSelectionManager.processCardSelectionScenario(reader);

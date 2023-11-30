@@ -11,12 +11,12 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.pcsc.example.UseCase2_ExplicitReaderType;
 
-import org.calypsonet.terminal.reader.CardReader;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keypop.reader.CardReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

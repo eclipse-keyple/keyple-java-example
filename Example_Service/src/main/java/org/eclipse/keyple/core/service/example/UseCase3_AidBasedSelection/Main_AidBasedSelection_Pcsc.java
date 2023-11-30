@@ -11,18 +11,20 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.UseCase3_AidBasedSelection;
 
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
-import org.calypsonet.terminal.reader.selection.spi.CardSelection;
-import org.calypsonet.terminal.reader.selection.spi.SmartCard;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
+import org.eclipse.keypop.reader.selection.spi.SmartCard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,16 +98,18 @@ public class Main_AidBasedSelection_Pcsc {
     logger.info(
         "= #### Select the card if its DF Name matches '{}'.", ConfigurationUtil.AID_EMV_PPSE);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
     // Create a card selection using the generic card extension without specifying any filter
     // (protocol/power-on data/DFName).
-    CardSelection cardSelection =
-        genericCardService.createCardSelection().filterByDfName(ConfigurationUtil.AID_EMV_PPSE);
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(ConfigurationUtil.AID_EMV_PPSE);
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(
+        cardSelector, GenericExtensionService.getInstance().createGenericCardSelectionExtension());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =

@@ -11,19 +11,18 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 
-import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_INSERTED;
-import static org.calypsonet.terminal.reader.CardReaderEvent.Type.CARD_MATCHED;
+import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_INSERTED;
+import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_MATCHED;
 
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.CardReaderEvent;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
-import org.calypsonet.terminal.reader.spi.CardReaderObserverSpi;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.CardReaderEvent;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
+import org.eclipse.keypop.reader.spi.CardReaderObserverSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +31,12 @@ class CardReaderObserver
     implements CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
 
   private static final Logger logger = LoggerFactory.getLogger(CardReaderObserver.class);
+  // File identifiers
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
   private final CardReader reader;
   private final CardSelectionManager cardSelectionManager;
 
   /**
-   * (package-private)<br>
    * Constructor.
    *
    * <p>Note: the reader is provided here for convenience but could also be retrieved from the
@@ -51,9 +51,7 @@ class CardReaderObserver
     this.cardSelectionManager = cardSelectionManager;
   }
 
-  /**
-   * {@inheritDoc} ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX)
-   */
+  /** {@inheritDoc} */
   @Override
   public void onReaderEvent(CardReaderEvent event) {
     switch (event.getType()) {
@@ -73,8 +71,8 @@ class CardReaderObserver
         logger.info("Data read during the scheduled selection process:");
         logger.info(
             "File {}h, rec 1: FILE_CONTENT = {}",
-            String.format("%02X", CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER),
-            calypsoCard.getFileBySfi(CalypsoConstants.SFI_ENVIRONMENT_AND_HOLDER));
+            SFI_ENVIRONMENT_AND_HOLDER,
+            calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER));
 
         logger.info("= #### End of the card processing.");
 
@@ -100,9 +98,7 @@ class CardReaderObserver
     }
   }
 
-  /**
-   * {@inheritDoc} ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX)
-   */
+  /** {@inheritDoc} */
   @Override
   public void onReaderObservationError(String pluginName, String readerName, Throwable e) {
     logger.error("An exception occurred in plugin '{}', reader '{}'.", pluginName, readerName, e);

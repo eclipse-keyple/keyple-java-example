@@ -11,10 +11,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.distributed.example.readerclientside.websocket.server;
 
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
 import org.eclipse.keyple.core.service.ObservablePlugin;
 import org.eclipse.keyple.core.service.PluginEvent;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
@@ -23,6 +19,10 @@ import org.eclipse.keyple.distributed.RemotePluginServer;
 import org.eclipse.keyple.distributed.RemoteReaderServer;
 import org.eclipse.keyple.distributed.example.readerclientside.websocket.common.InputDataDto;
 import org.eclipse.keyple.distributed.example.readerclientside.websocket.common.OutputDataDto;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

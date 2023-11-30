@@ -11,14 +11,19 @@
  ************************************************************************************** */
 package org.eclipse.keyple.distributed.example.readerclientside.webservice.server;
 
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.card.ElementaryFile;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.spi.CardSelection;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
+import org.eclipse.keypop.calypso.card.card.ElementaryFile;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +39,10 @@ public class CalypsoTicketingServiceUtil {
   public static final byte SFI_EnvironmentAndHolder = (byte) 0x07;
   public static final byte SFI_EventLog = (byte) 0x08;
   public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+  private static final ReaderApiFactory readerApiFactory =
+      SmartCardServiceProvider.getService().getReaderApiFactory();
+  private static final CalypsoCardApiFactory calypsoCardApiFactory =
+      CalypsoExtensionService.getInstance().getCalypsoCardApiFactory();
 
   private CalypsoTicketingServiceUtil() {}
 
@@ -47,20 +56,21 @@ public class CalypsoTicketingServiceUtil {
     // Check the Calypso extension.
     SmartCardServiceProvider.getService().checkCardExtension(CalypsoExtensionService.getInstance());
 
-    // Calypso selection
-    CardSelection cardSelection =
-        CalypsoExtensionService.getInstance()
-            .createCardSelection()
-            .filterByCardProtocol(ISO_CARD_PROTOCOL)
-            .filterByDfName(AID)
+    // ISO card selection
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(AID);
+
+    // Calypso additional operations
+    CalypsoCardSelectionExtension cardSelectionExtension =
+        calypsoCardApiFactory
+            .createCalypsoCardSelectionExtension()
             .prepareReadRecord(SFI_EnvironmentAndHolder, RECORD_NUMBER_1);
 
     // Prepare Card Selection
-    CardSelectionManager cardSelectionManager =
-        SmartCardServiceProvider.getService().createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
     // Add the selection case to the current selection
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(cardSelector, cardSelectionExtension);
     return cardSelectionManager;
   }
 
@@ -93,10 +103,10 @@ public class CalypsoTicketingServiceUtil {
     // transaction has been processed.
     // Actual Card communication: send the prepared read order, then close the channel with
     // the Card.
-    CalypsoExtensionService.getInstance()
-        .createCardTransactionWithoutSecurity(reader, calypsoCard)
+    calypsoCardApiFactory
+        .createFreeTransactionManager(reader, calypsoCard)
         .prepareReadRecord(SFI_EventLog, RECORD_NUMBER_1)
-        .processCommands(true);
+        .processCommands(ChannelControl.CLOSE_AFTER);
     logger.info("The reading of the EventLog has succeeded.");
 
     // Retrieves the data read from the CalypsoCard updated during the transaction process.

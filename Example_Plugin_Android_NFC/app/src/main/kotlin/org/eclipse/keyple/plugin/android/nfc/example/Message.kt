@@ -1,5 +1,5 @@
 /* **************************************************************************************
- * Copyright (c) 2020 Calypso Networks Association https://calypsonet.org/
+ * Copyright (c) 2023 Calypso Networks Association https://calypsonet.org/
  *
  * See the NOTICE file(s) distributed with this work for additional information
  * regarding copyright ownership.
@@ -9,12 +9,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ************************************************************************************** */
-package org.eclipse.keyple.plugin.android.nfc.example.util
+package org.eclipse.keyple.plugin.android.nfc.example
 
-object CalypsoClassicInfo {
-    /** AID: Keyple test kit profile 1, Application 2  */
-    val AID_CD_LIGHT_GTML = "315449432E49434131"
-    val AID_HOPLINK = "A000000291A00000019102"
-
-    val CARD_PROTOCOL = "ISO_14443_4_CARD"
+/**
+ * Represents a message, consisting of a type and text.
+ *
+ * @property type The type of the message.
+ * @property text The text of the message.
+ */
+open class Message(val type: Int, val text: String) {
+  companion object {
+    const val TYPE_HEADER = 0
+    const val TYPE_ACTION = 1
+    const val TYPE_RESULT = 2
+  }
 }

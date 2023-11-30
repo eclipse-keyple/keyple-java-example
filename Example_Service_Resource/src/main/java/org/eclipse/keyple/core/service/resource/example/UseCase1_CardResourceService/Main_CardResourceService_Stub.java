@@ -11,10 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.resource.example.UseCase1_CardResourceService;
 
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.spi.CardReaderObservationExceptionHandlerSpi;
-import org.eclipse.keyple.card.generic.GenericCardSelection;
+import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.*;
@@ -26,6 +23,12 @@ import org.eclipse.keyple.plugin.stub.StubPlugin;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.stub.StubReader;
 import org.eclipse.keyple.plugin.stub.StubSmartCard;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
+import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +67,8 @@ public class Main_CardResourceService_Stub {
   public static final String READER_NAME_REGEX_A = ".*_A";
   public static final String READER_NAME_REGEX_B = ".*_B";
   public static final String SAM_PROTOCOL = "ISO_7816_3_T0";
+  public static final ReaderApiFactory readerApiFactory =
+      SmartCardServiceProvider.getService().getReaderApiFactory();
 
   public static void main(String[] args) throws InterruptedException {
 
@@ -85,23 +90,24 @@ public class Main_CardResourceService_Stub {
 
     // Create a card resource extension A expecting a card having power-on data matching the regex
     // A.
-    GenericCardSelection cardSelectionA =
-        GenericExtensionService.getInstance()
-            .createCardSelection()
-            .filterByPowerOnData(ATR_REGEX_A);
+    CardSelector<IsoCardSelector> cardSelectorA =
+        readerApiFactory.createIsoCardSelector().filterByPowerOnData(ATR_REGEX_A);
+
+    GenericCardSelectionExtension genericCardSelectionExtension =
+        GenericExtensionService.getInstance().createGenericCardSelectionExtension();
 
     CardResourceProfileExtension cardResourceExtensionA =
-        GenericExtensionService.getInstance().createCardResourceProfileExtension(cardSelectionA);
+        GenericExtensionService.getInstance()
+            .createCardResourceProfileExtension(cardSelectorA, genericCardSelectionExtension);
 
     // Create a card resource extension B expecting a card having power-on data matching the regex
     // B.
-    GenericCardSelection cardSelectionB =
-        GenericExtensionService.getInstance()
-            .createCardSelection()
-            .filterByPowerOnData(ATR_REGEX_B);
+    CardSelector<IsoCardSelector> cardSelectorB =
+        readerApiFactory.createIsoCardSelector().filterByPowerOnData(ATR_REGEX_B);
 
     CardResourceProfileExtension cardResourceExtensionB =
-        GenericExtensionService.getInstance().createCardResourceProfileExtension(cardSelectionB);
+        GenericExtensionService.getInstance()
+            .createCardResourceProfileExtension(cardSelectorB, genericCardSelectionExtension);
 
     // Get the service
     CardResourceService cardResourceService = CardResourceServiceProvider.getService();
@@ -237,10 +243,7 @@ public class Main_CardResourceService_Stub {
   private static class ReaderConfigurator implements ReaderConfiguratorSpi {
     private static final Logger logger = LoggerFactory.getLogger(ReaderConfigurator.class);
 
-    /**
-     * (private)<br>
-     * Constructor.
-     */
+    /** Constructor. */
     private ReaderConfigurator() {}
 
     /** {@inheritDoc} */
@@ -271,7 +274,13 @@ public class Main_CardResourceService_Stub {
     }
   }
 
-  public static char getInput() {
+  /**
+   * This method prompts the user to select an option from a menu and returns the selected option as
+   * a char.
+   *
+   * @return The selected option as a char
+   */
+  private static char getInput() {
 
     int key = 0;
 

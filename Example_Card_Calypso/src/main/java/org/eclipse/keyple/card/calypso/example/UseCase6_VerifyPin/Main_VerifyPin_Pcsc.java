@@ -11,178 +11,177 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase6_VerifyPin;
 
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCard;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.calypso.transaction.CardTransactionManager;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.CardSelectionResult;
+import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
+
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
-import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.calypso.card.transaction.FreeTransactionManager;
+import org.eclipse.keypop.calypso.card.transaction.SecureRegularModeTransactionManager;
+import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
+import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Manages the process of verifying the PIN code of a Calypso card using the PC/SC plugin,
+ * demonstrating both plain and encrypted PIN verification methods.
  *
+ * <p>This class demonstrates the various steps involved in PIN code verification for a Calypso
+ * card, detailing operations of plain and encrypted PIN verification.
  *
- * <h1>Use Case Calypso 6 – Calypso Card Verify PIN (PC/SC)</h1>
- *
- * <p>We demonstrate here the various operations around the PIN code checking.
- *
- * <h2>Scenario:</h2>
+ * <h2>Key Functionalities</h2>
  *
  * <ul>
- *   <li>Checks if an ISO 14443-4 card is in the reader, enables the card selection manager.
- *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
- *   <li>Attempts to select the specified card (here a Calypso card characterized by its AID) with
- *       an AID-based application selection scenario.
- *   <li>Creates a {@link CardTransactionManager} without security.
- *   <li>Verify the PIN code in plain mode with the correct code, display the remaining attempts
- *       counter.
- *   <li>Creates a {@link CardTransactionManager} using {@link CardSecuritySetting} referencing the
- *       selected SAM.
- *   <li>Verify the PIN code in session in encrypted mode with the code, display the remaining
- *       attempts counter.
- *   <li>Verify the PIN code in session in encrypted mode with a bad code, display the remaining
- *       attempts counter.
- *   <li>Cancel the card transaction, re-open a new one.
- *   <li>Verify the PIN code in session in encrypted mode with the code, display the remaining
- *       attempts counter.
- *   <li>Close the card transaction.
+ *   <li>Identify the presence of an ISO 14443-4 card and activate the card selection manager for
+ *       targeted operations.
+ *   <li>Initiate an AID-based application selection scenario to pinpoint and select a specific
+ *       Calypso card.
+ *   <li>Set up a FreeTransactionManager to verify the PIN code in plain mode, providing insights
+ *       into the remaining attempts counter.
+ *   <li>Set up a SecureRegularModeTransactionManager, referencing the SAM, to operate encrypted PIN
+ *       verification sessions.
+ *   <li>Demonstrate encrypted PIN verification, including handling correct and incorrect codes, and
+ *       displaying the attempts counter dynamically.
  * </ul>
  *
- * All results are logged with slf4j.
- *
- * <p>Any unexpected behavior will result in runtime exceptions.
+ * <p>Operations and outcomes are meticulously logged using slf4j, offering detailed insights for
+ * tracking and debugging. In scenarios where unexpected behaviors or errors emerge, runtime
+ * exceptions are triggered, offering precise, actionable feedback for timely resolution.
  */
 public class Main_VerifyPin_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_VerifyPin_Pcsc.class);
 
+  // A regular expression for matching common contactless card readers. Adapt as needed.
+  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  // A regular expression for matching common SAM readers. Adapt as needed.
+  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  // The logical name of the protocol for communicating with the card (optional).
+  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+  // The logical name of the protocol for communicating with the SAM (optional).
+  private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
+
+  /** AID: Keyple test kit profile 1, Application 2 */
+  private static final String AID = "315449432E49434131";
+
+  // File identifiers
+  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+
+  private static final byte[] PIN_OK = {(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30};
+  private static final byte[] PIN_KO = {(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x31};
+  private static final byte PIN_VERIFICATION_CIPHERING_KEY_KIF = (byte) 0x30;
+  private static final byte PIN_VERIFICATION_CIPHERING_KEY_KVC = (byte) 0x79;
+  // The plugin used to manage the readers.
+  private static Plugin plugin;
+  // The reader used to communicate with the card.
+  private static CardReader cardReader;
+  // The reader used to communicate with the SAM.
+  private static CardReader samReader;
+  // The factory used to create the selection manager and card selectors.
+  private static ReaderApiFactory readerApiFactory;
+  // The Calypso factory used to create the selection extension and transaction managers.
+  private static CalypsoCardApiFactory calypsoCardApiFactory;
+  // The security settings for the card transaction.
+  private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
+
   public static void main(String[] args) {
+    logger.info("= UseCase Calypso #6: Calypso card Verify PIN ==================");
 
-    // Get the instance of the SmartCardService
-    SmartCardService smartCardService = SmartCardServiceProvider.getService();
+    // Initialize the context
+    initKeypleService();
+    initCalypsoCardExtensionService();
+    initCardReader();
+    initSamReader();
+    initSecuritySetting();
 
-    // Register the PcscPlugin, get the corresponding generic plugin in return
-    Plugin plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
-
-    // Get the Calypso card extension service
-    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
-
-    // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(calypsoCardService);
-
-    // Get the card and SAM readers whose name matches the provided regexs
-    CardReader cardReader =
-        ConfigurationUtil.getCardReader(plugin, ConfigurationUtil.CARD_READER_NAME_REGEX);
-    CardReader samReader =
-        ConfigurationUtil.getSamReader(plugin, ConfigurationUtil.SAM_READER_NAME_REGEX);
-
-    logger.info("=============== UseCase Calypso #5: Calypso card Verify PIN ==================");
-
-    // Check if a card is present in the reader
+    // Verify if a card is present in the reader
     if (!cardReader.isCardPresent()) {
       throw new IllegalStateException("No card is present in the reader.");
     }
 
-    // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
-
-    logger.info("= SAM = {}", calypsoSam);
-
-    logger.info("= #### Select application with AID = '{}'.", CalypsoConstants.AID);
-
-    // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
-
-    // Create a card selection using the Calypso card extension.
-    // Prepare the selection by adding the created Calypso card selection to the card selection
-    // scenario.
-    cardSelectionManager.prepareSelection(
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByDfName(CalypsoConstants.AID));
-
-    // Actual card communication: run the selection scenario.
-    CardSelectionResult selectionResult =
-        cardSelectionManager.processCardSelectionScenario(cardReader);
-
-    // Check the selection result.
-    if (selectionResult.getActiveSmartCard() == null) {
-      throw new IllegalStateException(
-          "The selection of the application " + CalypsoConstants.AID + " failed.");
-    }
-
-    // Get the SmartCard resulting of the selection.
-    CalypsoCard calypsoCard = (CalypsoCard) selectionResult.getActiveSmartCard();
+    // Select the card
+    CalypsoCard calypsoCard = selectCard(cardReader, AID);
 
     logger.info("= SmartCard = {}", calypsoCard);
 
+    // Retrieve and log the Calypso card's Serial Number
     String csn = HexUtil.toHex(calypsoCard.getApplicationSerialNumber());
     logger.info("Calypso Serial Number = {}", csn);
 
-    // Create security settings that reference the SAM
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .setControlSamResource(samReader, calypsoSam)
-            .setPinVerificationCipheringKey(
-                CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KIF,
-                CalypsoConstants.PIN_VERIFICATION_CIPHERING_KEY_KVC);
+    // Instantiate a Free Transaction manager to operate PIN verification without encryption
+    FreeTransactionManager freeTransactionManager =
+        calypsoCardApiFactory.createFreeTransactionManager(cardReader, calypsoCard);
 
-    // Create the card transaction manager in secure mode.
-    CardTransactionManager cardTransaction =
-        calypsoCardService.createCardTransactionWithoutSecurity(cardReader, calypsoCard);
-
-    ////////////////////////////
-    // Verification of the PIN (correct) out of a secure session in plain mode
-    cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_OK).processCommands(false);
+    // Verify the PIN in plain mode without initiating a secure session
+    freeTransactionManager.prepareVerifyPin(PIN_OK).processCommands(ChannelControl.KEEP_OPEN);
     logger.info("Remaining attempts #1: {}", calypsoCard.getPinAttemptRemaining());
 
-    // create a secured card transaction
-    cardTransaction =
-        calypsoCardService.createCardTransaction(cardReader, calypsoCard, cardSecuritySetting);
+    // Add the key identifiers needed for ciphering the PIN.
+    symmetricCryptoSecuritySetting.setPinVerificationCipheringKey(
+        PIN_VERIFICATION_CIPHERING_KEY_KIF, PIN_VERIFICATION_CIPHERING_KEY_KVC);
 
-    ////////////////////////////
-    // Verification of the PIN (correct) out of a secure session in encrypted mode
-    cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_OK).processCommands(false);
-    // log the current counter value (should be 3)
+    // Instantiate a Secure Regular Mode Transaction Manager to handle encrypted PIN verification
+    // and secure operations.
+    SecureRegularModeTransactionManager secureRegularModeTransactionManager =
+        calypsoCardApiFactory.createSecureRegularModeTransactionManager(
+            cardReader, calypsoCard, symmetricCryptoSecuritySetting);
+
+    // Verify the PIN in encrypted mode, outside a secure session
+    secureRegularModeTransactionManager
+        .prepareVerifyPin(PIN_OK)
+        .processCommands(ChannelControl.KEEP_OPEN);
+
+    // Log the current counter value (should be 3)
     logger.info("Remaining attempts #2: {}", calypsoCard.getPinAttemptRemaining());
 
-    ////////////////////////////
-    // Verification of the PIN (incorrect) inside a secure session
-    cardTransaction.prepareOpenSecureSession(WriteAccessLevel.DEBIT);
+    // Attempt PIN verification with an incorrect PIN within a secure session, handle exceptions and
+    // cancel the session if necessary
+    secureRegularModeTransactionManager.prepareOpenSecureSession(DEBIT);
     try {
-      cardTransaction.prepareVerifyPin(CalypsoConstants.PIN_KO).processCommands(false);
+      secureRegularModeTransactionManager
+          .prepareVerifyPin(PIN_KO)
+          .processCommands(ChannelControl.KEEP_OPEN);
     } catch (Exception ex) {
       logger.error("PIN Exception: {}", ex.getMessage());
-      cardTransaction.prepareCancelSecureSession().processCommands(false);
+      secureRegularModeTransactionManager
+          .prepareCancelSecureSession()
+          .processCommands(ChannelControl.KEEP_OPEN);
     }
-    // log the current counter value (should be 2)
+
+    // Log the current counter value (should be 2)
     logger.error("Remaining attempts #3: {}", calypsoCard.getPinAttemptRemaining());
 
-    ////////////////////////////
-    // Verification of the PIN (correct) inside a secure session with reading of the counter
-    //////////////////////////// before
-    cardTransaction
-        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+    // Initiate a secure session, verify the PIN correctly, and then close the session
+    secureRegularModeTransactionManager
+        .prepareOpenSecureSession(DEBIT)
         .prepareCheckPinStatus()
-        .processCommands(false);
-    // log the current counter value (should be 2)
+        .processCommands(ChannelControl.KEEP_OPEN);
+    // Log the current counter value (should be 2)
     logger.info("Remaining attempts #4: {}", calypsoCard.getPinAttemptRemaining());
-    cardTransaction
-        .prepareVerifyPin(CalypsoConstants.PIN_OK)
+    secureRegularModeTransactionManager
+        .prepareVerifyPin(PIN_OK)
         .prepareCloseSecureSession()
-        .processCommands(true);
+        .processCommands(ChannelControl.CLOSE_AFTER);
 
-    // log the current counter value (should be 3)
+    // Log the current counter value (should be 3)
     logger.info("Remaining attempts #5: {}", calypsoCard.getPinAttemptRemaining());
 
     logger.info("The Secure Session ended successfully, the PIN has been verified.");
@@ -190,5 +189,233 @@ public class Main_VerifyPin_Pcsc {
     logger.info("= #### End of the Calypso card processing.");
 
     System.exit(0);
+  }
+
+  /**
+   * Initializes the Keyple service.
+   *
+   * <p>Gets an instance of the smart card service, registers the PC/SC plugin, and prepares the
+   * reader API factory for use.
+   *
+   * <p>Retrieves the {@link ReaderApiFactory}.
+   */
+  private static void initKeypleService() {
+    SmartCardService smartCardService = SmartCardServiceProvider.getService();
+    plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
+    readerApiFactory = smartCardService.getReaderApiFactory();
+  }
+
+  /**
+   * Initializes the card reader with specific configurations.
+   *
+   * <p>Prepares the card reader using a predefined set of configurations, including the card reader
+   * name regex, ISO protocol, and sharing mode.
+   */
+  private static void initCardReader() {
+    cardReader =
+        getReader(
+            plugin,
+            CARD_READER_NAME_REGEX,
+            true,
+            PcscReader.IsoProtocol.T1,
+            PcscReader.SharingMode.EXCLUSIVE,
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ISO_CARD_PROTOCOL);
+  }
+
+  /**
+   * Initializes the SAM reader with specific configurations.
+   *
+   * <p>Prepares the SAM reader using a predefined set of configurations, including the card reader
+   * name regex, ISO protocol, and sharing mode.
+   */
+  private static void initSamReader() {
+    samReader =
+        getReader(
+            plugin,
+            SAM_READER_NAME_REGEX,
+            false,
+            PcscReader.IsoProtocol.ANY,
+            PcscReader.SharingMode.SHARED,
+            PcscSupportedContactProtocol.ISO_7816_3_T0.name(),
+            SAM_PROTOCOL);
+  }
+
+  /**
+   * Initializes the security settings for the transaction.
+   *
+   * <p>Prepares the SAM reader, selects the SAM, and sets up the symmetric crypto security setting
+   * for securing the transaction.
+   */
+  private static void initSecuritySetting() {
+    LegacySam sam = selectSam(samReader);
+    symmetricCryptoSecuritySetting =
+        calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
+            LegacySamExtensionService.getInstance()
+                .getLegacySamApiFactory()
+                .createSymmetricCryptoCardTransactionManagerFactory(samReader, sam));
+  }
+
+  /**
+   * Initializes the Calypso card extension service.
+   *
+   * <p>Retrieves the {@link CalypsoCardApiFactory}.
+   */
+  private static void initCalypsoCardExtensionService() {
+    CalypsoExtensionService calypsoExtensionService = CalypsoExtensionService.getInstance();
+    SmartCardServiceProvider.getService().checkCardExtension(calypsoExtensionService);
+    calypsoCardApiFactory = calypsoExtensionService.getCalypsoCardApiFactory();
+  }
+
+  /**
+   * Configures and returns a card reader based on the provided parameters.
+   *
+   * <p>It finds the reader name by matching with a regular expression, then configures the reader
+   * with the specified settings.
+   *
+   * @param plugin The plugin used to interact with the card reader.
+   * @param readerNameRegex The regular expression to match the card reader's name.
+   * @param isContactless A boolean indicating whether the card reader is contactless.
+   * @param isoProtocol The ISO protocol used by the card reader.
+   * @param sharingMode The sharing mode of the PC/SC reader.
+   * @param physicalProtocolName The name of the protocol used by the reader to communicate with
+   *     card.
+   * @param logicalProtocolName The name of the protocol known by the application.
+   * @return The configured card reader.
+   */
+  private static CardReader getReader(
+      Plugin plugin,
+      String readerNameRegex,
+      boolean isContactless,
+      PcscReader.IsoProtocol isoProtocol,
+      PcscReader.SharingMode sharingMode,
+      String physicalProtocolName,
+      String logicalProtocolName) {
+    String readerName = getReaderName(plugin, readerNameRegex);
+    CardReader reader = plugin.getReader(readerName);
+
+    plugin
+        .getReaderExtension(PcscReader.class, readerName)
+        .setContactless(isContactless)
+        .setIsoProtocol(isoProtocol)
+        .setSharingMode(sharingMode);
+
+    ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
+
+    return reader;
+  }
+
+  /**
+   * Searches for and retrieves the name of the reader from the provided plugin's available reader
+   * names that matches the given regular expression.
+   *
+   * <p>This method iterates through the reader names available to the provided plugin, returning
+   * the first reader name that matches the supplied regular expression. If no match is found, an
+   * IllegalStateException is thrown, indicating the absence of a matching reader name.
+   *
+   * @param plugin The plugin containing the available reader names to search through.
+   * @param readerNameRegex The regular expression used to find a matching reader name among the
+   *     available names provided by the plugin.
+   * @return The name of the reader that matches the given regular expression from the available
+   *     reader names of the provided plugin.
+   * @throws IllegalArgumentException if the provided plugin is null, or if the reader name regex is
+   *     null or empty.
+   * @throws IllegalStateException if no reader name from the available names of the provided plugin
+   *     matches the given regular expression.
+   */
+  private static String getReaderName(Plugin plugin, String readerNameRegex) {
+    if (plugin == null) {
+      throw new IllegalArgumentException("Plugin cannot be null");
+    }
+
+    if (readerNameRegex == null || readerNameRegex.trim().isEmpty()) {
+      throw new IllegalArgumentException("Reader name regex cannot be null or empty");
+    }
+
+    for (String readerName : plugin.getReaderNames()) {
+      if (readerName.matches(readerNameRegex)) {
+        logger.info("Card reader found, plugin: {}, name: {}", plugin.getName(), readerName);
+        return readerName;
+      }
+    }
+
+    String errorMsg =
+        String.format(
+            "Reader matching '%s' not found in plugin '%s'", readerNameRegex, plugin.getName());
+    logger.error(errorMsg);
+    throw new IllegalStateException(errorMsg);
+  }
+
+  /**
+   * Selects the SAM C1 for the transaction.
+   *
+   * <p>Creates a SAM selection manager, prepares the selection, and processes the SAM selection
+   * scenario.
+   *
+   * @param reader The card reader used to communicate with the SAM.
+   * @return The selected SAM for the transaction.
+   * @throws IllegalStateException if SAM selection fails.
+   */
+  private static LegacySam selectSam(CardReader reader) {
+    // Create a SAM selection manager.
+    CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    // Create a card selector without filer
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
+            .filterByPowerOnData(
+                LegacySamUtil.buildPowerOnDataFilter(LegacySam.ProductType.SAM_C1, null));
+
+    LegacySamApiFactory legacySamApiFactory =
+        LegacySamExtensionService.getInstance().getLegacySamApiFactory();
+
+    // Create a SAM selection using the Calypso card extension.
+    samSelectionManager.prepareSelection(
+        cardSelector, legacySamApiFactory.createLegacySamSelectionExtension());
+
+    // SAM communication: run the selection scenario.
+    CardSelectionResult samSelectionResult =
+        samSelectionManager.processCardSelectionScenario(reader);
+
+    // Check the selection result.
+    if (samSelectionResult.getActiveSmartCard() == null) {
+      throw new IllegalStateException("The selection of the SAM failed.");
+    }
+
+    // Get the Calypso SAM SmartCard resulting of the selection.
+    return (LegacySam) samSelectionResult.getActiveSmartCard();
+  }
+
+  /**
+   * Selects the Calypso card for the transaction based on the specified Application Identifier
+   * (AID).
+   *
+   * <p>Creates a card selection manager, prepares the selection using the provided AID, and
+   * processes the card selection scenario. The AID is used to identify and select the specific
+   * application on the card for the subsequent transaction.
+   *
+   * @param reader The reader used to communicate with the card.
+   * @param aid The Application Identifier (AID) used to select the application on the card. It
+   *     cannot be {@code null} or empty.
+   * @return The selected Calypso card ready for the transaction.
+   * @throws IllegalStateException if the selection of the application identified by the provided
+   *     AID fails.
+   */
+  private static CalypsoCard selectCard(CardReader reader, String aid) {
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory.createIsoCardSelector().filterByDfName(aid);
+    CalypsoCardSelectionExtension calypsoCardSelectionExtension =
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard();
+    cardSelectionManager.prepareSelection(cardSelector, calypsoCardSelectionExtension);
+
+    CardSelectionResult selectionResult = cardSelectionManager.processCardSelectionScenario(reader);
+
+    if (selectionResult.getActiveSmartCard() == null) {
+      throw new IllegalStateException("The selection of the application " + aid + " failed.");
+    }
+
+    return (CalypsoCard) selectionResult.getActiveSmartCard();
   }
 }

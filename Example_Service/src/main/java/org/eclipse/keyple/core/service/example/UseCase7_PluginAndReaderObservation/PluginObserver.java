@@ -12,9 +12,6 @@
 package org.eclipse.keyple.core.service.example.UseCase7_PluginAndReaderObservation;
 
 import java.util.Set;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.ObservableCardReader;
 import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
@@ -22,11 +19,13 @@ import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.core.service.spi.PluginObserverSpi;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ObservableCardReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * (package-private)<br>
  * Implements the plugin observation SPIs. A plugin Observer to handle reader events such as
  * READER_CONNECTED or READER_DISCONNECTED.
  *
@@ -38,7 +37,6 @@ class PluginObserver implements PluginObserverSpi, PluginObservationExceptionHan
   private final ReaderObserver readerObserver;
 
   /**
-   * (package-private)<br>
    * Constructor.
    *
    * <p>Add an observer to all provided readers that are observable.

@@ -11,51 +11,94 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase10_SessionTrace_TN313;
 
+import static org.eclipse.keypop.calypso.card.WriteAccessLevel.*;
+
 import java.util.Scanner;
-import org.calypsonet.terminal.calypso.WriteAccessLevel;
-import org.calypsonet.terminal.calypso.card.CalypsoCardSelection;
-import org.calypsonet.terminal.calypso.sam.CalypsoSam;
-import org.calypsonet.terminal.calypso.transaction.CardSecuritySetting;
-import org.calypsonet.terminal.reader.CardReader;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.CalypsoConstants;
-import org.eclipse.keyple.card.calypso.example.common.ConfigurationUtil;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
+import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
+import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
+import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
+import org.eclipse.keypop.calypso.card.transaction.*;
+import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
+import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelectionResult;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.SimpleLogger;
 
 /**
- * Use Case Calypso 10 – Calypso Secure Session Trace - Technical Note #313 (PC/SC)
+ * Handles the execution of Calypso Secure Session Trace as defined in Technical Note #313 (PC/SC)
+ * using an observable reader and Calypso card extension service.
  *
- * <p>This an implementation of the Calypso Secure Session described the technical note #313
- * defining a typical usage of a Calypso card and allowing performances comparison.
+ * <p>This class provides a comprehensive demonstration of the Calypso Secure Session established
+ * with a specific Calypso card characterized by its AID. The session includes card selection, SAM
+ * selection, and execution of the TN313 transaction scenario, ending by the closing of the physical
+ * channel.
  *
- * <p>Scenario:
+ * <h2>Key Functionalities</h2>
  *
  * <ul>
- *   <li>Schedule a selection scenario over an observable reader to target a specific card (here a
- *       Calypso card characterized by its AID) and including the reading of a file record.
- *   <li>Attempts to select a Calypso SAM (C1) in the contact reader.
- *   <li>Start the observation and wait for a card insertion.
- *   <li>Within the reader event handler:
- *       <ul>
- *         <li>Do the TN313 transaction scenario.
- *         <li>Close the physical channel.
- *       </ul>
+ *   <li>Scheduling a selection scenario over an observable reader for a specific Calypso card AID,
+ *       including reading a file record.
+ *   <li>Attempting to select a Calypso SAM (C1) in the contact reader.
+ *   <li>Starting the observation process and waiting for a card insertion.
+ *   <li>Executing the TN313 transaction scenario within the reader event handler and closing the
+ *       physical channel.
  * </ul>
  *
- * <p>Any unexpected behavior will result in runtime exceptions.
+ * <p>Each step in the secure session is logged meticulously for monitoring, tracking, and debugging
+ * purposes. In the event of unexpected behaviors or failures, runtime exceptions are thrown,
+ * providing clear indications of issues encountered during the session’s execution.
+ *
+ * <p>Throws IllegalStateException if an error occurs during the card authentication or secure
+ * session establishment, ensuring robust error management and security adherence.
  */
 public class Main_SessionTrace_TN313_Pcsc {
-  private static String cardReaderRegex = ConfigurationUtil.CARD_READER_NAME_REGEX;
-  private static String samReaderRegex = ConfigurationUtil.SAM_READER_NAME_REGEX;
-  private static String cardAid = CalypsoConstants.AID;
+  private static final Logger logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
+
+  // A regular expression for matching common contactless card readers. Adapt as needed.
+  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  // A regular expression for matching common SAM readers. Adapt as needed.
+  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  // The logical name of the protocol for communicating with the card (optional).
+  // The logical name of the protocol for communicating with the card (optional).
+  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+  // The logical name of the protocol for communicating with the SAM (optional).
+  private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
+  private static String cardReaderRegex = ".*ASK LoGO.*|.*Contactless.*";
+  private static String samReaderRegex = ".*Identive.*|.*HID.*|.*SAM.*";
+
+  /** AID: Keyple test kit profile 1, Application 2 */
+  private static final String AID = "315449432E49434131";
+
+  private static String cardAid = AID;
   private static boolean isVerbose;
+
+  // The plugin used to manage the readers.
+  private static Plugin plugin;
+  // The reader used to communicate with the card.
+  private static CardReader cardReader;
+  // The reader used to communicate with the SAM.
+  private static CardReader samReader;
+  // The factory used to create the selection manager and card selectors.
+  private static ReaderApiFactory readerApiFactory;
+  // The Calypso factory used to create the selection extension and transaction managers.
+  private static CalypsoCardApiFactory calypsoCardApiFactory;
+  // The security settings for the card transaction.
+  private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
 
   public static void main(String[] args) {
 
@@ -63,73 +106,45 @@ public class Main_SessionTrace_TN313_Pcsc {
 
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, isVerbose ? "TRACE" : "INFO");
 
-    Logger logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
-
     logger.info("=============== UseCase Calypso #10: session trace TN313 ==================");
-
     logger.info("Using parameters:");
     logger.info("  AID={}", cardAid);
     logger.info("  CARD_READER_REGEX={}", cardReaderRegex);
     logger.info("  SAM_READER_REGEX={}", samReaderRegex);
 
-    // Get the instance of the SmartCardService
-    final SmartCardService smartCardService = SmartCardServiceProvider.getService();
-
-    // Register the PcscPlugin
-    final Plugin plugin =
-        smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
-
-    // Get the Calypso card extension service
-    CalypsoExtensionService calypsoCardService = CalypsoExtensionService.getInstance();
-
-    // Verify that the extension's API level is consistent with the current service.
-    smartCardService.checkCardExtension(calypsoCardService);
-
-    // Get the card and SAM readers whose name matches the provided regexs
-    CardReader cardReader = ConfigurationUtil.getCardReader(plugin, cardReaderRegex);
-    CardReader samReader = ConfigurationUtil.getSamReader(plugin, samReaderRegex);
-
-    // Get the Calypso SAM SmartCard after selection.
-    CalypsoSam calypsoSam = ConfigurationUtil.getSam(samReader);
-
-    logger.info("= SAM = {}", calypsoSam);
+    // Initialize the context.
+    initKeypleService();
+    initCalypsoCardExtensionService();
+    initCardReader();
+    initSamReader();
+    initSecuritySetting();
 
     logger.info("Select application with AID = '{}'", cardAid);
 
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
+            .filterByCardProtocol(ISO_CARD_PROTOCOL)
+            .filterByDfName(cardAid);
 
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER
-    CalypsoCardSelection cardSelection =
-        calypsoCardService
-            .createCardSelection()
-            .acceptInvalidatedCard()
-            .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
-            .filterByDfName(cardAid);
-
     // Prepare the selection by adding the created Calypso selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(
+        cardSelector,
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard());
 
     // Schedule the selection scenario, request notification only if the card matches the selection
     // case.
     cardSelectionManager.scheduleCardSelectionScenario(
-        (ObservableCardReader) cardReader,
-        ObservableCardReader.DetectionMode.REPEATING,
-        ObservableCardReader.NotificationMode.MATCHED_ONLY);
-
-    // Create security settings that reference the SAM
-    CardSecuritySetting cardSecuritySetting =
-        CalypsoExtensionService.getInstance()
-            .createCardSecuritySetting()
-            .assignDefaultKif(WriteAccessLevel.PERSONALIZATION, (byte) 0x21)
-            .assignDefaultKif(WriteAccessLevel.LOAD, (byte) 0x27)
-            .assignDefaultKif(WriteAccessLevel.DEBIT, (byte) 0x30)
-            .setControlSamResource(samReader, calypsoSam);
+        (ObservableCardReader) cardReader, ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Create and add a card observer for this reader
     CardReaderObserver cardReaderObserver =
-        new CardReaderObserver(cardReader, cardSelectionManager, cardSecuritySetting);
+        new CardReaderObserver(cardReader, cardSelectionManager, symmetricCryptoSecuritySetting);
 
     ((ObservableCardReader) cardReader).setReaderObservationExceptionHandler(cardReaderObserver);
     ((ObservableCardReader) cardReader).addObserver(cardReaderObserver);
@@ -144,7 +159,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     logger.info("Exit in progress...");
 
     // unregister plugin
-    smartCardService.unregisterPlugin(plugin.getName());
+    SmartCardServiceProvider.getService().unregisterPlugin(plugin.getName());
 
     logger.info("Exit program");
 
@@ -157,40 +172,61 @@ public class Main_SessionTrace_TN313_Pcsc {
    * @param args The command line arguments
    */
   private static void parseCommandLine(String[] args) {
-    // command line arguments analysis
-    if (args.length > 0) {
-      // at least one argument
-      for (String arg : args) {
-        if (arg.equals("-d") || arg.equals("--default")) {
-          break;
-        }
-        if (arg.equals("-v") || arg.equals("--verbose")) {
-          isVerbose = true;
-          continue;
-        }
-        String[] argument = arg.split("=");
-        if (argument.length != 2) {
-          displayUsageAndExit();
-        }
-        if (argument[0].equals("-a") || argument[0].equals("--aid")) {
-          cardAid = argument[1];
-          if (argument[1].length() < 10
-              || argument[1].length() > 32
-              || !HexUtil.isValid(argument[1])) {
-            System.out.println("Invalid AID");
-            displayUsageAndExit();
-          }
-        } else if (argument[0].equals("-c") || argument[0].equals("--card")) {
-          cardReaderRegex = argument[1];
-        } else if (argument[0].equals("-s") || argument[0].equals("--sam")) {
-          samReaderRegex = argument[1];
-        } else {
-          displayUsageAndExit();
-        }
+    if (args.length == 0) {
+      displayUsageAndExit();
+      return;
+    }
+
+    for (String arg : args) {
+      if (isDefaultArgument(arg)) {
+        break;
       }
+
+      if (isVerboseArgument(arg)) {
+        isVerbose = true;
+      } else {
+        parseAdditionalArguments(arg);
+      }
+    }
+  }
+
+  private static boolean isDefaultArgument(String arg) {
+    return arg.equals("-d") || arg.equals("--default");
+  }
+
+  private static boolean isVerboseArgument(String arg) {
+    return arg.equals("-v") || arg.equals("--verbose");
+  }
+
+  private static void parseAdditionalArguments(String arg) {
+    String[] argument = arg.split("=");
+    if (argument.length != 2) {
+      displayUsageAndExit();
+      return;
+    }
+
+    String argKey = argument[0];
+    String argValue = argument[1];
+
+    if (argKey.equals("-a") || argKey.equals("--aid")) {
+      parseAidArgument(argValue);
+    } else if (argKey.equals("-c") || argKey.equals("--card")) {
+      cardReaderRegex = argValue;
+    } else if (argKey.equals("-s") || argKey.equals("--sam")) {
+      samReaderRegex = argValue;
     } else {
       displayUsageAndExit();
     }
+  }
+
+  private static void parseAidArgument(String aid) {
+    if (aid.length() < 10 || aid.length() > 32 || !HexUtil.isValid(aid)) {
+      System.out.println("Invalid AID");
+      displayUsageAndExit();
+      return;
+    }
+
+    cardAid = aid;
   }
 
   /** Displays the expected options */
@@ -198,9 +234,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     System.out.println("Available options:");
     System.out.printf(
         " -d, --default                  use default values (is equivalent to -a=\"%s\" -c=\"%s\" -s=\"%s\")%n",
-        CalypsoConstants.AID,
-        ConfigurationUtil.CARD_READER_NAME_REGEX,
-        ConfigurationUtil.SAM_READER_NAME_REGEX);
+        AID, CARD_READER_NAME_REGEX, SAM_READER_NAME_REGEX);
     System.out.println(
         " -a, --aid=\"APPLICATION_AID\"    between 5 and 16 hex bytes (e.g. \"315449432E49434131\")");
     System.out.println(
@@ -211,5 +245,208 @@ public class Main_SessionTrace_TN313_Pcsc {
     System.out.println(
         "PC/SC protocol is set to `\"ANY\" ('*') for the SAM reader, \"T1\" ('T=1') for the card reader.");
     System.exit(1);
+  }
+
+  /**
+   * Initializes the Keyple service.
+   *
+   * <p>Gets an instance of the smart card service, registers the PC/SC plugin, and prepares the
+   * reader API factory for use.
+   *
+   * <p>Retrieves the {@link ReaderApiFactory}.
+   */
+  private static void initKeypleService() {
+    SmartCardService smartCardService = SmartCardServiceProvider.getService();
+    plugin = smartCardService.registerPlugin(PcscPluginFactoryBuilder.builder().build());
+    readerApiFactory = smartCardService.getReaderApiFactory();
+  }
+
+  /**
+   * Initializes the card reader with specific configurations.
+   *
+   * <p>Prepares the card reader using a predefined set of configurations, including the card reader
+   * name regex, ISO protocol, and sharing mode.
+   */
+  private static void initCardReader() {
+    cardReader =
+        getReader(
+            plugin,
+            cardReaderRegex,
+            true,
+            PcscReader.IsoProtocol.T1,
+            PcscReader.SharingMode.EXCLUSIVE,
+            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            ISO_CARD_PROTOCOL);
+  }
+
+  /**
+   * Initializes the SAM reader with specific configurations.
+   *
+   * <p>Prepares the SAM reader using a predefined set of configurations, including the card reader
+   * name regex, ISO protocol, and sharing mode.
+   */
+  private static void initSamReader() {
+    samReader =
+        getReader(
+            plugin,
+            samReaderRegex,
+            false,
+            PcscReader.IsoProtocol.ANY,
+            PcscReader.SharingMode.SHARED,
+            PcscSupportedContactProtocol.ISO_7816_3_T0.name(),
+            SAM_PROTOCOL);
+  }
+
+  /**
+   * Initializes the security settings for the transaction.
+   *
+   * <p>Prepares the SAM reader, selects the SAM, and sets up the symmetric crypto security setting
+   * for securing the transaction.
+   */
+  private static void initSecuritySetting() {
+    LegacySam sam = selectSam(samReader);
+    symmetricCryptoSecuritySetting =
+        calypsoCardApiFactory
+            .createSymmetricCryptoSecuritySetting(
+                LegacySamExtensionService.getInstance()
+                    .getLegacySamApiFactory()
+                    .createSymmetricCryptoCardTransactionManagerFactory(samReader, sam))
+            .assignDefaultKif(PERSONALIZATION, (byte) 0x21)
+            .assignDefaultKif(LOAD, (byte) 0x27)
+            .assignDefaultKif(DEBIT, (byte) 0x30)
+            .enableRatificationMechanism();
+    // Optimization: preload the SAM challenge for the next transaction
+    symmetricCryptoSecuritySetting.initCryptoContextForNextTransaction();
+  }
+
+  /**
+   * Initializes the Calypso card extension service.
+   *
+   * <p>Retrieves the {@link CalypsoCardApiFactory}.
+   */
+  private static void initCalypsoCardExtensionService() {
+    CalypsoExtensionService calypsoExtensionService = CalypsoExtensionService.getInstance();
+    SmartCardServiceProvider.getService().checkCardExtension(calypsoExtensionService);
+    calypsoCardApiFactory = calypsoExtensionService.getCalypsoCardApiFactory();
+  }
+
+  /**
+   * Configures and returns a card reader based on the provided parameters.
+   *
+   * <p>It finds the reader name by matching with a regular expression, then configures the reader
+   * with the specified settings.
+   *
+   * @param plugin The plugin used to interact with the card reader.
+   * @param readerNameRegex The regular expression to match the card reader's name.
+   * @param isContactless A boolean indicating whether the card reader is contactless.
+   * @param isoProtocol The ISO protocol used by the card reader.
+   * @param sharingMode The sharing mode of the PC/SC reader.
+   * @param physicalProtocolName The name of the protocol used by the reader to communicate with
+   *     card.
+   * @param logicalProtocolName The name of the protocol known by the application.
+   * @return The configured card reader.
+   */
+  private static CardReader getReader(
+      Plugin plugin,
+      String readerNameRegex,
+      boolean isContactless,
+      PcscReader.IsoProtocol isoProtocol,
+      PcscReader.SharingMode sharingMode,
+      String physicalProtocolName,
+      String logicalProtocolName) {
+    String readerName = getReaderName(plugin, readerNameRegex);
+    CardReader reader = plugin.getReader(readerName);
+
+    plugin
+        .getReaderExtension(PcscReader.class, readerName)
+        .setContactless(isContactless)
+        .setIsoProtocol(isoProtocol)
+        .setSharingMode(sharingMode);
+
+    ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
+
+    return reader;
+  }
+
+  /**
+   * Searches for and retrieves the name of the reader from the provided plugin's available reader
+   * names that matches the given regular expression.
+   *
+   * <p>This method iterates through the reader names available to the provided plugin, returning
+   * the first reader name that matches the supplied regular expression. If no match is found, an
+   * IllegalStateException is thrown, indicating the absence of a matching reader name.
+   *
+   * @param plugin The plugin containing the available reader names to search through.
+   * @param readerNameRegex The regular expression used to find a matching reader name among the
+   *     available names provided by the plugin.
+   * @return The name of the reader that matches the given regular expression from the available
+   *     reader names of the provided plugin.
+   * @throws IllegalArgumentException if the provided plugin is null, or if the reader name regex is
+   *     null or empty.
+   * @throws IllegalStateException if no reader name from the available names of the provided plugin
+   *     matches the given regular expression.
+   */
+  private static String getReaderName(Plugin plugin, String readerNameRegex) {
+    if (plugin == null) {
+      throw new IllegalArgumentException("Plugin cannot be null");
+    }
+
+    if (readerNameRegex == null || readerNameRegex.trim().isEmpty()) {
+      throw new IllegalArgumentException("Reader name regex cannot be null or empty");
+    }
+
+    for (String readerName : plugin.getReaderNames()) {
+      if (readerName.matches(readerNameRegex)) {
+        logger.info("Card reader found, plugin: {}, name: {}", plugin.getName(), readerName);
+        return readerName;
+      }
+    }
+
+    String errorMsg =
+        String.format(
+            "Reader matching '%s' not found in plugin '%s'", readerNameRegex, plugin.getName());
+    logger.error(errorMsg);
+    throw new IllegalStateException(errorMsg);
+  }
+
+  /**
+   * Selects the SAM C1 for the transaction.
+   *
+   * <p>Creates a SAM selection manager, prepares the selection, and processes the SAM selection
+   * scenario.
+   *
+   * @param reader The card reader used to communicate with the SAM.
+   * @return The selected SAM for the transaction.
+   * @throws IllegalStateException if SAM selection fails.
+   */
+  private static LegacySam selectSam(CardReader reader) {
+    // Create a SAM selection manager.
+    CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
+
+    // Create a card selector without filer
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
+            .filterByPowerOnData(
+                LegacySamUtil.buildPowerOnDataFilter(LegacySam.ProductType.SAM_C1, null));
+
+    LegacySamApiFactory legacySamApiFactory =
+        LegacySamExtensionService.getInstance().getLegacySamApiFactory();
+
+    // Create a SAM selection using the Calypso card extension.
+    samSelectionManager.prepareSelection(
+        cardSelector, legacySamApiFactory.createLegacySamSelectionExtension());
+
+    // SAM communication: run the selection scenario.
+    CardSelectionResult samSelectionResult =
+        samSelectionManager.processCardSelectionScenario(reader);
+
+    // Check the selection result.
+    if (samSelectionResult.getActiveSmartCard() == null) {
+      throw new IllegalStateException("The selection of the SAM failed.");
+    }
+
+    // Get the Calypso SAM SmartCard resulting of the selection.
+    return (LegacySam) samSelectionResult.getActiveSmartCard();
   }
 }

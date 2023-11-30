@@ -11,16 +11,18 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.UseCase4_ScheduledSelection;
 
-import org.calypsonet.terminal.reader.ConfigurableCardReader;
-import org.calypsonet.terminal.reader.ObservableCardReader;
-import org.calypsonet.terminal.reader.selection.CardSelectionManager;
-import org.calypsonet.terminal.reader.selection.spi.CardSelection;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keypop.reader.ConfigurableCardReader;
+import org.eclipse.keypop.reader.ObservableCardReader;
+import org.eclipse.keypop.reader.ReaderApiFactory;
+import org.eclipse.keypop.reader.selection.CardSelectionManager;
+import org.eclipse.keypop.reader.selection.CardSelector;
+import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,24 +93,23 @@ public class Main_ScheduledSelection_Pcsc {
 
     logger.info("= #### Select application with AID = '{}'.", ConfigurationUtil.AID_EMV_PPSE);
 
+    ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
     // Get the core card selection manager.
-    CardSelectionManager cardSelectionManager = smartCardService.createCardSelectionManager();
+    CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    // Create a card selection using the generic card extension.
-    CardSelection cardSelection =
-        genericCardService
-            .createCardSelection()
+    CardSelector<IsoCardSelector> cardSelector =
+        readerApiFactory
+            .createIsoCardSelector()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)
             .filterByDfName(ConfigurationUtil.AID_EMV_PPSE);
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelection);
+    cardSelectionManager.prepareSelection(
+        cardSelector, GenericExtensionService.getInstance().createGenericCardSelectionExtension());
 
     // Schedule the selection scenario.
     cardSelectionManager.scheduleCardSelectionScenario(
-        observableCardReader,
-        ObservableCardReader.DetectionMode.REPEATING,
-        ObservableCardReader.NotificationMode.MATCHED_ONLY);
+        observableCardReader, ObservableCardReader.NotificationMode.MATCHED_ONLY);
 
     // Create and add an observer
     CardReaderObserver cardReaderObserver =
