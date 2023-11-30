@@ -197,7 +197,7 @@ public class Main_ExtendedModeSession_Pcsc {
         calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
             LegacySamExtensionService.getInstance()
                 .getLegacySamApiFactory()
-                .createSymmetricCryptoTransactionManagerFactory(samReader, sam));
+                .createSymmetricCryptoCardTransactionManagerFactory(samReader, sam));
   }
 
   /**

@@ -326,7 +326,7 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
             .createSymmetricCryptoSecuritySetting(
                 LegacySamExtensionService.getInstance()
                     .getLegacySamApiFactory()
-                    .createSymmetricCryptoTransactionManagerFactory(samReader, sam))
+                    .createSymmetricCryptoCardTransactionManagerFactory(samReader, sam))
             .enableRatificationMechanism();
   }
 

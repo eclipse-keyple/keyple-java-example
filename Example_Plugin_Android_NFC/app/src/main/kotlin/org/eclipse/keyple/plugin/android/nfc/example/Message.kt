@@ -11,6 +11,12 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.android.nfc.example
 
+/**
+ * Represents a message, consisting of a type and text.
+ *
+ * @property type The type of the message.
+ * @property text The text of the message.
+ */
 open class Message(val type: Int, val text: String) {
   companion object {
     const val TYPE_HEADER = 0

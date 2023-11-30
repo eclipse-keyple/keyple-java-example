@@ -15,7 +15,15 @@ import android.app.Application
 import androidx.multidex.MultiDex
 import timber.log.Timber
 
+/**
+ * The `ExampleApplication` class is a subclass of the `Application` class. It is responsible for
+ * initializing the application with necessary setup.
+ */
 class ExampleApplication : Application() {
+  /**
+   * This method is called when the activity is first created. It is responsible for initializing
+   * various components of the application.
+   */
   override fun onCreate() {
     super.onCreate()
     MultiDex.install(this)

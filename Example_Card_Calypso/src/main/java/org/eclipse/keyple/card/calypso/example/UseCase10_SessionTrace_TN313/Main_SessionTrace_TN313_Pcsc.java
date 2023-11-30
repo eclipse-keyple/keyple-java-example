@@ -310,7 +310,7 @@ public class Main_SessionTrace_TN313_Pcsc {
             .createSymmetricCryptoSecuritySetting(
                 LegacySamExtensionService.getInstance()
                     .getLegacySamApiFactory()
-                    .createSymmetricCryptoTransactionManagerFactory(samReader, sam))
+                    .createSymmetricCryptoCardTransactionManagerFactory(samReader, sam))
             .assignDefaultKif(PERSONALIZATION, (byte) 0x21)
             .assignDefaultKif(LOAD, (byte) 0x27)
             .assignDefaultKif(DEBIT, (byte) 0x30)

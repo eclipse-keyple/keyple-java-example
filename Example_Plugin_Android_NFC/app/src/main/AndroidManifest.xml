@@ -11,7 +11,7 @@
         <activity
             android:name="org.eclipse.keyple.plugin.android.nfc.example.MainActivity"
             android:clearTaskOnLaunch="true"
-            android:label="Keyple plugin Pax Demo"
+            android:label="Keyple plugin NFC Demo"
             android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>

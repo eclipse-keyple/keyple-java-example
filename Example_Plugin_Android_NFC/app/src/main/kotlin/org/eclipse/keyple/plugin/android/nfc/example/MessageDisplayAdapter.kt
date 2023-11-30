@@ -18,6 +18,15 @@ import org.eclipse.keyple.databinding.ActionCardLayoutBinding
 import org.eclipse.keyple.databinding.HeaderCardLayoutBinding
 import org.eclipse.keyple.databinding.ResultCardLayoutBinding
 
+/**
+ * Adapter class for displaying messages in a RecyclerView.
+ *
+ * This class extends RecyclerView.Adapter and provides implementations for creating ViewHolder,
+ * binding data to ViewHolder, retrieving item view type, and getting the total item count. The
+ * adapter accepts a list of messages to display.
+ *
+ * @property messages The list of messages to be displayed.
+ */
 class MessageDisplayAdapter(private val messages: ArrayList<Message>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

@@ -229,7 +229,7 @@ public class Main_MultipleSession_Pcsc {
         calypsoCardApiFactory.createSymmetricCryptoSecuritySetting(
             LegacySamExtensionService.getInstance()
                 .getLegacySamApiFactory()
-                .createSymmetricCryptoTransactionManagerFactory(samReader, sam));
+                .createSymmetricCryptoCardTransactionManagerFactory(samReader, sam));
   }
 
   /**

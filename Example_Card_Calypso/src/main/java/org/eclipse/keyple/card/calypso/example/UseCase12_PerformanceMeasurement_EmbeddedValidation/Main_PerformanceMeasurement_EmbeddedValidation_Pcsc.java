@@ -328,7 +328,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             .createSymmetricCryptoSecuritySetting(
                 LegacySamExtensionService.getInstance()
                     .getLegacySamApiFactory()
-                    .createSymmetricCryptoTransactionManagerFactory(samReader, sam))
+                    .createSymmetricCryptoCardTransactionManagerFactory(samReader, sam))
             .enableRatificationMechanism();
     // Optimization: preload the SAM challenge for the next transaction
     symmetricCryptoSecuritySetting.initCryptoContextForNextTransaction();

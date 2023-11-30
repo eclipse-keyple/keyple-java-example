@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">Keyple plugin Pax Demo</string>
+    <string name="app_name">Keyple plugin NFC Demo</string>
     <string name="permission_denied_message">You must accept the requested permissions to continue. Please relaunch the app.</string>
 </resources>
