@@ -10,6 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.diffplug.spotless")
 }
+apply(plugin = "org.eclipse.keyple")
 
 /**
  * The android block is where you configure all your Android-specific
