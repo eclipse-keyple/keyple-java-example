@@ -51,7 +51,7 @@ import org.slf4j.impl.SimpleLogger;
  * <p>This code is dedicated to performance measurement for an embedded validation type transaction.
  *
  * <p>It implements the scenario described <a
- * href="https://terminal-api.calypsonet.org/apis/calypsonet-terminal-calypso-api/#simple-secure-session-for-fast-embedded-performance">here</a>:
+ * href="https://keypop.org/apis/keypop-calypso-card-api/#simple-secure-session-for-fast-embedded-performance">here</a>:
  *
  * <p>Any unexpected behavior will result in runtime exceptions.
  */
