@@ -11,7 +11,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.core.service.example.common;
 
-import org.eclipse.keyple.core.service.Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,24 +34,4 @@ public class ConfigurationUtil {
 
   /** Constructor. */
   private ConfigurationUtil() {}
-
-  /**
-   * Retrieves the name of the first available reader in the provided plugin whose name matches the
-   * provided regular expression.
-   *
-   * @param plugin The plugin to which the reader belongs.
-   * @param readerNameRegex A regular expression matching the targeted reader.
-   * @return The name of the found reader.
-   * @throws IllegalStateException If the reader is not found.
-   */
-  public static String getCardReaderName(Plugin plugin, String readerNameRegex) {
-    for (String readerName : plugin.getReaderNames()) {
-      if (readerName.matches(readerNameRegex)) {
-        logger.info("Card reader, plugin; {}, name: {}", plugin.getName(), readerName);
-        return readerName;
-      }
-    }
-    throw new IllegalStateException(
-        String.format("Reader '%s' not found in plugin '%s'", readerNameRegex, plugin.getName()));
-  }
 }

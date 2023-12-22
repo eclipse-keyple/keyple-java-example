@@ -185,9 +185,6 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
    * name.
    */
   private static void initSamResourceService() {
-    // Create a SAM selection manager.
-    CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
-
     // Create a card selector. Optionally, apply a filter based on the power-on data to expect a SAM
     // C1.
     CardSelector<BasicCardSelector> cardSelector =
@@ -199,10 +196,6 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
     // Retrieve the Legacy SAM factory to create the SAM selection and profile extensions.
     LegacySamApiFactory legacySamApiFactory =
         LegacySamExtensionService.getInstance().getLegacySamApiFactory();
-
-    // Create a SAM selection using the Calypso card extension.
-    samSelectionManager.prepareSelection(
-        cardSelector, legacySamApiFactory.createLegacySamSelectionExtension());
 
     // Create a card resource extension expecting a SAM "C1".
     LegacySamSelectionExtension samSelection =
@@ -323,11 +316,10 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
       PcscReader.SharingMode sharingMode,
       String physicalProtocolName,
       String logicalProtocolName) {
-    String readerName = getReaderName(plugin, readerNameRegex);
-    CardReader reader = plugin.getReader(readerName);
+    CardReader reader = plugin.findReader(readerNameRegex);
 
     plugin
-        .getReaderExtension(PcscReader.class, readerName)
+        .getReaderExtension(PcscReader.class, reader.getName())
         .setContactless(isContactless)
         .setIsoProtocol(isoProtocol)
         .setSharingMode(sharingMode);
@@ -335,47 +327,6 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
     ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
 
     return reader;
-  }
-
-  /**
-   * Searches for and retrieves the name of the reader from the provided plugin's available reader
-   * names that matches the given regular expression.
-   *
-   * <p>This method iterates through the reader names available to the provided plugin, returning
-   * the first reader name that matches the supplied regular expression. If no match is found, an
-   * IllegalStateException is thrown, indicating the absence of a matching reader name.
-   *
-   * @param plugin The plugin containing the available reader names to search through.
-   * @param readerNameRegex The regular expression used to find a matching reader name among the
-   *     available names provided by the plugin.
-   * @return The name of the reader that matches the given regular expression from the available
-   *     reader names of the provided plugin.
-   * @throws IllegalArgumentException if the provided plugin is null, or if the reader name regex is
-   *     null or empty.
-   * @throws IllegalStateException if no reader name from the available names of the provided plugin
-   *     matches the given regular expression.
-   */
-  private static String getReaderName(Plugin plugin, String readerNameRegex) {
-    if (plugin == null) {
-      throw new IllegalArgumentException("Plugin cannot be null");
-    }
-
-    if (readerNameRegex == null || readerNameRegex.trim().isEmpty()) {
-      throw new IllegalArgumentException("Reader name regex cannot be null or empty");
-    }
-
-    for (String readerName : plugin.getReaderNames()) {
-      if (readerName.matches(readerNameRegex)) {
-        logger.info("Card reader found, plugin: {}, name: {}", plugin.getName(), readerName);
-        return readerName;
-      }
-    }
-
-    String errorMsg =
-        String.format(
-            "Reader matching '%s' not found in plugin '%s'", readerNameRegex, plugin.getName());
-    logger.error(errorMsg);
-    throw new IllegalStateException(errorMsg);
   }
 
   /**

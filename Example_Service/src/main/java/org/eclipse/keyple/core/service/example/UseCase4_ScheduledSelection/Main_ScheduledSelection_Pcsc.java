@@ -71,15 +71,12 @@ public class Main_ScheduledSelection_Pcsc {
     smartCardService.checkCardExtension(genericCardService);
 
     // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName =
-        ConfigurationUtil.getCardReaderName(
-            plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
     ObservableCardReader observableCardReader =
-        (ObservableCardReader) plugin.getReader(pcscContactlessReaderName);
+        (ObservableCardReader) plugin.findReader(ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
 
     // Configure the reader with parameters suitable for contactless operations.
     plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
+        .getReaderExtension(PcscReader.class, observableCardReader.getName())
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);

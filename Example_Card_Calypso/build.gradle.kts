@@ -35,7 +35,7 @@ dependencies {
     implementation("org.eclipse.keypop:keypop-calypso-card-java-api:2.0.0")
     implementation("org.eclipse.keypop:keypop-calypso-crypto-legacysam-java-api:0.3.0")
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.0")
-    implementation("org.eclipse.keyple:keyple-service-java-lib:3.0.0")
+    implementation("org.eclipse.keyple:keyple-service-java-lib:3.1.0-SNAPSHOT") { isChanging = true }
     implementation("org.eclipse.keyple:keyple-service-resource-java-lib:3.0.0")
     implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.1.2")
     implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.1.0")
