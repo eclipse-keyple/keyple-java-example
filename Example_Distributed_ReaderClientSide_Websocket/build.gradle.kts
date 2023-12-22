@@ -42,7 +42,7 @@ dependencies {
     implementation("org.eclipse.keypop:keypop-reader-java-api:2.0.0")
     implementation("org.eclipse.keypop:keypop-calypso-card-java-api:2.0.0")
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.0")
-    implementation("org.eclipse.keyple:keyple-service-java-lib:3.0.0")
+    implementation("org.eclipse.keyple:keyple-service-java-lib:3.1.0")
     implementation("org.eclipse.keyple:keyple-distributed-network-java-lib:2.3.0")
     implementation("org.eclipse.keyple:keyple-distributed-local-java-lib:2.3.0")
     implementation("org.eclipse.keyple:keyple-distributed-remote-java-lib:2.3.0")
