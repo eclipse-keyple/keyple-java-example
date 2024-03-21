@@ -31,6 +31,7 @@ repositories {
     maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
 }
 dependencies {
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("org.eclipse.keypop:keypop-reader-java-api:2.0.0")
     implementation("org.eclipse.keypop:keypop-calypso-card-java-api:2.0.0")
     implementation("org.eclipse.keypop:keypop-calypso-crypto-legacysam-java-api:0.3.0")
