@@ -79,6 +79,8 @@ public class Main_CardAuthentication_Pcsc {
   /** AID: Keyple test kit profile 1, Application 2 */
   private static final String AID = "315449432E49434131";
 
+  // private static final String AID = "A000000291FF9101";
+
   // File identifiers
   private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
 
@@ -127,7 +129,8 @@ public class Main_CardAuthentication_Pcsc {
     calypsoCardApiFactory
         .createSecureRegularModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting)
-        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
+        .prepareOpenSecureSession(WriteAccessLevel.PERSONALIZATION)
+        .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29)
         .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29)
         .prepareCloseSecureSession()
         .processCommands(ChannelControl.CLOSE_AFTER);

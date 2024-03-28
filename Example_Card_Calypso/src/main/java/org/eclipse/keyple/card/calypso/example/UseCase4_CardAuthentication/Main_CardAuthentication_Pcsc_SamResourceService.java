@@ -34,6 +34,8 @@ import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySettin
 import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySamSelectionExtension;
+import org.eclipse.keypop.calypso.crypto.legacysam.spi.LegacySamDynamicUnlockDataProviderSpi;
+import org.eclipse.keypop.calypso.crypto.legacysam.spi.LegacySamStaticUnlockDataProviderSpi;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -98,6 +100,31 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
   private static CalypsoCardApiFactory calypsoCardApiFactory;
   // The security settings for the card transaction.
   private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
+
+  private static class StaticUnlockDataProvider implements LegacySamStaticUnlockDataProviderSpi {
+
+    @Override
+    public byte[] getUnlockData(byte[] samSerialNumber) {
+      logger.debug(
+          "StaticUnlockDataProvider.getUnlockData: samSerialNumber = {}",
+          HexUtil.toHex(samSerialNumber));
+      return HexUtil.toByteArray("00112233445566778899AABBCCDDEEFF");
+    }
+  }
+
+  private static class DynamicUnlockDataProvider implements LegacySamDynamicUnlockDataProviderSpi {
+
+    @Override
+    public byte[] getUnlockData(byte[] samSerialNumber, byte[] samChallenge) {
+      logger.debug(
+          "DynamicUnlockDataProvider.getUnlockData: samSerialNumber = {}",
+          HexUtil.toHex(samSerialNumber));
+      logger.debug(
+          "DynamicUnlockDataProvider.getUnlockData: samChallenge = {}",
+          HexUtil.toHex(samChallenge));
+      return HexUtil.toByteArray("0011223344556677");
+    }
+  }
 
   /**
    * The main method to execute the card authentication process.
@@ -185,25 +212,30 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
    * name.
    */
   private static void initSamResourceService() {
-    // Create a card selector. Optionally, apply a filter based on the power-on data to expect a SAM
-    // C1.
-    CardSelector<BasicCardSelector> cardSelector =
-        readerApiFactory
-            .createBasicCardSelector()
-            .filterByPowerOnData(
-                LegacySamUtil.buildPowerOnDataFilter(LegacySam.ProductType.SAM_C1, null));
-
     // Retrieve the Legacy SAM factory to create the SAM selection and profile extensions.
     LegacySamApiFactory legacySamApiFactory =
         LegacySamExtensionService.getInstance().getLegacySamApiFactory();
 
     // Create a card resource extension expecting a SAM "C1".
+    //    LegacySamSelectionExtension samSelection =
+    //        legacySamApiFactory
+    //            .createLegacySamSelectionExtension()
+    //            .setStaticUnlockDataProvider(new StaticUnlockDataProvider())
+    //            .prepareReadAllCountersStatus();
     LegacySamSelectionExtension samSelection =
-        legacySamApiFactory.createLegacySamSelectionExtension();
-
+        legacySamApiFactory
+            .createLegacySamSelectionExtension()
+            .setDynamicUnlockDataProvider(new DynamicUnlockDataProvider())
+            .prepareReadAllCountersStatus();
+    //    LegacySamSelectionExtension samSelection =
+    //            legacySamApiFactory
+    //                    .createLegacySamSelectionExtension()
+    //                    .prepareReadAllCountersStatus();
     CardResourceProfileExtension samCardResourceExtension =
         LegacySamExtensionService.getInstance()
-            .createLegacySamResourceProfileExtension(samSelection);
+            .createLegacySamResourceProfileExtension(
+                samSelection,
+                LegacySamUtil.buildPowerOnDataFilter(LegacySam.ProductType.SAM_C1, null));
 
     // Get the card resource service
     CardResourceService cardResourceService = CardResourceServiceProvider.getService();

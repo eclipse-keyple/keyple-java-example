@@ -144,7 +144,8 @@ public class Main_SessionTrace_TN313_Pcsc {
 
     // Create and add a card observer for this reader
     CardReaderObserver cardReaderObserver =
-        new CardReaderObserver(cardReader, cardSelectionManager, symmetricCryptoSecuritySetting);
+        new CardReaderObserver(
+            plugin, cardReader, cardSelectionManager, symmetricCryptoSecuritySetting);
 
     ((ObservableCardReader) cardReader).setReaderObservationExceptionHandler(cardReaderObserver);
     ((ObservableCardReader) cardReader).addObserver(cardReaderObserver);
