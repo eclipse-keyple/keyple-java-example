@@ -92,7 +92,7 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
     // Select the Calypso card using the card reader and the target AID
     CalypsoCard calypsoCard = selectCard(cardReader, AID);
 
-    // Optional step: reset PKI data by rewriting symmetric key 1
+    // Optional step: reset PKI data by rewriting symmetric key 1 with secure card transaction
     calypsoCardApiFactory
         .createSecureRegularModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting)
@@ -137,7 +137,7 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
     // Select the SAM device using the SAM reader
     LegacySam sam = selectSam(samReader);
 
-    // Create a transaction manager for the SAM device
+    // Execute a SAM transaction to generate the PKI data to be injected into the card
     legacySamApiFactory
         .createFreeTransactionManager(samReader, sam)
         // Prepare to retrieve the CA certificate from the SAM
@@ -149,7 +149,7 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
         // Execute all prepared commands on the SAM device
         .processCommands();
 
-    // Create a transaction manager for the Calypso card
+    // Execute a card transaction to store the generated PKI into the card
     calypsoCardApiFactory
         .createFreeTransactionManager(cardReader, calypsoCard)
         // Prepare to store the CA certificate on the card
