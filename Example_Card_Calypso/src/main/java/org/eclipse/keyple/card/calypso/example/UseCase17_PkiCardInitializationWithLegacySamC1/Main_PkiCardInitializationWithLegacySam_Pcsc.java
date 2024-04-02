@@ -17,7 +17,6 @@ import java.util.GregorianCalendar;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
-import org.eclipse.keyple.card.calypso.crypto.pki.PkiExtensionService;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
@@ -31,13 +30,11 @@ import org.eclipse.keypop.calypso.card.PutDataTag;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
 import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
 import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
-import org.eclipse.keypop.calypso.card.transaction.SecureRegularModeTransactionManager;
 import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
 import org.eclipse.keypop.calypso.crypto.legacysam.GetDataTag;
 import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
 import org.eclipse.keypop.calypso.crypto.legacysam.transaction.CardCertificateComputationData;
-import org.eclipse.keypop.calypso.crypto.legacysam.transaction.FreeTransactionManager;
 import org.eclipse.keypop.calypso.crypto.legacysam.transaction.KeyPairContainer;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
@@ -86,23 +83,84 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
   private static SymmetricCryptoSecuritySetting symmetricCryptoSecuritySetting;
 
   public static void main(String[] args) {
+    // Log a message indicating the start of the Use Case
     logger.info("= UseCase Calypso #17: PKI card initialization with a SAM C1 ==================");
 
+    // Initialize services and readers required for the operation
     initServicesAndReaders();
-    CalypsoCard calypsoCard = selectCardAndResetPkiData(cardReader, AID);
+
+    // Select the Calypso card using the card reader and the target AID
+    CalypsoCard calypsoCard = selectCard(cardReader, AID);
+
+    // Optional step: reset PKI data by rewriting symmetric key 1
+    calypsoCardApiFactory
+        .createSecureRegularModeTransactionManager(
+            cardReader, calypsoCard, symmetricCryptoSecuritySetting)
+        .prepareChangeKey(1, (byte) 0x21, (byte) 0x74, (byte) 0x21, (byte) 0x74)
+        .processCommands(ChannelControl.KEEP_OPEN);
+
+    // Create a container to hold the generated key pair
+    KeyPairContainer keyPairContainer = legacySamApiFactory.createKeyPairContainer();
+
+    // Get today's date
+    Calendar startDate = new GregorianCalendar();
+    startDate.setTime(new Date());
+
+    // Create a copy of the start date to modify for the end date
+    Calendar endDate = (Calendar) startDate.clone();
+
+    // Set the end date to 5 years from today, minus 1 day for validity period
+    endDate.add(Calendar.YEAR, 5);
+    endDate.add(Calendar.DATE, -1);
+
+    // Create the data object for certificate computation
+    CardCertificateComputationData cardCertificateComputationData =
+        legacySamApiFactory
+            .createCardCertificateComputationData()
+            // Set the card AID (DF name)
+            .setCardAid(calypsoCard.getDfName())
+            // Set the card's serial number
+            .setCardSerialNumber(calypsoCard.getApplicationSerialNumber())
+            // Set the certificate start date using the start date Calendar object
+            .setStartDate(
+                startDate.get(Calendar.YEAR),
+                startDate.get(Calendar.MONTH) + 1, // Month is 0-indexed, so add 1
+                startDate.get(Calendar.DAY_OF_MONTH))
+            // Set the certificate end date using the modified end date Calendar object
+            .setEndDate(
+                endDate.get(Calendar.YEAR),
+                endDate.get(Calendar.MONTH) + 1, // Month is 0-indexed, so add 1
+                endDate.get(Calendar.DAY_OF_MONTH))
+            // Set the card startup information
+            .setCardStartupInfo(calypsoCard.getStartupInfoRawData());
+
+    // Select the SAM device using the SAM reader
     LegacySam sam = selectSam(samReader);
 
-    FreeTransactionManager samTransaction =
-        legacySamApiFactory.createFreeTransactionManager(samReader, sam);
+    // Create a transaction manager for the SAM device
+    legacySamApiFactory
+        .createFreeTransactionManager(samReader, sam)
+        // Prepare to retrieve the CA certificate from the SAM
+        .prepareGetTag(GetDataTag.CA_CERTIFICATE)
+        // Prepare to generate a key pair by the SAM
+        .prepareGenerateCardAsymmetricKeyPair(keyPairContainer)
+        // Prepare to compute the card certificate by the SAM using the created data
+        .prepareComputeCardCertificate(cardCertificateComputationData)
+        // Execute all prepared commands on the SAM device
+        .processCommands();
 
-    byte[] cardKeyPair = getCaCertificateAndGenerateCardKeyPair(samTransaction);
-
-    byte[] caCertificate = sam.getCaCertificate();
-
-    byte[] cardCertificate = generateCardCertificate(calypsoCard, samTransaction);
-
-    storeCardKeyAndCertificates(
-        calypsoCard, cardReader, caCertificate, cardKeyPair, cardCertificate);
+    // Create a transaction manager for the Calypso card
+    calypsoCardApiFactory
+        .createFreeTransactionManager(cardReader, calypsoCard)
+        // Prepare to store the CA certificate on the card
+        .preparePutData(PutDataTag.CA_CERTIFICATE, sam.getCaCertificate())
+        // Prepare to store the generated key pair on the card
+        .preparePutData(PutDataTag.CARD_KEY_PAIR, keyPairContainer.getKeyPair())
+        // Prepare to store the computed card certificate on the card
+        .preparePutData(
+            PutDataTag.CARD_CERTIFICATE, cardCertificateComputationData.getCertificate())
+        // Execute all prepared commands on the Calypso card and close the channel afterwards
+        .processCommands(ChannelControl.CLOSE_AFTER);
   }
 
   private static void initServicesAndReaders() {
@@ -112,92 +170,6 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
     initCardReader();
     initSamReader();
     initSecuritySetting();
-  }
-
-  private static CalypsoCard selectCardAndResetPkiData(CardReader cardReader, String aid) {
-
-    if (!cardReader.isCardPresent()) {
-      throw new IllegalStateException("No card is present in the reader.");
-    }
-
-    CalypsoCard calypsoCard = selectCard(cardReader, aid);
-    logger.info("= SmartCard = {}", calypsoCard);
-    logger.info(
-        "Calypso Serial Number = {}", HexUtil.toHex(calypsoCard.getApplicationSerialNumber()));
-
-    SecureRegularModeTransactionManager cardSecureTransaction =
-        calypsoCardApiFactory.createSecureRegularModeTransactionManager(
-            cardReader, calypsoCard, symmetricCryptoSecuritySetting);
-
-    // reset PKI data by rewriting the symmetric key 1
-    cardSecureTransaction
-        .prepareChangeKey(1, (byte) 0x21, (byte) 0x74, (byte) 0x21, (byte) 0x74)
-        .processCommands(ChannelControl.KEEP_OPEN);
-
-    return calypsoCard;
-  }
-
-  private static byte[] getCaCertificateAndGenerateCardKeyPair(FreeTransactionManager samTransaction) {
-
-    KeyPairContainer keyPairContainer = legacySamApiFactory.createKeyPairContainer();
-
-    samTransaction
-        .prepareGetTag(GetDataTag.CA_CERTIFICATE)
-        .prepareGenerateCardAsymmetricKeyPair(keyPairContainer)
-        .processCommands();
-
-    return keyPairContainer.getKeyPair();
-  }
-
-  private static byte[] generateCardCertificate(
-      CalypsoCard calypsoCard, FreeTransactionManager samTransaction) {
-
-    PkiExtensionService pkiService = PkiExtensionService.getInstance();
-    pkiService.setTestMode();
-
-    Calendar calendar = new GregorianCalendar();
-    calendar.setTime(new Date());
-
-    // Set the start date to today
-    int startYear = calendar.get(Calendar.YEAR);
-    int startMonth = calendar.get(Calendar.MONTH);
-    int startDay = calendar.get(Calendar.DAY_OF_MONTH);
-
-    // Set the end date to 5 years from today
-    calendar.add(Calendar.YEAR, 5);
-    int endYear = calendar.get(Calendar.YEAR);
-    int endMonth = calendar.get(Calendar.MONTH);
-    int endDay = calendar.get(Calendar.DAY_OF_MONTH);
-
-    CardCertificateComputationData cardCertificateComputationData =
-        legacySamApiFactory.createCardCertificateComputationData();
-
-    cardCertificateComputationData
-        .setCardAid(calypsoCard.getDfName())
-        .setCardSerialNumber(calypsoCard.getApplicationSerialNumber())
-        .setStartDate(startYear, startMonth, startDay)
-        .setEndDate(endYear, endMonth, endDay)
-        .setCardStartupInfo(calypsoCard.getStartupInfoRawData());
-
-    samTransaction.prepareComputeCardCertificate(cardCertificateComputationData).processCommands();
-
-    return cardCertificateComputationData.getCertificate();
-  }
-
-  private static void storeCardKeyAndCertificates(
-      CalypsoCard calypsoCard,
-      CardReader cardReader,
-      byte[] caCertificate,
-      byte[] cardKeyPair,
-      byte[] cardCertificate) {
-    org.eclipse.keypop.calypso.card.transaction.FreeTransactionManager cardFreeTransaction =
-        calypsoCardApiFactory.createFreeTransactionManager(cardReader, calypsoCard);
-
-    cardFreeTransaction
-        .preparePutData(PutDataTag.CA_CERTIFICATE, caCertificate)
-        .preparePutData(PutDataTag.CARD_KEY_PAIR, cardKeyPair)
-        .preparePutData(PutDataTag.CARD_CERTIFICATE, cardCertificate)
-        .processCommands(ChannelControl.CLOSE_AFTER);
   }
 
   /**
