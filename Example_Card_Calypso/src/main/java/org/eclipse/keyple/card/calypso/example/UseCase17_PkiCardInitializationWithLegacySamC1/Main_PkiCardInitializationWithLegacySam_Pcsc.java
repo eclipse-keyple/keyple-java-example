@@ -33,13 +33,12 @@ import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
 import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
 import org.eclipse.keypop.calypso.card.transaction.SecureRegularModeTransactionManager;
 import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
-import org.eclipse.keypop.calypso.certificate.CalypsoCardCertificateV1Generator;
-import org.eclipse.keypop.calypso.certificate.CalypsoCertificateApiFactory;
-import org.eclipse.keypop.calypso.certificate.CalypsoCertificateStore;
 import org.eclipse.keypop.calypso.crypto.legacysam.GetDataTag;
 import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
+import org.eclipse.keypop.calypso.crypto.legacysam.transaction.CardCertificateComputationData;
 import org.eclipse.keypop.calypso.crypto.legacysam.transaction.FreeTransactionManager;
+import org.eclipse.keypop.calypso.crypto.legacysam.transaction.KeyPairContainer;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -93,10 +92,14 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
     CalypsoCard calypsoCard = selectCardAndResetPkiData(cardReader, AID);
     LegacySam sam = selectSam(samReader);
 
-    byte[] cardKeyPair = generateCardKeyPair(sam, samReader);
-    byte[] caCertificate = getCaCertificate(sam);
+    FreeTransactionManager samTransaction =
+        legacySamApiFactory.createFreeTransactionManager(samReader, sam);
 
-    byte[] cardCertificate = generateCardCertificate(calypsoCard, sam, caCertificate);
+    byte[] cardKeyPair = getCaCertificateAndGenerateCardKeyPair(samTransaction);
+
+    byte[] caCertificate = sam.getCaCertificate();
+
+    byte[] cardCertificate = generateCardCertificate(calypsoCard, samTransaction);
 
     storeCardKeyAndCertificates(
         calypsoCard, cardReader, caCertificate, cardKeyPair, cardCertificate);
@@ -112,6 +115,7 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
   }
 
   private static CalypsoCard selectCardAndResetPkiData(CardReader cardReader, String aid) {
+
     if (!cardReader.isCardPresent()) {
       throw new IllegalStateException("No card is present in the reader.");
     }
@@ -133,40 +137,23 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
     return calypsoCard;
   }
 
-  private static byte[] generateCardKeyPair(LegacySam sam, CardReader samReader) {
-    FreeTransactionManager samTransaction =
-        legacySamApiFactory.createFreeTransactionManager(samReader, sam);
+  private static byte[] getCaCertificateAndGenerateCardKeyPair(FreeTransactionManager samTransaction) {
+
+    KeyPairContainer keyPairContainer = legacySamApiFactory.createKeyPairContainer();
 
     samTransaction
-        .prepareReadTagValue(GetDataTag.CA_CERTIFICATE)
-        .prepareCardGenerateAsymmetricKeyPair()
+        .prepareGetTag(GetDataTag.CA_CERTIFICATE)
+        .prepareGenerateCardAsymmetricKeyPair(keyPairContainer)
         .processCommands();
 
-    return sam.getTagValue(GetDataTag.GENERATED_CARD_ECC_KEY_PAIR);
-  }
-
-  private static byte[] getCaCertificate(LegacySam sam) {
-    return sam.getTagValue(GetDataTag.CA_CERTIFICATE);
+    return keyPairContainer.getKeyPair();
   }
 
   private static byte[] generateCardCertificate(
-      CalypsoCard calypsoCard, LegacySam sam, byte[] caCertificate) {
+      CalypsoCard calypsoCard, FreeTransactionManager samTransaction) {
+
     PkiExtensionService pkiService = PkiExtensionService.getInstance();
     pkiService.setTestMode();
-
-    CalypsoCertificateApiFactory calypsoCertificateApiFactory =
-        pkiService.getCalypsoCertificateApiFactory();
-
-    CalypsoCertificateStore calypsoCertificateStore =
-        calypsoCertificateApiFactory.getCalypsoCertificateStore();
-
-    calypsoCertificateStore.addPcaPublicKey(PCA_PUBLIC_KEY_REFERENCE, PCA_PUBLIC_KEY);
-    byte[] issuerKeyReference = calypsoCertificateStore.addCalypsoCaCertificate(caCertificate);
-
-    CalypsoCardCertificateV1Generator calypsoCardCertificateV1Generator =
-        calypsoCertificateApiFactory.createCalypsoCardCertificateV1Generator(
-            issuerKeyReference,
-            legacySamApiFactory.createCalypsoCertificateSignerSpi(samReader, sam));
 
     Calendar calendar = new GregorianCalendar();
     calendar.setTime(new Date());
@@ -182,14 +169,19 @@ public class Main_PkiCardInitializationWithLegacySam_Pcsc {
     int endMonth = calendar.get(Calendar.MONTH);
     int endDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-    return calypsoCardCertificateV1Generator
-        .withCardAid(HexUtil.toByteArray(AID))
-        .withCardSerialNumber(calypsoCard.getApplicationSerialNumber())
-        .withCardStartupInfo(calypsoCard.getStartupInfoRawData())
-        .withStartDate(startYear, startMonth, startDay)
-        .withEndDate(endYear, endMonth, endDay)
-        .withIndex(0)
-        .generate();
+    CardCertificateComputationData cardCertificateComputationData =
+        legacySamApiFactory.createCardCertificateComputationData();
+
+    cardCertificateComputationData
+        .setCardAid(calypsoCard.getDfName())
+        .setCardSerialNumber(calypsoCard.getApplicationSerialNumber())
+        .setStartDate(startYear, startMonth, startDay)
+        .setEndDate(endYear, endMonth, endDay)
+        .setCardStartupInfo(calypsoCard.getStartupInfoRawData());
+
+    samTransaction.prepareComputeCardCertificate(cardCertificateComputationData).processCommands();
+
+    return cardCertificateComputationData.getCertificate();
   }
 
   private static void storeCardKeyAndCertificates(
