@@ -21,7 +21,6 @@ import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ObservableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +93,7 @@ public class Main_ScheduledSelection_Pcsc {
     // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)

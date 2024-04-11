@@ -378,8 +378,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
    */
   private static CalypsoCard selectCard(CardReader reader, String aid) {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
-    CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(aid);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(aid);
     CalypsoCardSelectionExtension calypsoCardSelectionExtension =
         calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard();
     cardSelectionManager.prepareSelection(cardSelector, calypsoCardSelectionExtension);

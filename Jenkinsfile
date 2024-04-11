@@ -31,11 +31,12 @@ pipeline {
         sh 'cd ./Example_Plugin_Android_NFC && ./gradlew clean build --no-build-cache --no-daemon --info --stacktrace'
       } }
     }
-    stage('Build Example Plugin Android OMAPI') {
-      steps { container('java-builder') {
-        sh 'cd ./Example_Plugin_Android_OMAPI && ./gradlew clean build --no-build-cache --no-daemon --info --stacktrace'
-      } }
-    }
+// The example using the OMAPI plugin has been temporarily disabled.
+//    stage('Build Example Plugin Android OMAPI') {
+//      steps { container('java-builder') {
+//        sh 'cd ./Example_Plugin_Android_OMAPI && ./gradlew clean build --no-build-cache --no-daemon --info --stacktrace'
+//      } }
+//    }
     stage('Build Example Distributed PoolReaderServerSide Webservice') {
       steps { container('java-builder') {
         sh 'cd ./Example_Distributed_PoolReaderServerSide_Webservice && ./gradlew clean spotlessCheck classes --no-build-cache --no-daemon --info --stacktrace'

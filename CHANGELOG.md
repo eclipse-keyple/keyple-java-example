@@ -4,8 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Changed
+- Java source and target levels `1.6` -> `1.8`
 ### Upgraded
 - Keyple Service Library `3.0.0` -> `3.1.0`
+- Gradle `6.8.3` -> `7.6.4`
+### Removed
+- Temporarily disabled the example implementing the OMAPI plugin, and it will not be updated until there is more clarity
+  on the requirements surrounding this technology.
 
 ## [2023-11-30]
 :warning: Major version! Following the migration of the "Calypsonet Terminal" APIs to the
@@ -146,7 +152,7 @@ to use the exact and latest version of each dependency. This ensures consistency
 
 ## [2021-10-06]
 ### Added
-- "CHANGELOG.md" file (issue [eclipse/keyple#6]).
+- "CHANGELOG.md" file (issue [eclipse-keyple/keyple#6]).
 - Example_Card_Calypso
 - Example_Distributed_PoolReaderServerSide_Webservice
 - Example_Distributed_ReaderClientSide_Webservice
@@ -173,29 +179,29 @@ to use the exact and latest version of each dependency. This ensures consistency
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
 
-[unreleased]: https://github.com/eclipse/keyple-java-example/compare/2023-11-30...HEAD
-[2023-11-30]: https://github.com/eclipse/keyple-java-example/compare/2023-04-27...2023-11-30
-[2023-04-27]: https://github.com/eclipse/keyple-java-example/compare/2023-04-05...2023-04-27
-[2023-04-05]: https://github.com/eclipse/keyple-java-example/compare/2023-02-23...2023-04-05
-[2023-02-23]: https://github.com/eclipse/keyple-java-example/compare/2023-01-10...2023-02-23
-[2023-01-10]: https://github.com/eclipse/keyple-java-example/compare/2022-12-13...2023-01-10
-[2022-12-13]: https://github.com/eclipse/keyple-java-example/compare/2022-12-06...2022-12-13
-[2022-12-06]: https://github.com/eclipse/keyple-java-example/compare/2022-11-17...2022-12-06
-[2022-11-17]: https://github.com/eclipse/keyple-java-example/compare/2022-10-27...2022-11-17
-[2022-10-27]: https://github.com/eclipse/keyple-java-example/compare/2022-07-26...2022-10-27
-[2022-07-26]: https://github.com/eclipse/keyple-java-example/compare/2022-06-09...2022-07-26
-[2022-06-09]: https://github.com/eclipse/keyple-java-example/compare/2022-05-30...2022-06-09
-[2022-05-30]: https://github.com/eclipse/keyple-java-example/compare/2022-04-06...2022-05-30
-[2022-04-06]: https://github.com/eclipse/keyple-java-example/compare/2022-02-02...2022-04-06
-[2022-02-02]: https://github.com/eclipse/keyple-java-example/compare/2021-12-20...2022-02-02
-[2021-12-20]: https://github.com/eclipse/keyple-java-example/compare/2021-12-08...2021-12-20
-[2021-12-08]: https://github.com/eclipse/keyple-java-example/compare/2021-11-22...2021-12-08
-[2021-11-22]: https://github.com/eclipse/keyple-java-example/compare/2021-10-06...2021-11-22
-[2021-10-06]: https://github.com/eclipse/keyple-java-example/releases/tag/2021-10-06
+[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-11-30...HEAD
+[2023-11-30]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-04-27...2023-11-30
+[2023-04-27]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-04-05...2023-04-27
+[2023-04-05]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-02-23...2023-04-05
+[2023-02-23]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-01-10...2023-02-23
+[2023-01-10]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-12-13...2023-01-10
+[2022-12-13]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-12-06...2022-12-13
+[2022-12-06]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-11-17...2022-12-06
+[2022-11-17]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-10-27...2022-11-17
+[2022-10-27]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-07-26...2022-10-27
+[2022-07-26]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-06-09...2022-07-26
+[2022-06-09]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-05-30...2022-06-09
+[2022-05-30]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-04-06...2022-05-30
+[2022-04-06]: https://github.com/eclipse-keyple/keyple-java-example/compare/2022-02-02...2022-04-06
+[2022-02-02]: https://github.com/eclipse-keyple/keyple-java-example/compare/2021-12-20...2022-02-02
+[2021-12-20]: https://github.com/eclipse-keyple/keyple-java-example/compare/2021-12-08...2021-12-20
+[2021-12-08]: https://github.com/eclipse-keyple/keyple-java-example/compare/2021-11-22...2021-12-08
+[2021-11-22]: https://github.com/eclipse-keyple/keyple-java-example/compare/2021-10-06...2021-11-22
+[2021-10-06]: https://github.com/eclipse-keyple/keyple-java-example/releases/tag/2021-10-06
 
-[#15]: https://github.com/eclipse/keyple-java-example/issues/15
-[#9]: https://github.com/eclipse/keyple-java-example/issues/9
-[#7]: https://github.com/eclipse/keyple-java-example/issues/7
-[#5]: https://github.com/eclipse/keyple-java-example/issues/5
+[#15]: https://github.com/eclipse-keyple/keyple-java-example/issues/15
+[#9]: https://github.com/eclipse-keyple/keyple-java-example/issues/9
+[#7]: https://github.com/eclipse-keyple/keyple-java-example/issues/7
+[#5]: https://github.com/eclipse-keyple/keyple-java-example/issues/5
 
-[eclipse/keyple#6]: https://github.com/eclipse/keyple/issues/6
+[eclipse-keyple/keyple#6]: https://github.com/eclipse-keyple/keyple/issues/6

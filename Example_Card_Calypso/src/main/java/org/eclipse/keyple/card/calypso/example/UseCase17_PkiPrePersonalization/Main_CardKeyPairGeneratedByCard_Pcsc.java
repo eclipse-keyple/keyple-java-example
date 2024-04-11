@@ -11,9 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase17_PkiPrePersonalization;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
@@ -39,7 +37,6 @@ import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +71,8 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
 
   public static void main(String[] args) {
     // Log a message indicating the start of the Use Case
-    logger.info("= UseCase Calypso #17: PKI card initialization with a SAM C1 ==================");
+    logger.info(
+        "= UseCase Calypso #17-1: PKI card initialization with a SAM C1 ==================");
 
     // Initialize services and readers required for the operation
     initServicesAndReaders();
@@ -97,15 +95,11 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
         .processCommands(ChannelControl.KEEP_OPEN);
 
     // Get today's date
-    Calendar startDate = new GregorianCalendar();
-    startDate.setTime(new Date());
+    LocalDate startDate = LocalDate.now();
 
     // Create a copy of the start date to modify for the end date
-    Calendar endDate = (Calendar) startDate.clone();
-
     // Set the end date to 5 years from today, minus 1 day for validity period
-    endDate.add(Calendar.YEAR, 5);
-    endDate.add(Calendar.DATE, -1);
+    LocalDate endDate = startDate.plusYears(5).minusDays(1);
 
     // Create the data object for certificate computation
     CardCertificateComputationData cardCertificateComputationData =
@@ -118,15 +112,9 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
             // Set the card's serial number
             .setCardSerialNumber(calypsoCard.getApplicationSerialNumber())
             // Set the certificate start date using the start date Calendar object
-            .setStartDate(
-                startDate.get(Calendar.YEAR),
-                startDate.get(Calendar.MONTH) + 1, // Month is 0-indexed, so add 1
-                startDate.get(Calendar.DAY_OF_MONTH))
+            .setStartDate(startDate)
             // Set the certificate end date using the modified end date Calendar object
-            .setEndDate(
-                endDate.get(Calendar.YEAR),
-                endDate.get(Calendar.MONTH) + 1, // Month is 0-indexed, so add 1
-                endDate.get(Calendar.DAY_OF_MONTH))
+            .setEndDate(endDate)
             // Set the card startup information
             .setCardStartupInfo(calypsoCard.getStartupInfoRawData());
 
@@ -137,7 +125,7 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
     legacySamApiFactory
         .createFreeTransactionManager(samReader, sam)
         // Prepare to retrieve the CA certificate from the SAM
-        .prepareGetTag(GetDataTag.CA_CERTIFICATE)
+        .prepareGetData(GetDataTag.CA_CERTIFICATE)
         // Prepare to compute the card certificate by the SAM using the created data
         .prepareComputeCardCertificate(cardCertificateComputationData)
         // Execute all prepared commands on the SAM device
@@ -303,7 +291,7 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
     CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
 
     // Create a card selector without filer
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
             .filterByPowerOnData(
@@ -346,8 +334,7 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
    */
   private static CalypsoCard selectCard(CardReader reader, String aid) {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
-    CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(aid);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(aid);
     CalypsoCardSelectionExtension calypsoCardSelectionExtension =
         calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard();
     cardSelectionManager.prepareSelection(cardSelector, calypsoCardSelectionExtension);

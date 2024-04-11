@@ -39,7 +39,6 @@ import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -393,7 +392,7 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
     CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
 
     // Create a card selector without filer
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
             .filterByPowerOnData(
@@ -437,8 +436,7 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
    */
   private static CalypsoCard selectCard(CardReader reader, String aid) {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
-    CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(aid);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(aid);
     CalypsoCardSelectionExtension calypsoCardSelectionExtension =
         calypsoCardApiFactory
             .createCalypsoCardSelectionExtension()

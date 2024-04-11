@@ -22,7 +22,6 @@ import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +56,7 @@ public class CalypsoTicketingServiceUtil {
     SmartCardServiceProvider.getService().checkCardExtension(CalypsoExtensionService.getInstance());
 
     // ISO card selection
-    CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(AID);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(AID);
 
     // Calypso additional operations
     CalypsoCardSelectionExtension cardSelectionExtension =

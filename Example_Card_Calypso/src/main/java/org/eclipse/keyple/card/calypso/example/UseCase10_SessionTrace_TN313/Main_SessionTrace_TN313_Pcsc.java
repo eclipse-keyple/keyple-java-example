@@ -33,7 +33,6 @@ import org.eclipse.keypop.reader.ObservableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +123,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
             .filterByCardProtocol(ISO_CARD_PROTOCOL)
@@ -383,7 +382,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     CardSelectionManager samSelectionManager = readerApiFactory.createCardSelectionManager();
 
     // Create a card selector without filer
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
             .filterByPowerOnData(

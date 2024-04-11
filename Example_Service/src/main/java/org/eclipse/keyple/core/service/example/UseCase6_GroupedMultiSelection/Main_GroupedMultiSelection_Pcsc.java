@@ -107,7 +107,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     // AID based selection: get the first application occurrence matching the AID, keep the
     // physical channel open
 
-    CardSelector<IsoCardSelector> cardSelector1 =
+    IsoCardSelector cardSelector1 =
         readerApiFactory
             .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
@@ -116,7 +116,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(cardSelector1, genericCardSelectionExtension);
 
-    CardSelector<IsoCardSelector> cardSelector2 =
+    IsoCardSelector cardSelector2 =
         readerApiFactory
             .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)

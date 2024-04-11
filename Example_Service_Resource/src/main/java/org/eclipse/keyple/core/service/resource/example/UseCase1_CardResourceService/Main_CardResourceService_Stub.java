@@ -26,7 +26,6 @@ import org.eclipse.keyple.plugin.stub.StubSmartCard;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.slf4j.Logger;
@@ -90,7 +89,7 @@ public class Main_CardResourceService_Stub {
 
     // Create a card resource extension A expecting a card having power-on data matching the regex
     // A.
-    CardSelector<IsoCardSelector> cardSelectorA =
+    IsoCardSelector cardSelectorA =
         readerApiFactory.createIsoCardSelector().filterByPowerOnData(ATR_REGEX_A);
 
     GenericCardSelectionExtension genericCardSelectionExtension =
@@ -102,7 +101,7 @@ public class Main_CardResourceService_Stub {
 
     // Create a card resource extension B expecting a card having power-on data matching the regex
     // B.
-    CardSelector<IsoCardSelector> cardSelectorB =
+    IsoCardSelector cardSelectorB =
         readerApiFactory.createIsoCardSelector().filterByPowerOnData(ATR_REGEX_B);
 
     CardResourceProfileExtension cardResourceExtensionB =

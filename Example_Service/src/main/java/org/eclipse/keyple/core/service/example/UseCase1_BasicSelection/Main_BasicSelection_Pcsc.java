@@ -27,7 +27,6 @@ import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.eclipse.keypop.reader.selection.spi.SmartCard;
 import org.slf4j.Logger;
@@ -189,7 +188,7 @@ public class Main_BasicSelection_Pcsc {
    */
   private static SmartCard selectCard(CardReader reader) {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
-    CardSelector<IsoCardSelector> cardSelector = readerApiFactory.createIsoCardSelector();
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector();
     GenericCardSelectionExtension genericCardSelectionExtension =
         GenericExtensionService.getInstance().createGenericCardSelectionExtension();
     cardSelectionManager.prepareSelection(cardSelector, genericCardSelectionExtension);

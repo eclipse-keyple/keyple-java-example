@@ -6,8 +6,8 @@ This content is produced and maintained by the Eclipse Keyple project.
  
 ## Supported platforms
 
-* Java SE 1.6 compact2
-* Android 4.4 KitKat API level 19
+* Java 1.8
+* Android 7.0 Nougat API Level 24
 
 ## Trademarks
  
@@ -41,61 +41,17 @@ Keypop Calypso Card API
 * License: [MIT](https://opensource.org/licenses/MIT)
 * Sources: https://github.com/eclipse-keypop/keypop-calypso-card-java-api
 
-Android Appcompat (1.2.0)
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-* Sources: https://github.com/androidx-releases/Appcompat
-
-Android Material (1.3.0)
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-* Project: https://material.io/
-
-Android ConstraintLayout (1.1.3)
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-* Sources: https://github.com/androidx-releases/ConstraintLayout
-
-Android Activity (1.2.1)
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-* Sources: https://github.com/androidx-releases/Activity
-
-Android Fragment (1.3.1)
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-* Sources: https://github.com/androidx-releases/Fragment
-
-Android Multidex
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-* Sources: https://developer.android.com/jetpack/androidx/releases/multidex
-
-Android Core Ktx (1.3.2)
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-* Project: https://developer.android.com/jetpack/androidx/releases/core
-
-Kotlin Standard Library (1.4.20)
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-* Sources: https://github.com/JetBrains/kotlin
-
-Kotlinx Coroutines core/android (1.3.3):
-
-* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-SLF4J API (1.7.32)
+SLF4J API
 
 * License: [MIT](https://spdx.org/licenses/MIT.html)
 * Project: http://www.slf4j.org
 
-Timber (4.7.1):
+Timber
 
 * License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 * Sources: https://github.com/JakeWharton/timber
 
-SLF4J Timber (3.1):
+SLF4J Timber
 
 * License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 * Sources: https://github.com/arcao/slf4j-timber

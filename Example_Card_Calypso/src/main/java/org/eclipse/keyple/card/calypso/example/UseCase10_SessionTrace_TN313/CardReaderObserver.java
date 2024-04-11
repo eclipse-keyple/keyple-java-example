@@ -15,12 +15,9 @@ import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
 import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_INSERTED;
 import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_MATCHED;
 
-import java.util.List;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.PerformanceMeasurement;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.plugin.pcsc.PcscPlugin;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
 import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
@@ -136,9 +133,6 @@ class CardReaderObserver
               ANSI_GREEN,
               System.currentTimeMillis() - timeStamp,
               ANSI_RESET);
-
-          List<Long> timestampLog = plugin.getExtension(PcscPlugin.class).getTimestampLog();
-          logger.info("Timestamp log =\n {}", PerformanceMeasurement.toJson(timestampLog));
 
           // Optimization: preload the SAM challenge for the next transaction
           cardSecuritySetting.initCryptoContextForNextTransaction();

@@ -22,7 +22,6 @@ import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.eclipse.keypop.reader.selection.spi.SmartCard;
 import org.slf4j.Logger;
@@ -101,7 +100,7 @@ public class Main_AidBasedSelection_Pcsc {
 
     // Create a card selection using the generic card extension without specifying any filter
     // (protocol/power-on data/DFName).
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory.createIsoCardSelector().filterByDfName(ConfigurationUtil.AID_EMV_PPSE);
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.

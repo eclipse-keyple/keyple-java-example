@@ -103,7 +103,7 @@ public class Main_SequentialMultiSelection_Pcsc {
     // AID based selection: get the first application occurrence matching the AID, keep the
     // physical channel open
 
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)

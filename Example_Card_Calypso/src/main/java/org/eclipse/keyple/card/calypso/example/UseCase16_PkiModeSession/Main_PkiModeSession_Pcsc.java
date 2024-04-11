@@ -11,17 +11,14 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase16_PkiModeSession;
 
-import java.util.List;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.pki.CaCertificateType;
 import org.eclipse.keyple.card.calypso.crypto.pki.CardCertificateType;
 import org.eclipse.keyple.card.calypso.crypto.pki.PkiExtensionService;
-import org.eclipse.keyple.card.calypso.example.common.PerformanceMeasurement;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.plugin.pcsc.PcscPlugin;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
@@ -35,7 +32,6 @@ import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +82,7 @@ public class Main_PkiModeSession_Pcsc {
   private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
   // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
+
   // The logical name of the protocol for communicating with the SAM (optional).
 
   // File structure
@@ -138,11 +135,6 @@ public class Main_PkiModeSession_Pcsc {
 
     processTransaction(cardTransaction, ChannelControl.KEEP_OPEN);
 
-    List<Long> timestampLog = plugin.getExtension(PcscPlugin.class).getTimestampLog();
-    String timestampLogJson = PerformanceMeasurement.toJson(timestampLog);
-    logger.info("Timestamp log =\n {}", timestampLogJson);
-    plugin.getExtension(PcscPlugin.class).clearTimestampLog();
-
     // the transaction is done twice for performance measurement purpose (avoids the "first load"
     // effect)
     logger.info("============================== NEW TRANSACTION ==============================");
@@ -163,10 +155,6 @@ public class Main_PkiModeSession_Pcsc {
 
     logger.info(
         "The secure session has ended successfully, all read data have been authenticated.");
-
-    timestampLog = plugin.getExtension(PcscPlugin.class).getTimestampLog();
-    timestampLogJson = PerformanceMeasurement.toJson(timestampLog);
-    logger.info("Timestamp log =\n {}", timestampLogJson);
 
     logger.info("= #### End of the Calypso card processing.");
 
@@ -298,8 +286,7 @@ public class Main_PkiModeSession_Pcsc {
    */
   private static CalypsoCard selectCard(CardReader reader, String aid) {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
-    CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(aid);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(aid);
     CalypsoCardSelectionExtension calypsoCardSelectionExtension =
         calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard();
     cardSelectionManager.prepareSelection(cardSelector, calypsoCardSelectionExtension);

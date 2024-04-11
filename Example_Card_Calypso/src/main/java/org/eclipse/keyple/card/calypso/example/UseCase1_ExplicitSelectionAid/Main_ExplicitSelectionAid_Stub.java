@@ -23,7 +23,6 @@ import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,8 +92,7 @@ public class Main_ExplicitSelectionAid_Stub {
     logger.info("= #### Select application with AID = '{}'.", AID);
 
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
-    CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(AID);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(AID);
     CalypsoCardSelectionExtension calypsoCardSelectionExtension =
         calypsoCardApiFactory
             .createCalypsoCardSelectionExtension()
