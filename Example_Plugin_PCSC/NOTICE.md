@@ -6,8 +6,7 @@ This content is produced and maintained by the Eclipse Keyple project.
  
 ## Supported platforms
 
-* Java SE 1.6 compact2
-* Android 4.4 KitKat API level 19
+* Java 1.8
 
 ## Trademarks
  

@@ -58,6 +58,7 @@ public class StubSmartCardFactory {
           // digest authenticate
           .withSimulatedCommand("808200000487654321", "9000")
           .build();
+
   /** Constructor */
   private StubSmartCardFactory() {}
 

@@ -75,14 +75,11 @@ public class Main_GroupedMultiSelection_Pcsc {
     smartCardService.checkCardExtension(genericCardService);
 
     // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName =
-        ConfigurationUtil.getCardReaderName(
-            plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
+    CardReader cardReader = plugin.findReader(ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
 
     // Configure the reader with parameters suitable for contactless operations.
     plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
+        .getReaderExtension(PcscReader.class, cardReader.getName())
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
@@ -110,7 +107,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     // AID based selection: get the first application occurrence matching the AID, keep the
     // physical channel open
 
-    CardSelector<IsoCardSelector> cardSelector1 =
+    IsoCardSelector cardSelector1 =
         readerApiFactory
             .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)
@@ -119,7 +116,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(cardSelector1, genericCardSelectionExtension);
 
-    CardSelector<IsoCardSelector> cardSelector2 =
+    IsoCardSelector cardSelector2 =
         readerApiFactory
             .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)

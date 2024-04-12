@@ -16,6 +16,7 @@ import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_INSERTED;
 import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_MATCHED;
 
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
+import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
@@ -36,6 +37,7 @@ class CardReaderObserver
     implements CardReaderObserverSpi, CardReaderObservationExceptionHandlerSpi {
 
   private static final Logger logger = LoggerFactory.getLogger(CardReaderObserver.class);
+  private final Plugin plugin;
   private final CardReader cardReader;
   private final SymmetricCryptoSecuritySetting cardSecuritySetting;
   private final CardSelectionManager cardSelectionManager;
@@ -61,14 +63,17 @@ class CardReaderObserver
   /**
    * Constructor.
    *
+   * @param plugin
    * @param cardReader The card reader.
    * @param cardSelectionManager The card selection manager.
    * @param cardSecuritySetting The card security settings.
    */
   CardReaderObserver(
+      Plugin plugin,
       CardReader cardReader,
       CardSelectionManager cardSelectionManager,
       SymmetricCryptoSecuritySetting cardSecuritySetting) {
+    this.plugin = plugin;
     this.cardReader = cardReader;
     this.cardSelectionManager = cardSelectionManager;
     this.cardSecuritySetting = cardSecuritySetting;

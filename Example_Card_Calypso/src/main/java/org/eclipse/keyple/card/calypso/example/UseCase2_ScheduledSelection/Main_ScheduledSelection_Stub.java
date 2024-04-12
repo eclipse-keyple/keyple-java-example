@@ -21,7 +21,6 @@ import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ObservableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,8 +94,7 @@ public class Main_ScheduledSelection_Stub {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
     // Create an ISO card selector and set a filter by the specific AID.
-    CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(AID);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(AID);
 
     // Initialize a Calypso card selection extension read the record 1 of the file
     // ENVIRONMENT_AND_HOLDER.

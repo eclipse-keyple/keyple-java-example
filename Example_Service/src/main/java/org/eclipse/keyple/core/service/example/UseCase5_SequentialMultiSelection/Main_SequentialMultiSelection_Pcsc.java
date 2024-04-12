@@ -74,14 +74,11 @@ public class Main_SequentialMultiSelection_Pcsc {
     smartCardService.checkCardExtension(genericCardService);
 
     // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName =
-        ConfigurationUtil.getCardReaderName(
-            plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
-    CardReader cardReader = plugin.getReader(pcscContactlessReaderName);
+    CardReader cardReader = plugin.findReader(ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
 
     // Configure the reader with parameters suitable for contactless operations.
     plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
+        .getReaderExtension(PcscReader.class, cardReader.getName())
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
@@ -106,7 +103,7 @@ public class Main_SequentialMultiSelection_Pcsc {
     // AID based selection: get the first application occurrence matching the AID, keep the
     // physical channel open
 
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
             .filterByDfName(ConfigurationUtil.AID_KEYPLE_PREFIX)

@@ -21,7 +21,6 @@ import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ObservableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,15 +70,12 @@ public class Main_ScheduledSelection_Pcsc {
     smartCardService.checkCardExtension(genericCardService);
 
     // Get the contactless reader whose name matches the provided regex
-    String pcscContactlessReaderName =
-        ConfigurationUtil.getCardReaderName(
-            plugin, ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
     ObservableCardReader observableCardReader =
-        (ObservableCardReader) plugin.getReader(pcscContactlessReaderName);
+        (ObservableCardReader) plugin.findReader(ConfigurationUtil.CONTACTLESS_READER_NAME_REGEX);
 
     // Configure the reader with parameters suitable for contactless operations.
     plugin
-        .getReaderExtension(PcscReader.class, pcscContactlessReaderName)
+        .getReaderExtension(PcscReader.class, observableCardReader.getName())
         .setContactless(true)
         .setIsoProtocol(PcscReader.IsoProtocol.T1)
         .setSharingMode(PcscReader.SharingMode.SHARED);
@@ -97,7 +93,7 @@ public class Main_ScheduledSelection_Pcsc {
     // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    CardSelector<IsoCardSelector> cardSelector =
+    IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
             .filterByCardProtocol(ConfigurationUtil.ISO_CARD_PROTOCOL)

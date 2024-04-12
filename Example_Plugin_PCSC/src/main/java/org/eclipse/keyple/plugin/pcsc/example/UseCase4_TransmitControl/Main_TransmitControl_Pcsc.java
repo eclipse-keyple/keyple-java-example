@@ -21,7 +21,6 @@ import org.eclipse.keypop.reader.CardReaderEvent;
 import org.eclipse.keypop.reader.ObservableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
-import org.eclipse.keypop.reader.selection.CardSelector;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.eclipse.keypop.reader.spi.CardReaderObservationExceptionHandlerSpi;
 import org.eclipse.keypop.reader.spi.CardReaderObserverSpi;
@@ -112,8 +111,7 @@ public class Main_TransmitControl_Pcsc {
 
     // Create a card selection using the generic card extension without specifying any filter
     // (protocol/ATR/DFName).
-    CardSelector<IsoCardSelector> cardSelector =
-        readerApiFactory.createIsoCardSelector().filterByDfName(AID);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(AID);
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(cardSelector, null);
