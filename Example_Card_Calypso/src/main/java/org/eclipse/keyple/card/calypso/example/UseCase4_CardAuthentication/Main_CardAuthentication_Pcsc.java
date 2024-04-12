@@ -128,7 +128,7 @@ public class Main_CardAuthentication_Pcsc {
     calypsoCardApiFactory
         .createSecureRegularModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting)
-        .prepareOpenSecureSession(WriteAccessLevel.PERSONALIZATION)
+        .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
         .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29)
         .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29)
         .prepareCloseSecureSession()

@@ -182,6 +182,8 @@ public class Main_PkiModeSession_Pcsc {
     asymmetricCryptoSecuritySetting
         .addPcaCertificate(
             pkiExtensionService.createPcaCertificate(PCA_PUBLIC_KEY_REFERENCE, PCA_PUBLIC_KEY))
+        // Uncomment the following line to inject the CA certificate into the parameters and avoid
+        // reading it from the card.
         // .addCaCertificate(pkiExtensionService.createCaCertificate(CA_CERTIFICATE))
         .addCaCertificateParser(
             pkiExtensionService.createCaCertificateParser(CaCertificateType.CALYPSO))

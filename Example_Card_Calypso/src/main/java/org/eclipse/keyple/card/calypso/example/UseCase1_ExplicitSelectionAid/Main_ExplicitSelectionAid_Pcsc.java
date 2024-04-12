@@ -12,11 +12,8 @@
 package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.util.ByteArrayUtil;
 import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
@@ -81,13 +78,6 @@ public class Main_ExplicitSelectionAid_Pcsc {
   private static CalypsoCardApiFactory calypsoCardApiFactory;
 
   public static void main(String[] args) throws ParseException {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-    Date date = formatter.parse("20240223");
-    long endDate = ByteArrayUtil.extractLong(HexUtil.toByteArray("2A240223"), 0, 4, false);
-    long milli = date.getTime();
-
-    long date1 = 0x20240223;
-    long date2 = 0x20240323;
 
     logger.info("= UseCase Calypso #1: AID based explicit selection ==================");
 
