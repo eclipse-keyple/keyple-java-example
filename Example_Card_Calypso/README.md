@@ -86,3 +86,16 @@ Each example can be run independently.
 * Use Case Calypso 14 - Read SAM counters and ceilings:
   [UseCase14_ReadLegacySamCountersAndCeilings](https://github.com/eclipse-keyple/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse-keyple/keyple/card/calypso/example/UseCase14_ReadLegacySamCountersAndCeilings)
     * Real mode with PC/SC readers [`Main_ReadLegacySamCountersAndCeilings_Pcsc.java`]
+
+* Use Case Calypso 15 - Secure session in extended mode with early authentication and data encryption:
+  [UseCase15_ExtendedModeSession](https://github.com/eclipse-keyple/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse-keyple/keyple/card/calypso/example/UseCase15_ExtendedModeSession)
+    * Real mode with PC/SC readers [`Main_ExtendedModeSession_Pcsc.java`]
+
+* Use Case Calypso 16 - Secure session in PKI mode:
+  [UseCase16_PkiModeSession](https://github.com/eclipse-keyple/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse-keyple/keyple/card/calypso/example/UseCase16_PkiModeSession)
+    * Real mode with PC/SC readers [`Main_PkiModeSession_Pcsc.java`]
+
+* Use Case Calypso 17 - PKI card pre-personalization:
+  [UseCase17_PkiPrePersonalization](https://github.com/eclipse-keyple/keyple-java-example/tree/main/Example_Card_Calypso/src/main/java/org/eclipse-keyple/keyple/card/calypso/example/UseCase17_PkiPrePersonalization)
+    * Real mode with PC/SC readers [`Main_CardKeyPairGeneratedByCard_Pcsc.java`]
+    * Real mode with PC/SC readers [`Main_CardKeyPairGeneratedByLegacySam_Pcsc.java`]
