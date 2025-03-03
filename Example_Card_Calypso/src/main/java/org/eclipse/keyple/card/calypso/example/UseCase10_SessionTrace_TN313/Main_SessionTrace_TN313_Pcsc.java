@@ -126,7 +126,6 @@ public class Main_SessionTrace_TN313_Pcsc {
     IsoCardSelector cardSelector =
         readerApiFactory
             .createIsoCardSelector()
-            .filterByCardProtocol(ISO_CARD_PROTOCOL)
             .filterByDfName(cardAid);
 
     // Create a card selection using the Calypso card extension.
