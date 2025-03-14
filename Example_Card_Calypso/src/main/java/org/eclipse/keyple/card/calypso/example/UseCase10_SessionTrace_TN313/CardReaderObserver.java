@@ -59,6 +59,7 @@ class CardReaderObserver
   private static final byte SFI_EVENT_LOG = (byte) 0x08;
   private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
   private static final byte SFI_CONTRACTS = (byte) 0x09;
+  private static final int RECORD_SIZE = 29;
 
   /**
    * Constructor.
@@ -103,9 +104,9 @@ class CardReaderObserver
                   .createSecureRegularModeTransactionManager(
                       cardReader, calypsoCard, cardSecuritySetting)
                   .prepareOpenSecureSession(DEBIT)
-                  .prepareReadRecord(SFI_ENVIRONMENT_AND_HOLDER, 1)
-                  .prepareReadRecord(SFI_EVENT_LOG, 1)
-                  .prepareReadRecord(SFI_CONTRACT_LIST, 1)
+                  .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, RECORD_SIZE)
+                  .prepareReadRecords(SFI_EVENT_LOG, 1, 1, RECORD_SIZE)
+                  .prepareReadRecords(SFI_CONTRACT_LIST, 1, 1, RECORD_SIZE)
                   .processCommands(ChannelControl.KEEP_OPEN);
 
           /*
@@ -114,7 +115,7 @@ class CardReaderObserver
 
           // read the elected contract
           cardTransactionManager
-              .prepareReadRecord(SFI_CONTRACTS, 1)
+              .prepareReadRecords(SFI_CONTRACTS, 1, 1, RECORD_SIZE)
               .processCommands(ChannelControl.KEEP_OPEN);
 
           /*

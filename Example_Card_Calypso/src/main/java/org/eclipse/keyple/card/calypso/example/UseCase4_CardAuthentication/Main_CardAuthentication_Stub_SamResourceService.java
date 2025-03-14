@@ -69,16 +69,13 @@ public class Main_CardAuthentication_Stub_SamResourceService {
 
   static final String CARD_READER_NAME = "Stub card reader";
   static final String SAM_READER_NAME = "Stub SAM reader";
-  // The logical name of the protocol for communicating with the card (optional).
-  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
-  // The logical name of the protocol for communicating with the SAM (optional).
-  private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
   /** AID: Keyple test kit profile 1, Application 2 */
   private static final String AID = "315449432E49434131";
 
   // File identifiers
   private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+  private static final int RECORD_SIZE = 29;
 
   // The name of the SAM resource provided by the Card Resource Manager and used during the card
   // transaction.
@@ -129,7 +126,7 @@ public class Main_CardAuthentication_Stub_SamResourceService {
         .createSecureRegularModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting)
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
-        .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29)
+        .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, RECORD_SIZE)
         .prepareCloseSecureSession()
         .processCommands(ChannelControl.CLOSE_AFTER);
 

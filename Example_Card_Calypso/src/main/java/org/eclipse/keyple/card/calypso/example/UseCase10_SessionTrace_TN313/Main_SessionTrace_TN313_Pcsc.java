@@ -19,10 +19,7 @@ import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionServic
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keyple.plugin.pcsc.*;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.transaction.*;
 import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
@@ -73,12 +70,11 @@ public class Main_SessionTrace_TN313_Pcsc {
   // A regular expression for matching common SAM readers. Adapt as needed.
   private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
   // The logical name of the protocol for communicating with the card (optional).
-  // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
   // The logical name of the protocol for communicating with the SAM (optional).
   private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
-  private static String cardReaderRegex = ".*ASK LoGO.*|.*Contactless.*";
-  private static String samReaderRegex = ".*Identive.*|.*HID.*|.*SAM.*";
+  private static String cardReaderRegex = CARD_READER_NAME_REGEX;
+  private static String samReaderRegex = SAM_READER_NAME_REGEX;
 
   /** AID: Keyple test kit profile 1, Application 2 */
   private static final String AID = "315449432E49434131";
@@ -123,10 +119,7 @@ public class Main_SessionTrace_TN313_Pcsc {
     // Get the core card selection manager.
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
-    IsoCardSelector cardSelector =
-        readerApiFactory
-            .createIsoCardSelector()
-            .filterByDfName(cardAid);
+    IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(cardAid);
 
     // Create a card selection using the Calypso card extension.
     // Select the card and read the record 1 of the file ENVIRONMENT_AND_HOLDER

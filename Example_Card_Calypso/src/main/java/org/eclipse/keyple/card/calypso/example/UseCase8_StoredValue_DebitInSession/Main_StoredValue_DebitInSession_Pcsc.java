@@ -76,9 +76,6 @@ public class Main_StoredValue_DebitInSession_Pcsc {
   /** AID: Keyple test kit profile 1, Application 2 */
   private static final String AID = "315449432E49434131";
 
-  // File identifiers
-  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
-
   // The plugin used to manage the readers.
   private static Plugin plugin;
   // The reader used to communicate with the card.

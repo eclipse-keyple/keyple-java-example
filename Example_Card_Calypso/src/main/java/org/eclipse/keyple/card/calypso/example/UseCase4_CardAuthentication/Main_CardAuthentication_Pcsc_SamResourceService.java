@@ -85,6 +85,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
 
   // File identifiers
   private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+  private static final int RECORD_SIZE = 29;
 
   // The name of the SAM resource provided by the Card Resource Manager and used during the card
   // transaction.
@@ -160,7 +161,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
         .createSecureRegularModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting)
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
-        .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29)
+        .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, RECORD_SIZE)
         .prepareCloseSecureSession()
         .processCommands(ChannelControl.CLOSE_AFTER);
 

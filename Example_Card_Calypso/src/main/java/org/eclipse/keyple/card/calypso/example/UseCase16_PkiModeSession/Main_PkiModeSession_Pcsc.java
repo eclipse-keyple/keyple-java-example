@@ -12,8 +12,7 @@
 package org.eclipse.keyple.card.calypso.example.UseCase16_PkiModeSession;
 
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.card.calypso.crypto.pki.CaCertificateType;
-import org.eclipse.keyple.card.calypso.crypto.pki.CardCertificateType;
+import org.eclipse.keyple.card.calypso.crypto.pki.CertificateType;
 import org.eclipse.keyple.card.calypso.crypto.pki.PkiExtensionService;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
@@ -92,6 +91,7 @@ public class Main_PkiModeSession_Pcsc {
   private static final byte SFI_EVENT_LOG = (byte) 0x08;
   private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
   private static final byte SFI_CONTRACTS = (byte) 0x09;
+  private static final int RECORD_SIZE = 29;
 
   // The plugin used to manage the readers.
   private static Plugin plugin;
@@ -166,8 +166,8 @@ public class Main_PkiModeSession_Pcsc {
     cardTransaction
         // .prepareGetData(GetDataTag.CA_CERTIFICATE)
         .prepareOpenSecureSession()
-        .prepareReadRecord(SFI_CONTRACT_LIST, 1)
-        .prepareReadRecord(SFI_CONTRACTS, 1)
+        .prepareReadRecords(SFI_CONTRACT_LIST, 1, 1, RECORD_SIZE)
+        .prepareReadRecords(SFI_CONTRACTS, 1, 1, RECORD_SIZE)
         .prepareCloseSecureSession()
         .processCommands(channelControl);
   }
@@ -186,9 +186,9 @@ public class Main_PkiModeSession_Pcsc {
         // reading it from the card.
         // .addCaCertificate(pkiExtensionService.createCaCertificate(CA_CERTIFICATE))
         .addCaCertificateParser(
-            pkiExtensionService.createCaCertificateParser(CaCertificateType.CALYPSO))
+            pkiExtensionService.createCaCertificateParser(CertificateType.CALYPSO_LEGACY))
         .addCardCertificateParser(
-            pkiExtensionService.createCardCertificateParser(CardCertificateType.CALYPSO));
+            pkiExtensionService.createCardCertificateParser(CertificateType.CALYPSO_LEGACY));
   }
 
   /**

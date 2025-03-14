@@ -53,8 +53,6 @@ public class Main_ReadLegacySamCountersAndCeilings_Pcsc {
       LoggerFactory.getLogger(Main_ReadLegacySamCountersAndCeilings_Pcsc.class);
   // A regular expression for matching common SAM readers. Adapt as needed.
   private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
-  // The logical name of the protocol for communicating with the card (optional).
-  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
   // The logical name of the protocol for communicating with the SAM (optional).
   private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
