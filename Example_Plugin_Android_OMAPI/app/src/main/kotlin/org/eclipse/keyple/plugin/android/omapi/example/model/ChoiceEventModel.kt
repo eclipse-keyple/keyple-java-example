@@ -11,5 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.plugin.android.omapi.example.model
 
-data class ChoiceEventModel(val title: String, val choices: List<String> = arrayListOf(), val callback: (choice: String) -> Unit) :
-    EventModel(TYPE_MULTICHOICE, title)
+data class ChoiceEventModel(
+    val title: String,
+    val choices: List<String> = arrayListOf(),
+    val callback: (choice: String) -> Unit
+) : EventModel(TYPE_MULTICHOICE, title)

@@ -86,7 +86,6 @@ public class Main_MultipleSession_Pcsc {
   private static final String AID = "315449432E49434131";
 
   // File identifiers
-  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
   private static final String EVENT_LOG_DATA_FILL =
       "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCC";
 

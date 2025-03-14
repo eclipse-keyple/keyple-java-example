@@ -85,6 +85,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
 
   // File identifiers
   private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+  private static final int RECORD_SIZE = 29;
 
   // The name of the SAM resource provided by the Card Resource Manager and used during the card
   // transaction.
@@ -156,11 +157,13 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
 
     // Execute the transaction: the environment file is read within a secure session to ensure data
     // authenticity.
+    // Specifying expected response lengths in read commands serves as a protective measure for
+    // legacy cards.
     calypsoCardApiFactory
         .createSecureRegularModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting)
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
-        .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29)
+        .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, RECORD_SIZE)
         .prepareCloseSecureSession()
         .processCommands(ChannelControl.CLOSE_AFTER);
 
@@ -380,7 +383,7 @@ public class Main_CardAuthentication_Pcsc_SamResourceService {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
     IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(aid);
     CalypsoCardSelectionExtension calypsoCardSelectionExtension =
-        calypsoCardApiFactory.createCalypsoCardSelectionExtension().acceptInvalidatedCard();
+        calypsoCardApiFactory.createCalypsoCardSelectionExtension();
     cardSelectionManager.prepareSelection(cardSelector, calypsoCardSelectionExtension);
 
     CardSelectionResult selectionResult = cardSelectionManager.processCardSelectionScenario(reader);

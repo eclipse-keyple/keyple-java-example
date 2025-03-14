@@ -22,10 +22,7 @@ import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionServic
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
-import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
-import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keyple.plugin.pcsc.*;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
 import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
@@ -97,6 +94,7 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
   private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
   private static final byte SFI_CONTRACTS = (byte) 0x09;
   private static final byte SFI_COUNTERS = (byte) 0x19;
+  private static final int RECORD_SIZE = 29;
 
   public static void main(String[] args) throws IOException {
 
@@ -170,19 +168,21 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
 
           // TODO Place here the pre-analysis of the context and the contract list
 
-          // create a transaction manager, open a Secure Session, read Environment and Event Log.
+          // Create a transaction manager, open a Secure Session, read Environment and Event Log.
+          // Specifying expected response lengths in read commands serves as a protective measure
+          // for legacy cards.
           SecureRegularModeTransactionManager cardTransactionManager =
               calypsoCardApiFactory
                   .createSecureRegularModeTransactionManager(
                       cardReader, calypsoCard, symmetricCryptoSecuritySetting)
                   .prepareOpenSecureSession(LOAD)
-                  .prepareReadRecord(SFI_ENVIRONMENT_AND_HOLDER, 1)
-                  .prepareReadRecord(SFI_CONTRACT_LIST, 1)
+                  .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, RECORD_SIZE)
+                  .prepareReadRecords(SFI_CONTRACT_LIST, 1, 1, RECORD_SIZE)
                   .prepareReadRecords(
                       SFI_CONTRACTS,
                       1,
                       calypsoCard.getProductType() == CalypsoCard.ProductType.BASIC ? 1 : 2,
-                      29)
+                      RECORD_SIZE)
                   .prepareReadCounter(
                       SFI_COUNTERS,
                       calypsoCard.getProductType() == CalypsoCard.ProductType.BASIC ? 1 : 2)

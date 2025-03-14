@@ -1,55 +1,100 @@
-///////////////////////////////////////////////////////////////////////////////
-//  GRADLE CONFIGURATION
-///////////////////////////////////////////////////////////////////////////////
+/**
+ * The first section in the build configuration applies the Android Gradle plugin
+ * to this build and makes the android block available to specify
+ * Android-specific build options.
+ */
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    kotlin("android.extensions")
+    id("kotlin-parcelize")
     id("com.diffplug.spotless")
 }
+apply(plugin = "org.eclipse.keyple")
 
-///////////////////////////////////////////////////////////////////////////////
-//  APP CONFIGURATION
-///////////////////////////////////////////////////////////////////////////////
-val kotlinVersion: String by project
-val archivesBaseName: String by project
+/**
+ * The android block is where you configure all your Android-specific
+ * build options.
+ */
+
 android {
-    compileSdkVersion(29)
-    buildToolsVersion("30.0.2")
+
+    /**
+     * The app's namespace. Used primarily to access app resources.
+     */
+
+    namespace = "org.eclipse.keyple"
+
+    /**
+     * compileSdk specifies the Android API level Gradle should use to
+     * compile your app. This means your app can use the API features included in
+     * this API level and lower.
+     */
+
+    compileSdk = 34
+
+    /**
+     * The defaultConfig block encapsulates default settings and entries for all
+     * build variants and can override some attributes in main/AndroidManifest.xml
+     * dynamically from the build system. You can configure product flavors to override
+     * these values for different versions of your app.
+     */
 
     defaultConfig {
-        applicationId("org.eclipse.keyple.plugin.android.omapi.example")
-        minSdkVersion(19)
-        targetSdkVersion(29)
-        versionName(project.version.toString())
+        // Uniquely identifies the package for publishing.
+        applicationId = "org.eclipse.keyple.demo"
 
-        testInstrumentationRunner("android.support.test.runner.AndroidJUnitRunner")
-        multiDexEnabled = true
+        // Defines the minimum API level required to run the app.
+        minSdk = 24
+
+        // Specifies the API level used to test the app.
+        targetSdk = 31
+
+        // Defines the version number of your app.
+        versionCode = 1
+
+        // Defines a user-friendly version name for your app.
+        versionName = "1.0"
     }
 
+    /**
+     * The buildTypes block is where you can configure multiple build types.
+     * By default, the build system defines two build types: debug and release. The
+     * debug build type is not explicitly shown in the default build configuration,
+     * but it includes debugging tools and is signed with the debug key. The release
+     * build type applies ProGuard settings and is not signed by default.
+     */
+
     buildTypes {
+
+        /**
+         * By default, Android Studio configures the release build type to enable code
+         * shrinking, using minifyEnabled, and specifies the default ProGuard rules file.
+         */
+
         getByName("release") {
-            minifyEnabled(false)
+            isMinifyEnabled = true // Enables code shrinking for the release build type.
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
+                getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"
             )
         }
     }
 
-    val javaSourceLevel: String by project
-    val javaTargetLevel: String by project
-    compileOptions {
-        sourceCompatibility = JavaVersion.toVersion(javaSourceLevel)
-        targetCompatibility = JavaVersion.toVersion(javaTargetLevel)
-    }
-
+    /**
+     *  Packaging Options Configuration
+     */
     packagingOptions {
-        exclude("META-INF/NOTICE.md")
+        // Exclude 'META-INF/NOTICE.md' to resolve the conflict that occurs when multiple dependencies include this file
+        resources.excludes.add("META-INF/NOTICE.md")
     }
 
-    kotlinOptions {
-        jvmTarget = javaTargetLevel
+    /**
+     * Build Features Configuration
+     */
+    buildFeatures {
+        // Enable View Binding to allow more efficient and type-safe view interaction in the code
+        viewBinding = true
     }
 
     sourceSets {
@@ -57,6 +102,12 @@ android {
         getByName("test").java.srcDirs("src/test/kotlin")
     }
 }
+
+/**
+ * The dependencies block in the module-level build configuration file
+ * specifies dependencies required to build only the module itself.
+ * To learn more, go to Add build dependencies.
+ */
 
 dependencies {
 
@@ -70,45 +121,53 @@ dependencies {
         )
     )
 
-    //Keyple Common
-    implementation("org.eclipse.keypop:keypop-reader-java-api:2.0.0")
-    implementation("org.eclipse.keyple:keyple-common-java-api:2.0.0")
-    implementation("org.eclipse.keyple:keyple-service-java-lib:3.1.0")
-    implementation("org.eclipse.keyple:keyple-card-generic-java-lib:3.0.0")
-    implementation("org.eclipse.keyple:keyple-plugin-android-omapi-java-lib:2.0.1")
-    implementation("org.eclipse.keyple:keyple-util-java-lib:2.3.1")
-
+// Begin Keyple configuration (generated by 'https://keyple.org/components/overview/configuration-wizard/')
+    implementation("org.eclipse.keypop:keypop-reader-java-api:2.0.1")
+    implementation("org.eclipse.keypop:keypop-calypso-card-java-api:2.1.0")
+    implementation("org.eclipse.keyple:keyple-common-java-api:2.0.1")
+    implementation("org.eclipse.keyple:keyple-util-java-lib:2.4.0")
+    implementation("org.eclipse.keyple:keyple-service-java-lib:3.3.4")
+    implementation("org.eclipse.keyple:keyple-card-generic-java-lib:3.1.2")
+    implementation("org.eclipse.keyple:keyple-plugin-android-omapi-java-lib:2.1.0")
+// End Keyple configuration
     /*
     Android components
     */
-    implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("com.google.android.material:material:1.3.0")
-    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
-    implementation("androidx.activity:activity-ktx:1.2.1")
-    implementation("androidx.fragment:fragment-ktx:1.3.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.10.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.activity:activity-ktx:1.8.1")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
 
     /*
     Log
     */
     implementation("org.slf4j:slf4j-api:1.7.32")
-    implementation("com.jakewharton.timber:timber:4.7.1")
-    implementation("com.arcao:slf4j-timber:3.1@aar") //SLF4J binding for Timber
+    implementation("com.jakewharton.timber:timber:5.0.1")
 
     /*
     Kotlin
     */
-    implementation("androidx.core:core-ktx:1.3.2")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
 
     /*
     Coroutines
     */
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
-    testImplementation("junit:junit:4.12")
-    androidTestImplementation("com.android.support.test:runner:1.0.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
+    implementation("androidx.multidex:multidex:2.0.1")
+}
+
+
+tasks {
+    spotless {
+        kotlin {
+            target("**/*.kt")
+            ktfmt()
+            licenseHeaderFile("${project.rootDir}/LICENSE_HEADER")
+        }
+    }
 }

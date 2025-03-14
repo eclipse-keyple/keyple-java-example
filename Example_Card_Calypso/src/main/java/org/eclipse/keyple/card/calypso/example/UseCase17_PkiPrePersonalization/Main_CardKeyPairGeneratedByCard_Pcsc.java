@@ -31,7 +31,7 @@ import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySettin
 import org.eclipse.keypop.calypso.crypto.legacysam.GetDataTag;
 import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
-import org.eclipse.keypop.calypso.crypto.legacysam.transaction.CardCertificateComputationData;
+import org.eclipse.keypop.calypso.crypto.legacysam.transaction.LegacyCardCertificateComputationData;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -102,9 +102,9 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
     LocalDate endDate = startDate.plusYears(5).minusDays(1);
 
     // Create the data object for certificate computation
-    CardCertificateComputationData cardCertificateComputationData =
+    LegacyCardCertificateComputationData cardCertificateComputationData =
         legacySamApiFactory
-            .createCardCertificateComputationData()
+            .createLegacyCardCertificateComputationData()
             // Set the generated public key
             .setCardPublicKey(calypsoCard.getCardPublicKey())
             // Set the card AID (DF name)

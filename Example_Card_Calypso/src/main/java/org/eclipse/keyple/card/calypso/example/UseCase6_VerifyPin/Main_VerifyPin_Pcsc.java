@@ -81,9 +81,6 @@ public class Main_VerifyPin_Pcsc {
   /** AID: Keyple test kit profile 1, Application 2 */
   private static final String AID = "315449432E49434131";
 
-  // File identifiers
-  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
-
   private static final byte[] PIN_OK = {(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30};
   private static final byte[] PIN_KO = {(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x31};
   private static final byte PIN_VERIFICATION_CIPHERING_KEY_KIF = (byte) 0x30;

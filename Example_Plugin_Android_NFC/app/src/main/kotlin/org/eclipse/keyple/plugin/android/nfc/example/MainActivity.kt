@@ -23,9 +23,9 @@ import org.eclipse.keyple.card.calypso.CalypsoExtensionService
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
 import org.eclipse.keyple.core.util.HexUtil
 import org.eclipse.keyple.databinding.ActivityMainBinding
-import org.eclipse.keyple.plugin.android.nfc.AndroidNfcPlugin
+import org.eclipse.keyple.plugin.android.nfc.AndroidNfcConfig
+import org.eclipse.keyple.plugin.android.nfc.AndroidNfcConstants
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcPluginFactoryProvider
-import org.eclipse.keyple.plugin.android.nfc.AndroidNfcReader
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcSupportedProtocols
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory
 import org.eclipse.keypop.calypso.card.card.CalypsoCard
@@ -83,7 +83,7 @@ class MainActivity :
    */
   override fun onDestroy() {
     super.onDestroy()
-    SmartCardServiceProvider.getService().unregisterPlugin(AndroidNfcPlugin.PLUGIN_NAME)
+    SmartCardServiceProvider.getService().unregisterPlugin(AndroidNfcConstants.PLUGIN_NAME)
   }
 
   /** Initializes the views for the activity. */
@@ -124,8 +124,8 @@ class MainActivity :
   private fun configureContactlessReader() {
     val plugin =
         SmartCardServiceProvider.getService()
-            .registerPlugin(AndroidNfcPluginFactoryProvider(this).getFactory())
-    reader = plugin.getReader(AndroidNfcReader.READER_NAME) as ObservableCardReader
+            .registerPlugin(AndroidNfcPluginFactoryProvider.provideFactory(AndroidNfcConfig(this)))
+    reader = plugin.getReader(AndroidNfcConstants.READER_NAME) as ObservableCardReader
     reader.setReaderObservationExceptionHandler(this)
     reader.addObserver(this)
     (reader as ConfigurableCardReader).activateProtocol(

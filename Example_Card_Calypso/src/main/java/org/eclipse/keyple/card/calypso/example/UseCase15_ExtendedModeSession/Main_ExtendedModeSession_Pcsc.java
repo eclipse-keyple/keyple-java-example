@@ -72,6 +72,7 @@ public class Main_ExtendedModeSession_Pcsc {
   private static final byte SFI_CONTRACTS = (byte) 0x09;
   private static final String EVENT_LOG_DATA_FILL =
       "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCC";
+  private static final int RECORD_SIZE = 29;
 
   // The plugin used to manage the readers.
   private static Plugin plugin;
@@ -115,12 +116,15 @@ public class Main_ExtendedModeSession_Pcsc {
         calypsoCardApiFactory.createSecureExtendedModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting);
 
+    // Operates the transaction.
+    // Specifying expected response lengths in read commands serves as a protective measure for
+    // legacy cards.
     cardTransaction
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
         .prepareEarlyMutualAuthentication()
-        .prepareReadRecord(SFI_CONTRACT_LIST, 1)
+        .prepareReadRecords(SFI_CONTRACT_LIST, 1, 1, RECORD_SIZE)
         .prepareActivateEncryption()
-        .prepareReadRecord(SFI_CONTRACTS, 1)
+        .prepareReadRecords(SFI_CONTRACTS, 1, 1, RECORD_SIZE)
         .prepareDeactivateEncryption()
         .prepareAppendRecord(SFI_EVENT_LOG, HexUtil.toByteArray(EVENT_LOG_DATA_FILL))
         .prepareCloseSecureSession()
