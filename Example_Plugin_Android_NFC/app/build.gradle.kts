@@ -117,8 +117,8 @@ dependencies {
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.1")
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.4.0")
     implementation("org.eclipse.keyple:keyple-service-java-lib:3.3.4")
-    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:3.1.4")
-    implementation("org.eclipse.keyple:keyple-plugin-android-nfc-java-lib:3.0.0-SNAPSHOT") { isChanging = true }
+    implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:3.1.6")
+    implementation("org.eclipse.keyple:keyple-plugin-android-nfc-java-lib:3.0.0")
 // End Keyple configuration
 
     /*

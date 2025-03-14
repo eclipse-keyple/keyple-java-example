@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Changed
+- Replaced `prepareReadRecord` calls executed in session with `prepareReadRecords` in Calypso examples
+- Various refactoring to clarify code
+- Updated Android NFC plugin implementation to use new AndroidNfcConfig API
+- Modernized Android OMAPI example
+
+### Upgraded
+- `keypop-calypso-crypto-legacysam-java-api:0.7.0`
+- `keyple-service-java-lib:3.3.4`
+- `keyple-service-resource-java-lib:3.1.0`
+- `keyple-card-calypso-java-lib:3.1.6`
+- `keyple-card-calypso-crypto-legacysam-java-lib:0.9.0`
+- `keyple-card-calypso-crypto-pki-java-lib:0.2.1`
+- `keyple-plugin-pcsc-java-lib:2.4.2`
+- `keyple-distributed-network-java-lib:2.5.1`
+- `keyple-distributed-local-java-lib:2.5.2`
+- `keyple-distributed-remote-java-lib:2.5.1`
+- `keyple-card-generic-java-lib:3.1.2`
+- `keyple-plugin-android-nfc-java-lib:3.0.0`
+- `keyple-plugin-android-omapi-java-lib:2.1.0`
 
 ## [2024-04-15]
 ### Changed
