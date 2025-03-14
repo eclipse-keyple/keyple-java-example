@@ -159,7 +159,9 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             throw new IllegalStateException("Card selection failed!");
           }
 
-          // create a transaction manager, open a Secure Session, read Environment and Event Log.
+          // Create a transaction manager, open a Secure Session, read Environment and Event Log.
+          // Specifying expected response lengths in read commands serves as a protective measure
+          // for legacy cards.
           SecureRegularModeTransactionManager cardTransactionManager =
               calypsoCardApiFactory
                   .createSecureRegularModeTransactionManager(
@@ -176,7 +178,9 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
 
           // TODO Place here the analysis of the context and the last event log
 
-          // read the contract list
+          // Read the contract list
+          // Specifying expected response lengths in read commands serves as a protective measure
+          // for legacy cards.
           cardTransactionManager
               .prepareReadRecords(SFI_CONTRACT_LIST, 1, 1, RECORD_SIZE)
               .processCommands(ChannelControl.KEEP_OPEN);
@@ -186,7 +190,9 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
 
           // TODO Place here the analysis of the contract list
 
-          // read the elected contract
+          // Read the elected contract
+          // Specifying expected response lengths in read commands serves as a protective measure
+          // for legacy cards.
           cardTransactionManager
               .prepareReadRecords(SFI_CONTRACTS, 1, 1, RECORD_SIZE)
               .processCommands(ChannelControl.KEEP_OPEN);

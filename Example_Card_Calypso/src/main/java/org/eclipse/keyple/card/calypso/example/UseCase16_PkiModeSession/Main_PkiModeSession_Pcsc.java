@@ -163,6 +163,9 @@ public class Main_PkiModeSession_Pcsc {
 
   private static void processTransaction(
       SecurePkiModeTransactionManager cardTransaction, ChannelControl channelControl) {
+    // Operates the transaction.
+    // Specifying expected response lengths in read commands serves as a protective measure for
+    // legacy cards.
     cardTransaction
         // .prepareGetData(GetDataTag.CA_CERTIFICATE)
         .prepareOpenSecureSession()

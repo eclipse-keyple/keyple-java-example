@@ -116,6 +116,9 @@ public class Main_ExtendedModeSession_Pcsc {
         calypsoCardApiFactory.createSecureExtendedModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting);
 
+    // Operates the transaction.
+    // Specifying expected response lengths in read commands serves as a protective measure for
+    // legacy cards.
     cardTransaction
         .prepareOpenSecureSession(WriteAccessLevel.DEBIT)
         .prepareEarlyMutualAuthentication()

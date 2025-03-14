@@ -99,6 +99,8 @@ class CardReaderObserver
 
           // create a transaction manager, open a Secure Session, read Environment, Event Log and
           // Contract List.
+          // Specifying expected response lengths in read commands serves as a protective measure
+          // for legacy cards.
           SecureRegularModeTransactionManager cardTransactionManager =
               calypsoCardApiFactory
                   .createSecureRegularModeTransactionManager(
@@ -113,7 +115,9 @@ class CardReaderObserver
           Place for the analysis of the context and the list of contracts
           */
 
-          // read the elected contract
+          // Read the elected contract
+          // Specifying expected response lengths in read commands serves as a protective measure
+          // for legacy cards.
           cardTransactionManager
               .prepareReadRecords(SFI_CONTRACTS, 1, 1, RECORD_SIZE)
               .processCommands(ChannelControl.KEEP_OPEN);

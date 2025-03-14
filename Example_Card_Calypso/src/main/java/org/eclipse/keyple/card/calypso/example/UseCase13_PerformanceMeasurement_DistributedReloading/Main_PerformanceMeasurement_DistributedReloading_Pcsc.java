@@ -168,7 +168,9 @@ public class Main_PerformanceMeasurement_DistributedReloading_Pcsc {
 
           // TODO Place here the pre-analysis of the context and the contract list
 
-          // create a transaction manager, open a Secure Session, read Environment and Event Log.
+          // Create a transaction manager, open a Secure Session, read Environment and Event Log.
+          // Specifying expected response lengths in read commands serves as a protective measure
+          // for legacy cards.
           SecureRegularModeTransactionManager cardTransactionManager =
               calypsoCardApiFactory
                   .createSecureRegularModeTransactionManager(

@@ -126,6 +126,8 @@ public class Main_CardAuthentication_Pcsc {
 
     // Execute the transaction: the environment file is read within a secure session to ensure data
     // authenticity.
+    // Specifying expected response lengths in read commands serves as a protective measure for
+    // legacy cards.
     calypsoCardApiFactory
         .createSecureRegularModeTransactionManager(
             cardReader, calypsoCard, symmetricCryptoSecuritySetting)
