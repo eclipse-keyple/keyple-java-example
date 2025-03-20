@@ -11,7 +11,9 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
 
+import java.io.IOException;
 import java.text.ParseException;
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
@@ -57,13 +59,24 @@ public class Main_ExplicitSelectionAid_Pcsc {
   private static final Logger logger =
       LoggerFactory.getLogger(Main_ExplicitSelectionAid_Pcsc.class);
 
-  // A regular expression for matching common contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  private static final Properties properties = new Properties();
+
+  static {
+    try {
+      properties.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final String CARD_READER_NAME_REGEX = properties.getProperty("cardReader");
+
   // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
 
-  /** AID: Keyple test kit profile 1, Application 2 */
-  private static final String AID = "A000000291FF9101";
+  // Read the configuration to get the AID to use
+  private static final String AID = properties.getProperty("aid");
 
   // File identifiers
   private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
@@ -160,7 +173,7 @@ public class Main_ExplicitSelectionAid_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }

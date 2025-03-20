@@ -14,6 +14,7 @@ package org.eclipse.keyple.card.calypso.example.UseCase9_ChangePin;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
@@ -73,20 +74,27 @@ import org.slf4j.LoggerFactory;
 public class Main_ChangePin_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_ChangePin_Pcsc.class);
 
-  // A regular expression for matching common contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
-  // A regular expression for matching common SAM readers. Adapt as needed.
-  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  private static final Properties properties = new Properties();
+
+  static {
+    try {
+      properties.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final String CARD_READER_NAME_REGEX = properties.getProperty("cardReader");
+  private static final String SAM_READER_NAME_REGEX = properties.getProperty("samReader");
+
   // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
   // The logical name of the protocol for communicating with the SAM (optional).
   private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
-  /** AID: Keyple test kit profile 1, Application 2 */
-  private static final String AID = "315449432E49434131";
-
-  // File identifiers
-  private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
+  // Read the configuration to get the AID to use
+  private static final String AID = properties.getProperty("aid");
 
   private static final byte PIN_MODIFICATION_CIPHERING_KEY_KIF = (byte) 0x21;
   private static final byte PIN_MODIFICATION_CIPHERING_KEY_KVC = (byte) 0x79;
@@ -203,7 +211,7 @@ public class Main_ChangePin_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }

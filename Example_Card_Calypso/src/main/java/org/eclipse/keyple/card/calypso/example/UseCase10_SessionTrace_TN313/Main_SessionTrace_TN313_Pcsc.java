@@ -266,7 +266,7 @@ public class Main_SessionTrace_TN313_Pcsc {
             cardReaderRegex,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }

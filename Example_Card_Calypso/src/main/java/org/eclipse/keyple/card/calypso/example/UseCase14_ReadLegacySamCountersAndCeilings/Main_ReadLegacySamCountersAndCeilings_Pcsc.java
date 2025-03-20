@@ -13,6 +13,8 @@ package org.eclipse.keyple.card.calypso.example.UseCase14_ReadLegacySamCountersA
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.IOException;
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.core.service.Plugin;
@@ -51,8 +53,19 @@ import org.slf4j.LoggerFactory;
 public class Main_ReadLegacySamCountersAndCeilings_Pcsc {
   private static final Logger logger =
       LoggerFactory.getLogger(Main_ReadLegacySamCountersAndCeilings_Pcsc.class);
-  // A regular expression for matching common SAM readers. Adapt as needed.
-  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+
+  private static final Properties properties = new Properties();
+
+  static {
+    try {
+      properties.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final String SAM_READER_NAME_REGEX = properties.getProperty("samReader");
   // The logical name of the protocol for communicating with the SAM (optional).
   private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 

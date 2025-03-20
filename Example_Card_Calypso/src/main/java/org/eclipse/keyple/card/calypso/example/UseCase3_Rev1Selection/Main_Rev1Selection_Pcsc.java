@@ -11,6 +11,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase3_Rev1Selection;
 
+import java.io.IOException;
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
@@ -49,9 +51,18 @@ import org.slf4j.LoggerFactory;
 public class Main_Rev1Selection_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_Rev1Selection_Pcsc.class);
 
-  // A regular expression for matching common contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
-  // A regular expression for matching common SAM readers. Adapt as needed.
+  private static final Properties properties = new Properties();
+
+  static {
+    try {
+      properties.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final String CARD_READER_NAME_REGEX = properties.getProperty("cardReader");
   private static final String INNOVATRON_CARD_PROTOCOL = "INNOVATRON_B_PRIME_CARD";
 
   // File identifiers
@@ -164,7 +175,7 @@ public class Main_Rev1Selection_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.INNOVATRON_B_PRIME_CARD.name(),
             INNOVATRON_CARD_PROTOCOL);
   }
