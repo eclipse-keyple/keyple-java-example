@@ -164,7 +164,7 @@ public class Main_Rev1Selection_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.INNOVATRON_B_PRIME_CARD.name(),
             INNOVATRON_CARD_PROTOCOL);
   }

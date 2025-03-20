@@ -13,6 +13,7 @@ package org.eclipse.keyple.card.calypso.example.UseCase5_MultipleSession;
 
 import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
 
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
@@ -82,8 +83,8 @@ public class Main_MultipleSession_Pcsc {
   // File identifiers
   private static final byte SFI_EVENT_LOG = (byte) 0x08;
 
-  /** AID: Keyple test kit profile 1, Application 2 */
-  private static final String AID = "315449432E49434131";
+  // Read the configuration to get the AID to use
+  private static final String AID = getAidFromConfiguration();
 
   // File identifiers
   private static final String EVENT_LOG_DATA_FILL =
@@ -192,7 +193,7 @@ public class Main_MultipleSession_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
@@ -317,6 +318,23 @@ public class Main_MultipleSession_Pcsc {
 
     // Get the Calypso SAM SmartCard resulting of the selection.
     return (LegacySam) samSelectionResult.getActiveSmartCard();
+  }
+
+  /**
+   * Retrieves the "aid" property value from the configuration file.
+   *
+   * @return The value of the "aid" property if present; otherwise, null if the property is not
+   *     found or an exception occurs during the file loading process.
+   */
+  static String getAidFromConfiguration() {
+    try {
+      Properties props = new Properties();
+      props.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+      return props.getProperty("aid");
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**

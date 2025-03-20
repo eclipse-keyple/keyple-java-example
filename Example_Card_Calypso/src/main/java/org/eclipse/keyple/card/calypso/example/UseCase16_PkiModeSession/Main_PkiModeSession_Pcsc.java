@@ -11,6 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase16_PkiModeSession;
 
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.pki.CertificateType;
 import org.eclipse.keyple.card.calypso.crypto.pki.PkiExtensionService;
@@ -84,9 +85,8 @@ public class Main_PkiModeSession_Pcsc {
 
   // The logical name of the protocol for communicating with the SAM (optional).
 
-  // File structure
-  /** AID: Keyple test kit profile 1, Application 2 */
-  private static final String AID = "A000000291FF9101";
+  // Read the configuration to get the AID to use
+  private static final String AID = getAidFromConfiguration();
 
   private static final byte SFI_EVENT_LOG = (byte) 0x08;
   private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
@@ -221,7 +221,7 @@ public class Main_PkiModeSession_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
@@ -272,6 +272,23 @@ public class Main_PkiModeSession_Pcsc {
     ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
 
     return reader;
+  }
+
+  /**
+   * Retrieves the "aid" property value from the configuration file.
+   *
+   * @return The value of the "aid" property if present; otherwise, null if the property is not
+   *     found or an exception occurs during the file loading process.
+   */
+  static String getAidFromConfiguration() {
+    try {
+      Properties props = new Properties();
+      props.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+      return props.getProperty("aid");
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**

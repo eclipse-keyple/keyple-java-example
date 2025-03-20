@@ -13,6 +13,7 @@ package org.eclipse.keyple.card.calypso.example.UseCase8_StoredValue_DebitInSess
 
 import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
 
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
@@ -73,8 +74,8 @@ public class Main_StoredValue_DebitInSession_Pcsc {
   // The logical name of the protocol for communicating with the SAM (optional).
   private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
-  /** AID: Keyple test kit profile 1, Application 2 */
-  private static final String AID = "315449432E49434131";
+  // Read the configuration to get the AID to use
+  private static final String AID = getAidFromConfiguration();
 
   // The plugin used to manage the readers.
   private static Plugin plugin;
@@ -174,7 +175,7 @@ public class Main_StoredValue_DebitInSession_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
@@ -299,6 +300,23 @@ public class Main_StoredValue_DebitInSession_Pcsc {
 
     // Get the Calypso SAM SmartCard resulting of the selection.
     return (LegacySam) samSelectionResult.getActiveSmartCard();
+  }
+
+  /**
+   * Retrieves the "aid" property value from the configuration file.
+   *
+   * @return The value of the "aid" property if present; otherwise, null if the property is not
+   *     found or an exception occurs during the file loading process.
+   */
+  static String getAidFromConfiguration() {
+    try {
+      Properties props = new Properties();
+      props.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+      return props.getProperty("aid");
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**

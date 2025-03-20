@@ -12,6 +12,7 @@
 package org.eclipse.keyple.card.calypso.example.UseCase17_PkiPrePersonalization;
 
 import java.time.LocalDate;
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
@@ -54,7 +55,8 @@ import org.slf4j.LoggerFactory;
 public class Main_CardKeyPairGeneratedByCard_Pcsc {
   private static final Logger logger =
       LoggerFactory.getLogger(Main_CardKeyPairGeneratedByCard_Pcsc.class);
-  private static final String AID = "A000000291FF9101";
+  // Read the configuration to get the AID to use
+  private static final String AID = getAidFromConfiguration();
   // A regular expression for matching common contact and contactless card readers. Adapt as needed.
   private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
   private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
@@ -216,7 +218,7 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
@@ -315,6 +317,23 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
 
     // Get the Calypso SAM SmartCard resulting of the selection.
     return (LegacySam) samSelectionResult.getActiveSmartCard();
+  }
+
+  /**
+   * Retrieves the "aid" property value from the configuration file.
+   *
+   * @return The value of the "aid" property if present; otherwise, null if the property is not
+   *     found or an exception occurs during the file loading process.
+   */
+  static String getAidFromConfiguration() {
+    try {
+      Properties props = new Properties();
+      props.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+      return props.getProperty("aid");
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**

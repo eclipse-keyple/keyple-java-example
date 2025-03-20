@@ -12,6 +12,7 @@
 package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
 
 import java.text.ParseException;
+import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
@@ -62,8 +63,8 @@ public class Main_ExplicitSelectionAid_Pcsc {
   // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
 
-  /** AID: Keyple test kit profile 1, Application 2 */
-  private static final String AID = "A000000291FF9101";
+  // Read the configuration to get the AID to use
+  private static final String AID = getAidFromConfiguration();
 
   // File identifiers
   private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
@@ -160,7 +161,7 @@ public class Main_ExplicitSelectionAid_Pcsc {
             CARD_READER_NAME_REGEX,
             true,
             PcscReader.IsoProtocol.T1,
-            PcscReader.SharingMode.EXCLUSIVE,
+            PcscReader.SharingMode.SHARED,
             PcscSupportedContactlessProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
@@ -211,5 +212,22 @@ public class Main_ExplicitSelectionAid_Pcsc {
     ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
 
     return reader;
+  }
+
+  /**
+   * Retrieves the "aid" property value from the configuration file.
+   *
+   * @return The value of the "aid" property if present; otherwise, null if the property is not
+   *     found or an exception occurs during the file loading process.
+   */
+  static String getAidFromConfiguration() {
+    try {
+      Properties props = new Properties();
+      props.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+      return props.getProperty("aid");
+    } catch (Exception e) {
+      return null;
+    }
   }
 }
