@@ -11,6 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase16_PkiModeSession;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.pki.CertificateType;
@@ -50,9 +51,20 @@ import org.slf4j.LoggerFactory;
 public class Main_PkiModeSession_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_PkiModeSession_Pcsc.class);
 
-  private static byte[] PCA_PUBLIC_KEY_REFERENCE =
+  private static final Properties properties = new Properties();
+
+  static {
+    try {
+      properties.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final byte[] PCA_PUBLIC_KEY_REFERENCE =
       HexUtil.toByteArray("0BA000000291A0000101B0010000000000000000000000000000000002");
-  private static byte[] PCA_PUBLIC_KEY =
+  private static final byte[] PCA_PUBLIC_KEY =
       HexUtil.toByteArray(
           "C2494557ECE5979A497424833489CCCACF4DEE3FD7576A99C3999D8F468174E7"
               + "6F393D4E5C3802AC6C3CB192EB687F5505D24EBA01FFC60D5752CE6910D50B4A"
@@ -78,17 +90,16 @@ public class Main_PkiModeSession_Pcsc {
               + "6C8EFFF0C80BADAB4D2D2ABBD21241490805A27AF1B41A282D67D61885CBDD23"
               + "F87271ABD1989C954B3146AE38AE2581DEFE8D48840F9075B9430CDD8ECB1916");
 
-  // A regular expression for matching common contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  private static final String CARD_READER_NAME_REGEX = properties.getProperty("cardReader");
+
   // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
 
   // The logical name of the protocol for communicating with the SAM (optional).
 
   // Read the configuration to get the AID to use
-  private static final String AID = getAidFromConfiguration();
+  private static final String AID = properties.getProperty("aid");
 
-  private static final byte SFI_EVENT_LOG = (byte) 0x08;
   private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
   private static final byte SFI_CONTRACTS = (byte) 0x09;
   private static final int RECORD_SIZE = 29;
@@ -272,23 +283,6 @@ public class Main_PkiModeSession_Pcsc {
     ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
 
     return reader;
-  }
-
-  /**
-   * Retrieves the "aid" property value from the configuration file.
-   *
-   * @return The value of the "aid" property if present; otherwise, null if the property is not
-   *     found or an exception occurs during the file loading process.
-   */
-  static String getAidFromConfiguration() {
-    try {
-      Properties props = new Properties();
-      props.load(
-          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
-      return props.getProperty("aid");
-    } catch (Exception e) {
-      return null;
-    }
   }
 
   /**

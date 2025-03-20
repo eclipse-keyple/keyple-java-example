@@ -11,6 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase17_PkiPrePersonalization;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -55,11 +56,24 @@ import org.slf4j.LoggerFactory;
 public class Main_CardKeyPairGeneratedByCard_Pcsc {
   private static final Logger logger =
       LoggerFactory.getLogger(Main_CardKeyPairGeneratedByCard_Pcsc.class);
+
+  private static final Properties properties = new Properties();
+
+  static {
+    try {
+      properties.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   // Read the configuration to get the AID to use
-  private static final String AID = getAidFromConfiguration();
-  // A regular expression for matching common contact and contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
-  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  private static final String AID = properties.getProperty("aid");
+
+  private static final String CARD_READER_NAME_REGEX = properties.getProperty("cardReader");
+  private static final String SAM_READER_NAME_REGEX = properties.getProperty("samReader");
+
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
   private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
@@ -317,23 +331,6 @@ public class Main_CardKeyPairGeneratedByCard_Pcsc {
 
     // Get the Calypso SAM SmartCard resulting of the selection.
     return (LegacySam) samSelectionResult.getActiveSmartCard();
-  }
-
-  /**
-   * Retrieves the "aid" property value from the configuration file.
-   *
-   * @return The value of the "aid" property if present; otherwise, null if the property is not
-   *     found or an exception occurs during the file loading process.
-   */
-  static String getAidFromConfiguration() {
-    try {
-      Properties props = new Properties();
-      props.load(
-          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
-      return props.getProperty("aid");
-    } catch (Exception e) {
-      return null;
-    }
   }
 
   /**

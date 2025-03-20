@@ -55,8 +55,6 @@ public class Main_ExplicitSelectionAid_Stub {
       LoggerFactory.getLogger(Main_ExplicitSelectionAid_Stub.class);
 
   static final String CARD_READER_NAME = "Stub card reader";
-  // The logical name of the protocol for communicating with the card (optional).
-  private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
 
   /** AID: Keyple test kit profile 1, Application 2 */
   private static final String AID = "315449432E49434131";

@@ -11,6 +11,7 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase1_ExplicitSelectionAid;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -58,13 +59,24 @@ public class Main_ExplicitSelectionAid_Pcsc {
   private static final Logger logger =
       LoggerFactory.getLogger(Main_ExplicitSelectionAid_Pcsc.class);
 
-  // A regular expression for matching common contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  private static final Properties properties = new Properties();
+
+  static {
+    try {
+      properties.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final String CARD_READER_NAME_REGEX = properties.getProperty("cardReader");
+
   // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
 
   // Read the configuration to get the AID to use
-  private static final String AID = getAidFromConfiguration();
+  private static final String AID = properties.getProperty("aid");
 
   // File identifiers
   private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
@@ -212,22 +224,5 @@ public class Main_ExplicitSelectionAid_Pcsc {
     ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
 
     return reader;
-  }
-
-  /**
-   * Retrieves the "aid" property value from the configuration file.
-   *
-   * @return The value of the "aid" property if present; otherwise, null if the property is not
-   *     found or an exception occurs during the file loading process.
-   */
-  static String getAidFromConfiguration() {
-    try {
-      Properties props = new Properties();
-      props.load(
-          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
-      return props.getProperty("aid");
-    } catch (Exception e) {
-      return null;
-    }
   }
 }

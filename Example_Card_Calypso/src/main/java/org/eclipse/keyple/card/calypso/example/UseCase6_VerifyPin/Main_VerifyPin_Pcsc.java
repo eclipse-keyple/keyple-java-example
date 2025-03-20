@@ -13,6 +13,7 @@ package org.eclipse.keyple.card.calypso.example.UseCase6_VerifyPin;
 
 import static org.eclipse.keypop.calypso.card.WriteAccessLevel.DEBIT;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamExtensionService;
@@ -67,17 +68,27 @@ import org.slf4j.LoggerFactory;
 public class Main_VerifyPin_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_VerifyPin_Pcsc.class);
 
-  // A regular expression for matching common contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
-  // A regular expression for matching common SAM readers. Adapt as needed.
-  private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
+  private static final Properties properties = new Properties();
+
+  static {
+    try {
+      properties.load(
+          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static final String CARD_READER_NAME_REGEX = properties.getProperty("cardReader");
+  private static final String SAM_READER_NAME_REGEX = properties.getProperty("samReader");
+
   // The logical name of the protocol for communicating with the card (optional).
   private static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
   // The logical name of the protocol for communicating with the SAM (optional).
   private static final String SAM_PROTOCOL = "ISO_7816_3_T0";
 
   // Read the configuration to get the AID to use
-  private static final String AID = getAidFromConfiguration();
+  private static final String AID = properties.getProperty("aid");
 
   private static final byte[] PIN_OK = {(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x30};
   private static final byte[] PIN_KO = {(byte) 0x30, (byte) 0x30, (byte) 0x30, (byte) 0x31};
@@ -337,23 +348,6 @@ public class Main_VerifyPin_Pcsc {
 
     // Get the Calypso SAM SmartCard resulting of the selection.
     return (LegacySam) samSelectionResult.getActiveSmartCard();
-  }
-
-  /**
-   * Retrieves the "aid" property value from the configuration file.
-   *
-   * @return The value of the "aid" property if present; otherwise, null if the property is not
-   *     found or an exception occurs during the file loading process.
-   */
-  static String getAidFromConfiguration() {
-    try {
-      Properties props = new Properties();
-      props.load(
-          Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
-      return props.getProperty("aid");
-    } catch (Exception e) {
-      return null;
-    }
   }
 
   /**
