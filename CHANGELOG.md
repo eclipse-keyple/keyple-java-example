@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [2025-03-21]
 ### Changed
 - Replaced `prepareReadRecord` calls executed in session with `prepareReadRecords` in Calypso examples
 - Various refactoring to clarify code
@@ -217,7 +219,8 @@ to use the exact and latest version of each dependency. This ensures consistency
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
 
-[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2024-04-15...HEAD
+[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-03-21...HEAD
+[2025-03-21]: https://github.com/eclipse-keyple/keyple-java-example/compare/2024-04-15...2025-03-21
 [2024-04-15]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-11-30...2024-04-15
 [2023-11-30]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-04-27...2023-11-30
 [2023-04-27]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-04-05...2023-04-27
