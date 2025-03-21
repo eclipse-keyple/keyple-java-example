@@ -29,7 +29,7 @@ dependencies {
     implementation("org.eclipse.keypop:keypop-reader-java-api:2.0.1")
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.1")
     implementation("org.eclipse.keyple:keyple-util-java-lib:2.4.0")
-    implementation("org.eclipse.keyple:keyple-service-java-lib:3.3.4")
+    implementation("org.eclipse.keyple:keyple-service-java-lib:3.3.5")
     implementation("org.eclipse.keyple:keyple-service-resource-java-lib:3.1.0")
     implementation("org.eclipse.keyple:keyple-card-generic-java-lib:3.1.2")
     implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.4.2")

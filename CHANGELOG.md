@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Upgraded
 - `keypop-calypso-crypto-legacysam-java-api:0.7.0`
-- `keyple-service-java-lib:3.3.4`
+- `keyple-service-java-lib:3.3.5`
 - `keyple-service-resource-java-lib:3.1.0`
 - `keyple-card-calypso-java-lib:3.1.6`
 - `keyple-card-calypso-crypto-legacysam-java-lib:0.9.0`
