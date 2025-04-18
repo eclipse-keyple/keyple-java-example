@@ -5,9 +5,10 @@
  * regarding copyright ownership.
  *
  * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0
+ * Eclipse Distribution License 1.0 which is available at
+ * https://www.eclipse.org/org/documents/edl-v10.php
  *
- * SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: BSD-3-Clause
  ************************************************************************************** */
 package org.eclipse.keyple.distributed.example.poolreaderserverside.webservice.server;
 

@@ -5,13 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2025-04-18]
+### Changed
+- Switched license from `EPL 2.0` to `EDL 1.0` (issue [#32]).
+  The license switch has been authorized through a restructuring review supervised by the « Eclipse Management
+  Organization » team https://gitlab.eclipse.org/eclipsefdn/emo-team/emo/-/issues/908#note_3394156.
+### Upgraded
+- `keyple-common-java-api:2.0.2`
+- `keyple-card-calypso-java-lib:3.1.8`
+
 ## [2025-03-21]
 ### Changed
 - Replaced `prepareReadRecord` calls executed in session with `prepareReadRecords` in Calypso examples
 - Various refactoring to clarify code
 - Updated Android NFC plugin implementation to use new AndroidNfcConfig API
 - Modernized Android OMAPI example
-
 ### Upgraded
 - `keypop-calypso-crypto-legacysam-java-api:0.7.0`
 - `keyple-service-java-lib:3.3.5`
@@ -241,6 +249,7 @@ to use the exact and latest version of each dependency. This ensures consistency
 [2021-11-22]: https://github.com/eclipse-keyple/keyple-java-example/compare/2021-10-06...2021-11-22
 [2021-10-06]: https://github.com/eclipse-keyple/keyple-java-example/releases/tag/2021-10-06
 
+[#32]: https://github.com/eclipse-keyple/keyple-java-example/issues/32
 [#15]: https://github.com/eclipse-keyple/keyple-java-example/issues/15
 [#9]: https://github.com/eclipse-keyple/keyple-java-example/issues/9
 [#7]: https://github.com/eclipse-keyple/keyple-java-example/issues/7
