@@ -101,10 +101,10 @@ public class Main_TransmitControl_Pcsc {
     }
 
     // Get the generic card extension service
-    GenericExtensionService genericExtensionService = GenericExtensionService.getInstance();
+    GenericExtensionService cardExtension = GenericExtensionService.getInstance();
 
     // check the extension
-    smartCardService.checkCardExtension(genericExtensionService);
+    smartCardService.checkCardExtension(cardExtension);
 
     ReaderApiFactory readerApiFactory = smartCardService.getReaderApiFactory();
     // Get the core card selection manager.
@@ -115,7 +115,8 @@ public class Main_TransmitControl_Pcsc {
     IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector().filterByDfName(AID);
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
-    cardSelectionManager.prepareSelection(cardSelector, null);
+    cardSelectionManager.prepareSelection(
+        cardSelector, cardExtension.createGenericCardSelectionExtension());
 
     // Schedule the selection scenario, always notify card presence.
     cardSelectionManager.scheduleCardSelectionScenario(
