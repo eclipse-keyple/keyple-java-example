@@ -22,7 +22,7 @@ dependencies {
   implementation("org.eclipse.keyple:keyple-service-java-lib:3.3.5")
   implementation("org.eclipse.keyple:keyple-service-resource-java-lib:3.1.0")
   implementation("org.eclipse.keyple:keyple-card-generic-java-lib:3.1.2")
-  implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.4.2")
+  implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.5.2")
   // End Keyple configuration
   implementation("org.slf4j:slf4j-simple:1.7.32")
 }

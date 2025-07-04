@@ -27,7 +27,7 @@ dependencies {
   implementation("org.eclipse.keyple:keyple-distributed-local-java-lib:2.5.2")
   implementation("org.eclipse.keyple:keyple-distributed-remote-java-lib:2.5.1")
   implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:3.1.8")
-  implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.4.2")
+  implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.5.2")
   implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.2.1")
   // End Keyple configuration
   /* Quarkus */
