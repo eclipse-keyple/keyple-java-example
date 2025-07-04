@@ -1,0 +1,53 @@
+name: Build and Test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test-example-card-calypso:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Card_Calypso
+
+  build-and-test-example-distributed-poolreaderserverside-webservice:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Distributed_PoolReaderServerSide_Webservice
+
+  build-and-test-example-distributed-readerclientside-webservice:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Distributed_ReaderClientSide_Webservice
+
+  build-and-test-example-distributed-readerclientside-websocket:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Distributed_ReaderClientSide_Websocket
+
+  build-and-test-example-plugin-android-nfc:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Plugin_Android_NFC
+
+  build-and-test-example-plugin-android-omapi:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Plugin_Android_OMAPI
+
+  build-and-test-example-plugin-pcsc:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Plugin_PCSC
+
+  build-and-test-example-service:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Service
+
+  build-and-test-example-service-resource:
+    uses: eclipse-keyple/keyple-actions/.github/workflows/reusable-build-and-test.yml@build-and-test-v1
+    with:
+      working-directory: Example_Service_Resource

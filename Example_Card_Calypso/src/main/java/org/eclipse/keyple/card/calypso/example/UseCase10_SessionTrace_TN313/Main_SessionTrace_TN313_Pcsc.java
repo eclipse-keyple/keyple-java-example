@@ -67,7 +67,7 @@ public class Main_SessionTrace_TN313_Pcsc {
   private static final Logger logger = LoggerFactory.getLogger(Main_SessionTrace_TN313_Pcsc.class);
 
   // A regular expression for matching common contactless card readers. Adapt as needed.
-  private static final String CARD_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
+  private static final String CARD_READER_NAME_REGEX = ".*Contactless.*";
   // A regular expression for matching common SAM readers. Adapt as needed.
   private static final String SAM_READER_NAME_REGEX = ".*Identive.*|.*HID.*|.*SAM.*";
   // The logical name of the protocol for communicating with the card (optional).

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Fixed
 - Fixed bad preparation of the selection in PC/SC examples.
+### Changed
+- Migrated the CI pipeline from Jenkins to GitHub Actions.
 
 ## [2025-04-18]
 ### Changed
