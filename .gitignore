@@ -10,7 +10,6 @@ local.properties
 # Gradle
 .gradle/
 build*/
-LICENSE_HEADER
 
 # Eclipse
 .classpath

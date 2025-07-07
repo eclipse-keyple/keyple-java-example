@@ -1,5 +1,17 @@
 rootProject.name = "Example_Service"
 
-// Fix resolution of dependencies with dynamic version in order to use SNAPSHOT first when available.
-// See explanation here : https://docs.gradle.org/6.8.3/userguide/single_versions.html
-enableFeaturePreview("VERSION_ORDERING_V2")
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    mavenCentral()
+  }
+}
+
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven(url = "https://central.sonatype.com/repository/maven-snapshots")
+  }
+}

@@ -16,14 +16,14 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.view.GravityCompat
-import org.eclipse.keyple.R
 import org.eclipse.keyple.card.generic.GenericExtensionService
 import org.eclipse.keyple.core.service.SmartCardServiceProvider
 import org.eclipse.keyple.core.util.HexUtil
-import org.eclipse.keyple.databinding.ActivityCoreExamplesBinding
 import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiPlugin
 import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiPluginFactoryProvider
 import org.eclipse.keyple.plugin.android.omapi.AndroidOmapiReader
+import org.eclipse.keyple.plugin.android.omapi.example.R
+import org.eclipse.keyple.plugin.android.omapi.example.databinding.ActivityCoreExamplesBinding
 import org.eclipse.keyple.plugin.android.omapi.example.util.CalypsoClassicInfo
 import org.eclipse.keypop.reader.CardCommunicationException
 import org.eclipse.keypop.reader.CardReader

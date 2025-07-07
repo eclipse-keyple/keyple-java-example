@@ -17,11 +17,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.recyclerview.widget.RecyclerView
-import org.eclipse.keyple.R
-import org.eclipse.keyple.databinding.CardActionEventBinding
-import org.eclipse.keyple.databinding.CardChoiceEventBinding
-import org.eclipse.keyple.databinding.CardHeaderEventBinding
-import org.eclipse.keyple.databinding.CardResultEventBinding
+import org.eclipse.keyple.plugin.android.omapi.example.R
+import org.eclipse.keyple.plugin.android.omapi.example.databinding.CardActionEventBinding
+import org.eclipse.keyple.plugin.android.omapi.example.databinding.CardChoiceEventBinding
+import org.eclipse.keyple.plugin.android.omapi.example.databinding.CardHeaderEventBinding
+import org.eclipse.keyple.plugin.android.omapi.example.databinding.CardResultEventBinding
 import org.eclipse.keyple.plugin.android.omapi.example.model.ChoiceEventModel
 import org.eclipse.keyple.plugin.android.omapi.example.model.EventModel
 import org.eclipse.keyple.plugin.android.omapi.example.util.getColorResource
