@@ -265,11 +265,10 @@ afterEvaluate {
       }
     }
   }
-}
-
-signing {
-  if (project.hasProperty("releaseTag")) {
-    useGpgCmd()
-    sign(publishing.publications["mavenJava"])
+  signing {
+    if (project.hasProperty("releaseTag")) {
+      useGpgCmd()
+      sign(publishing.publications["mavenJava"])
+    }
   }
 }
