@@ -74,6 +74,7 @@ android {
   defaultConfig {
     applicationId = project.findProperty("androidAppId") as String
     minSdk = (project.findProperty("androidMinSdk") as String).toInt()
+    targetSdk = (project.findProperty("androidCompileSdk") as String).toInt()
     versionCode = (project.findProperty("androidAppVersionCode") as String).toInt()
     versionName = project.findProperty("androidAppVersionName") as String
   }
