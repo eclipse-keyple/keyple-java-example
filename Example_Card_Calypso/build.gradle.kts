@@ -28,7 +28,7 @@ dependencies {
   implementation("org.eclipse.keyple:keyple-service-resource-java-lib:3.1.0")
   implementation("org.eclipse.keyple:keyple-card-calypso-java-lib:3.1.8")
   implementation("org.eclipse.keyple:keyple-card-calypso-crypto-legacysam-java-lib:0.9.0")
-  implementation("org.eclipse.keyple:keyple-card-calypso-crypto-pki-java-lib:0.2.1")
+  implementation("org.eclipse.keyple:keyple-card-calypso-crypto-pki-java-lib:0.2.2")
   implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib:2.5.2")
   implementation("org.eclipse.keyple:keyple-plugin-stub-java-lib:2.2.1")
   // End Keyple configuration

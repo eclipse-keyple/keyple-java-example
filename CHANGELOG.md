@@ -4,12 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [2025-07-21]
 ### Fixed
 - Fixed bad preparation of the selection in PC/SC examples.
 ### Changed
 - Migrated the CI pipeline from Jenkins to GitHub Actions.
 ### Upgraded
 - `keyple-plugin-pcsc-java-lib:2.5.2`
+- `keyple-card-calypso-crypto-pki-java-lib:0.2.2`
 
 ## [2025-04-18]
 ### Changed
@@ -233,7 +236,9 @@ to use the exact and latest version of each dependency. This ensures consistency
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
 
-[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-03-21...HEAD
+[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-07-21...HEAD
+[2025-07-21]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-04-18...2025-07-21
+[2025-04-18]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-03-21...2025-04-18
 [2025-03-21]: https://github.com/eclipse-keyple/keyple-java-example/compare/2024-04-15...2025-03-21
 [2024-04-15]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-11-30...2024-04-15
 [2023-11-30]: https://github.com/eclipse-keyple/keyple-java-example/compare/2023-04-27...2023-11-30
