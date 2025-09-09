@@ -85,7 +85,7 @@ class CardReaderObserver
         break;
 
       case CARD_REMOVED:
-        logger.trace("There is no card inserted anymore. Return to the waiting state...");
+        logger.info("There is no card inserted anymore. Return to the waiting state...");
         break;
       default:
         break;

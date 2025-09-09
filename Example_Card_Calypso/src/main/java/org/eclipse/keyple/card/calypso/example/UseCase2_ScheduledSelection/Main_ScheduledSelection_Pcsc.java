@@ -12,6 +12,8 @@
  ************************************************************************************** */
 package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 
+import static org.eclipse.keyple.plugin.pcsc.PcscReader.DisconnectionMode.UNPOWER;
+
 import java.io.IOException;
 import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
@@ -228,6 +230,7 @@ public class Main_ScheduledSelection_Pcsc {
         .getReaderExtension(PcscReader.class, reader.getName())
         .setContactless(isContactless)
         .setIsoProtocol(isoProtocol)
+        .setDisconnectionMode(UNPOWER)
         .setSharingMode(sharingMode);
 
     ((ConfigurableCardReader) reader).activateProtocol(physicalProtocolName, logicalProtocolName);
