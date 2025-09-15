@@ -13,9 +13,9 @@
 package org.eclipse.keyple.example.card.calypso.UseCase1_ExplicitSelectionAid;
 
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
-import org.eclipse.keyple.example.card.calypso.common.StubSmartCardFactory;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keyple.example.card.calypso.common.StubSmartCardFactory;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;

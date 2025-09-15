@@ -17,14 +17,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.recyclerview.widget.RecyclerView
+import org.eclipse.keyple.example.plugin.android.omapi.model.ChoiceEventModel
+import org.eclipse.keyple.example.plugin.android.omapi.model.EventModel
+import org.eclipse.keyple.example.plugin.android.omapi.util.getColorResource
 import org.eclipse.keyple.plugin.android.omapi.example.R
 import org.eclipse.keyple.plugin.android.omapi.example.databinding.CardActionEventBinding
 import org.eclipse.keyple.plugin.android.omapi.example.databinding.CardChoiceEventBinding
 import org.eclipse.keyple.plugin.android.omapi.example.databinding.CardHeaderEventBinding
 import org.eclipse.keyple.plugin.android.omapi.example.databinding.CardResultEventBinding
-import org.eclipse.keyple.example.plugin.android.omapi.model.ChoiceEventModel
-import org.eclipse.keyple.example.plugin.android.omapi.model.EventModel
-import org.eclipse.keyple.example.plugin.android.omapi.util.getColorResource
 
 class EventAdapter(private val events: ArrayList<EventModel>) :
     RecyclerView.Adapter<EventAdapter.ViewHolder>() {
