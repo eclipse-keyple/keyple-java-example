@@ -14,7 +14,7 @@ package org.eclipse.keyple.example.core.service.UseCase4_ScheduledSelection;
 
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
+import org.eclipse.keyple.example.core.service.common.ConfigurationUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;

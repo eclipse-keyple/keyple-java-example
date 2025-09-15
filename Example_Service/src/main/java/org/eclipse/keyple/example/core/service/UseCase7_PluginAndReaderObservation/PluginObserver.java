@@ -15,9 +15,9 @@ package org.eclipse.keyple.example.core.service.UseCase7_PluginAndReaderObservat
 import java.util.Set;
 import org.eclipse.keyple.core.common.KeypleReaderExtension;
 import org.eclipse.keyple.core.service.*;
-import org.eclipse.keyple.core.service.example.common.ConfigurationUtil;
 import org.eclipse.keyple.core.service.spi.PluginObservationExceptionHandlerSpi;
 import org.eclipse.keyple.core.service.spi.PluginObserverSpi;
+import org.eclipse.keyple.example.core.service.common.ConfigurationUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
 import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keypop.reader.CardReader;
