@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="org.eclipse.keyple.plugin.android.nfc.example.MainActivity"
+    tools:context="org.eclipse.keyple.example.plugin.android.nfc.MainActivity"
     tools:openDrawer="start">
 
     <androidx.constraintlayout.widget.ConstraintLayout

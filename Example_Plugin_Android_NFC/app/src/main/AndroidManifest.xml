@@ -9,7 +9,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="org.eclipse.keyple.plugin.android.nfc.example.MainActivity"
+            android:name="org.eclipse.keyple.example.plugin.android.nfc.MainActivity"
             android:clearTaskOnLaunch="true"
             android:label="Keyple plugin NFC Demo"
             android:screenOrientation="portrait"
