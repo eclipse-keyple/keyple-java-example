@@ -10,9 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed bad preparation of the selection in PC/SC examples.
 ### Changed
 - Migrated the CI pipeline from Jenkins to GitHub Actions.
-### Upgraded
-- `keyple-plugin-pcsc-java-lib:2.5.2`
-- `keyple-card-calypso-crypto-pki-java-lib:0.2.2`
+- Switched to [Keyple Java BOM](https://github.com/eclipse-keyple/keyple-java-bom) `2025.09.12` for dependency
+  management, replacing individual Keyple component definitions.
 
 ## [2025-04-18]
 ### Changed
