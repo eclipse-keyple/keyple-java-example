@@ -63,6 +63,7 @@ tasks {
           "Bundle-Name" to project.name,
           "Bundle-Description" to project.description)
     }
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
     from(
         configurations.runtimeClasspath
             .get()
@@ -92,6 +93,7 @@ tasks {
           "Bundle-Name" to project.name,
           "Bundle-Description" to project.description)
     }
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
     from(
         configurations.runtimeClasspath
             .get()
@@ -121,6 +123,7 @@ tasks {
           "Bundle-Name" to project.name,
           "Bundle-Description" to project.description)
     }
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
     from(
         configurations.runtimeClasspath
             .get()
