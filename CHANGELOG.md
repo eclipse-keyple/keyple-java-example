@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [2025-10-29]
 ### Changed
 - Switched to [Keyple Java BOM](https://github.com/eclipse-keyple/keyple-java-bom) `2025.10.24` for dependency
   management, replacing individual Keyple component definitions.
@@ -241,7 +243,8 @@ to use the exact and latest version of each dependency. This ensures consistency
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
 
-[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-07-21...HEAD
+[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-10-29...HEAD
+[2025-10-29]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-07-21...2025-10-29
 [2025-07-21]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-04-18...2025-07-21
 [2025-04-18]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-03-21...2025-04-18
 [2025-03-21]: https://github.com/eclipse-keyple/keyple-java-example/compare/2024-04-15...2025-03-21
