@@ -5,7 +5,7 @@
     <uses-permission android:name="org.simalliance.openmobileapi.SMARTCARD" />
 
     <application
-        android:name="org.eclipse.keyple.plugin.android.omapi.example.ExampleApplication"
+        android:name="org.eclipse.keyple.example.plugin.android.omapi.ExampleApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -18,7 +18,7 @@
             android:name="org.simalliance.openmobileapi"
             android:required="false" />
 
-        <activity android:name=".plugin.android.omapi.example.activity.CoreExamplesActivity"
+        <activity android:name=".example.plugin.android.omapi.activity.CoreExamplesActivity"
             android:exported="true"
             android:screenOrientation="portrait" >
             <intent-filter>

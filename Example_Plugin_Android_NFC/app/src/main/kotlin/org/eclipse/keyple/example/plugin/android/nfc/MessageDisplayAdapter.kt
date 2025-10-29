@@ -15,9 +15,9 @@ package org.eclipse.keyple.example.plugin.android.nfc
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import org.eclipse.keyple.plugin.android.nfc.example.databinding.ActionCardLayoutBinding
-import org.eclipse.keyple.plugin.android.nfc.example.databinding.HeaderCardLayoutBinding
-import org.eclipse.keyple.plugin.android.nfc.example.databinding.ResultCardLayoutBinding
+import org.eclipse.keyple.example.plugin.android.nfc.databinding.ActionCardLayoutBinding
+import org.eclipse.keyple.example.plugin.android.nfc.databinding.HeaderCardLayoutBinding
+import org.eclipse.keyple.example.plugin.android.nfc.databinding.ResultCardLayoutBinding
 
 /**
  * Adapter class for displaying messages in a RecyclerView.

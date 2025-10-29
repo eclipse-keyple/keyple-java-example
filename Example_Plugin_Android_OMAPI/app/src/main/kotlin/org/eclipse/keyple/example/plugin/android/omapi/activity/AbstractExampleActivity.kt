@@ -23,11 +23,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import java.io.IOException
+import org.eclipse.keyple.example.plugin.android.omapi.R
 import org.eclipse.keyple.example.plugin.android.omapi.adapter.EventAdapter
+import org.eclipse.keyple.example.plugin.android.omapi.databinding.ActivityCoreExamplesBinding
 import org.eclipse.keyple.example.plugin.android.omapi.model.ChoiceEventModel
 import org.eclipse.keyple.example.plugin.android.omapi.model.EventModel
-import org.eclipse.keyple.plugin.android.omapi.example.R
-import org.eclipse.keyple.plugin.android.omapi.example.databinding.ActivityCoreExamplesBinding
 import org.eclipse.keypop.reader.CardReaderEvent
 import timber.log.Timber
 
