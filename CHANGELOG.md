@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Changed
+- Switched to [Keyple Java BOM](https://github.com/eclipse-keyple/keyple-java-bom) `2025.10.24` for dependency
+  management, replacing individual Keyple component definitions.
+- Add additional comments regarding the ratification mechanism.
+- Restructured package names for better alignment with project conventions and clarity.
 
 ## [2025-07-21]
 ### Fixed

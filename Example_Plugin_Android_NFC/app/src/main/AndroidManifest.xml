@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:name="org.eclipse.keyple.plugin.android.nfc.example.ExampleApplication"
+        android:name="org.eclipse.keyple.example.plugin.android.nfc.ExampleApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -9,7 +9,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="org.eclipse.keyple.plugin.android.nfc.example.MainActivity"
+            android:name="org.eclipse.keyple.example.plugin.android.nfc.MainActivity"
             android:clearTaskOnLaunch="true"
             android:label="Keyple plugin NFC Demo"
             android:screenOrientation="portrait"
