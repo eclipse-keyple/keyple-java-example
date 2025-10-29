@@ -41,6 +41,36 @@ val buildDate = DateTimeFormatter.ISO_LOCAL_DATE.format(buildTimeAndDate)
 val buildTime = DateTimeFormatter.ofPattern("HH:mm:ss.SSSZ").format(buildTimeAndDate)
 
 tasks {
+  register("fatJarKeypleTestParagon", Jar::class.java) {
+    archiveClassifier.set("KeypleTestParagon-fat")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+      attributes(
+          "Main-Class" to
+              "org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection.Main_ScheduledSelection_Pcsc",
+          "Created-By" to
+              "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${
+                            System.getProperty(
+                                "java.vm.version"
+                            )
+                        })",
+          "Build-Date" to buildDate,
+          "Build-Time" to buildTime,
+          "Specification-Title" to project.name,
+          "Implementation-Version" to project.version,
+          "Bundle-Name" to project.name,
+          "Bundle-Description" to project.description)
+    }
+    exclude("META-INF/*.SF", "META-INF/*.RSA", "META-INF/*.DSA")
+    from(
+        configurations.runtimeClasspath
+            .get()
+            .onEach { println("add from dependencies: ${it.name}") }
+            .map { if (it.isDirectory) it else zipTree(it) })
+    val sourcesMain = sourceSets.main.get()
+    sourcesMain.allSource.forEach { println("add from sources: ${it.name}") }
+    from(sourcesMain.output)
+  }
   register("fatJarTN313", Jar::class.java) {
     archiveClassifier.set("TN313-fat")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

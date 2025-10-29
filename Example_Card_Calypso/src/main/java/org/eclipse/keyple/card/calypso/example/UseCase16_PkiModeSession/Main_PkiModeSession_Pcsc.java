@@ -101,7 +101,7 @@ public class Main_PkiModeSession_Pcsc {
   // Read the configuration to get the AID to use
   private static final String AID = properties.getProperty("aid");
 
-  private static final byte SFI_CONTRACT_LIST = (byte) 0x1E;
+  private static final byte SFI_CONTRACT_LIST = (byte) 0x07;
   private static final byte SFI_CONTRACTS = (byte) 0x09;
   private static final int RECORD_SIZE = 29;
 
@@ -181,6 +181,7 @@ public class Main_PkiModeSession_Pcsc {
     cardTransaction
         // .prepareGetData(GetDataTag.CA_CERTIFICATE)
         .prepareOpenSecureSession()
+        .prepareReadBinary((byte) 0x12, 0, 500)
         .prepareReadRecords(SFI_CONTRACT_LIST, 1, 1, RECORD_SIZE)
         .prepareReadRecords(SFI_CONTRACTS, 1, 1, RECORD_SIZE)
         .prepareCloseSecureSession()

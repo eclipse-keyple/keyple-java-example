@@ -169,15 +169,29 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
                       cardReader, calypsoCard, symmetricCryptoSecuritySetting)
                   .prepareOpenSecureSession(DEBIT)
                   .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, RECORD_SIZE)
-                  .prepareReadRecords(SFI_EVENT_LOG, 1, 1, RECORD_SIZE)
                   .processCommands(ChannelControl.KEEP_OPEN);
 
           byte[] environmentAndHolderData =
               calypsoCard.getFileBySfi(SFI_ENVIRONMENT_AND_HOLDER).getData().getContent(1);
 
+          // TODO Place here the analysis of the context
+
+          // Read the last event record
+          cardTransactionManager
+              .prepareReadRecords(SFI_EVENT_LOG, 1, 1, RECORD_SIZE)
+              .processCommands(ChannelControl.KEEP_OPEN);
+
           byte[] eventLogData = calypsoCard.getFileBySfi(SFI_EVENT_LOG).getData().getContent(1);
 
-          // TODO Place here the analysis of the context and the last event log
+          // TODO Place here the analysis of the last event log
+          // Ratification and anti-passback management:
+          // This section handles the scenario where a previous transaction occurred very recently:
+          // - If the previous transaction has not been ratified, access is granted immediately.
+          //   The only required action is to close the session, which ensures the authenticity of
+          // the support.
+          // - If the previous transaction has been ratified, access is denied according to the
+          // anti-passback rule,
+          //   preventing multiple successive illegal uses of the same support in a short time.
 
           // Read the contract list
           // Specifying expected response lengths in read commands serves as a protective measure

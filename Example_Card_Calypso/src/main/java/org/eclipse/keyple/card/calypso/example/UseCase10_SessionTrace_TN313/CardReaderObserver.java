@@ -108,12 +108,31 @@ class CardReaderObserver
                       cardReader, calypsoCard, cardSecuritySetting)
                   .prepareOpenSecureSession(DEBIT)
                   .prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, RECORD_SIZE)
-                  .prepareReadRecords(SFI_EVENT_LOG, 1, 1, RECORD_SIZE)
-                  .prepareReadRecords(SFI_CONTRACT_LIST, 1, 1, RECORD_SIZE)
                   .processCommands(ChannelControl.KEEP_OPEN);
 
           /*
-          Place for the analysis of the context and the list of contracts
+          Place for the analysis of the context
+          */
+
+          cardTransactionManager
+              .prepareReadRecords(SFI_EVENT_LOG, 1, 1, RECORD_SIZE)
+              .processCommands(ChannelControl.KEEP_OPEN);
+
+          /*
+          Ratification and anti-passback management:
+            This section handles the scenario where a previous transaction occurred very recently:
+            - If the previous transaction has not been ratified, access is granted immediately.
+              The only required action is to close the session, which ensures the authenticity of the support.
+            - If the previous transaction has been ratified, access is denied according to the anti-passback rule,
+              preventing multiple successive illegal uses of the same support in a short time.
+          */
+
+          cardTransactionManager
+              .prepareReadRecords(SFI_CONTRACT_LIST, 1, 1, RECORD_SIZE)
+              .processCommands(ChannelControl.KEEP_OPEN);
+
+          /*
+          Place for the analysis of the contract list
           */
 
           // Read the elected contract

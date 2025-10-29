@@ -15,9 +15,14 @@ package org.eclipse.keyple.card.calypso.example.UseCase2_ScheduledSelection;
 import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_INSERTED;
 import static org.eclipse.keypop.reader.CardReaderEvent.Type.CARD_MATCHED;
 
+import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.SmartCardService;
+import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
+import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
+import org.eclipse.keypop.calypso.card.transaction.FreeTransactionManager;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.CardReaderEvent;
 import org.eclipse.keypop.reader.ObservableCardReader;
@@ -36,6 +41,11 @@ class CardReaderObserver
   private static final byte SFI_ENVIRONMENT_AND_HOLDER = (byte) 0x07;
   private final CardReader reader;
   private final CardSelectionManager cardSelectionManager;
+  private final SmartCardService smartCardService = SmartCardServiceProvider.getService();
+  private final CalypsoExtensionService calypsoExtensionService =
+      CalypsoExtensionService.getInstance();
+  private final CalypsoCardApiFactory calypsoCardApiFactory =
+      calypsoExtensionService.getCalypsoCardApiFactory();
 
   /**
    * Constructor.
@@ -63,6 +73,14 @@ class CardReaderObserver
                     .parseScheduledCardSelectionsResponse(
                         event.getScheduledCardSelectionsResponse())
                     .getActiveSmartCard();
+
+        FreeTransactionManager transaction =
+            calypsoCardApiFactory.createFreeTransactionManager(
+                smartCardService.getReader(event.getReaderName()), calypsoCard);
+        for (int i = 0; i < 25; i++) {
+          transaction.prepareReadRecords(SFI_ENVIRONMENT_AND_HOLDER, 1, 1, 29);
+        }
+        transaction.processCommands(ChannelControl.CLOSE_AFTER);
 
         logger.info(
             "Observer notification: card selection was successful and produced the smart card = {}",

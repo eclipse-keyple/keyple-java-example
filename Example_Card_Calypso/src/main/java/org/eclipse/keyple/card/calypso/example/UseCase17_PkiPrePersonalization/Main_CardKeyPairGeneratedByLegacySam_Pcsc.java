@@ -95,6 +95,56 @@ public class Main_CardKeyPairGeneratedByLegacySam_Pcsc {
     // Initialize services and readers required for the operation
     initServicesAndReaders();
 
+    // Select the SAM device once (it stays in the reader)
+    LegacySam sam = selectSam(samReader);
+
+    // Infinite loop to process multiple cards
+    while (true) {
+      // Wait for card insertion
+      logger.info("Waiting for card insertion...");
+      while (!cardReader.isCardPresent()) {
+        try {
+          Thread.sleep(200);
+        } catch (InterruptedException e) {
+          logger.error("Thread interrupted", e);
+          Thread.currentThread().interrupt();
+          return;
+        }
+      }
+
+      logger.info("Card detected, starting personalization process...");
+
+      try {
+        // Process the card
+        processCard(sam);
+        logger.info("Card personalization completed successfully.");
+      } catch (Exception e) {
+        logger.error("Error during card personalization", e);
+      }
+
+      // Wait for card removal
+      logger.info("Please remove the card...");
+      while (cardReader.isCardPresent()) {
+        try {
+          Thread.sleep(200);
+        } catch (InterruptedException e) {
+          logger.error("Thread interrupted", e);
+          Thread.currentThread().interrupt();
+          return;
+        }
+      }
+
+      logger.info("Card removed. Ready for next card.");
+      logger.info("========================================================================");
+    }
+  }
+
+  /**
+   * Processes a single card: selection, PKI data generation, and injection.
+   *
+   * @param sam The selected SAM for PKI operations.
+   */
+  private static void processCard(LegacySam sam) {
     // Select the Calypso card using the card reader and the target AID
     CalypsoCard calypsoCard = selectCard(cardReader, AID);
 
@@ -129,9 +179,6 @@ public class Main_CardKeyPairGeneratedByLegacySam_Pcsc {
             .setEndDate(endDate)
             // Set the card startup information
             .setCardStartupInfo(calypsoCard.getStartupInfoRawData());
-
-    // Select the SAM device using the SAM reader
-    LegacySam sam = selectSam(samReader);
 
     // Execute a SAM transaction to generate the PKI data to be injected into the card
     legacySamApiFactory
