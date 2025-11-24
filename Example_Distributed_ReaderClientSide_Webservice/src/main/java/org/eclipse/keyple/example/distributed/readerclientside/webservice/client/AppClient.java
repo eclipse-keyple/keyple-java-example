@@ -26,9 +26,9 @@ import org.eclipse.keyple.distributed.LocalServiceClientFactory;
 import org.eclipse.keyple.distributed.LocalServiceClientFactoryBuilder;
 import org.eclipse.keyple.example.distributed.readerclientside.webservice.common.InputDataDto;
 import org.eclipse.keyple.example.distributed.readerclientside.webservice.common.OutputDataDto;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keyple.plugin.stub.*;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
@@ -191,7 +191,7 @@ public class AppClient {
 
     // Activates the protocol ISO_14443_4 on the reader.
     ((ConfigurableCardReader) reader)
-        .activateProtocol(PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
+        .activateProtocol(PcscCardCommunicationProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
 
     logger.info(
         "Client - Local reader was configured with PCSC reader : {} with a card", reader.getName());

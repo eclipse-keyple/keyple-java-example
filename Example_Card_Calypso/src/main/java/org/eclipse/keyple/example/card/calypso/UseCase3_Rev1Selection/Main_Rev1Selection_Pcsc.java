@@ -17,13 +17,13 @@ import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
-import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
 import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.*;
@@ -177,7 +177,7 @@ public class Main_Rev1Selection_Pcsc {
             true,
             PcscReader.IsoProtocol.T1,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactlessProtocol.INNOVATRON_B_PRIME_CARD.name(),
+            PcscCardCommunicationProtocol.INNOVATRON_B_PRIME.name(),
             INNOVATRON_CARD_PROTOCOL);
   }
 

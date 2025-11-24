@@ -17,7 +17,7 @@ import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -156,10 +156,10 @@ public class Main_ProtocolBasedSelection_Pcsc {
         .setSharingMode(sharingMode);
 
     ((ConfigurableCardReader) reader)
-        .activateProtocol(PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
+        .activateProtocol(PcscCardCommunicationProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
     ((ConfigurableCardReader) reader)
         .activateProtocol(
-            PcscSupportedContactlessProtocol.MIFARE_CLASSIC.name(), MIFARE_CLASSIC_PROTOCOL);
+            PcscCardCommunicationProtocol.MIFARE_CLASSIC.name(), MIFARE_CLASSIC_PROTOCOL);
 
     return reader;
   }

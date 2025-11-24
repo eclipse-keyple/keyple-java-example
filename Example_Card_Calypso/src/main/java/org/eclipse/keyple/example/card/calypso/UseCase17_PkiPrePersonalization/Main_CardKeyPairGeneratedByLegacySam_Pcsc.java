@@ -21,15 +21,13 @@ import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.PutDataTag;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
 import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
-import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
 import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
 import org.eclipse.keypop.calypso.crypto.legacysam.GetDataTag;
 import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
@@ -37,6 +35,7 @@ import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
 import org.eclipse.keypop.calypso.crypto.legacysam.transaction.KeyPairContainer;
 import org.eclipse.keypop.calypso.crypto.legacysam.transaction.LegacyCardCertificateComputationData;
 import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
@@ -143,7 +142,7 @@ public class Main_CardKeyPairGeneratedByLegacySam_Pcsc {
         // Prepare to compute the card certificate by the SAM using the created data
         .prepareComputeCardCertificate(cardCertificateComputationData)
         // Execute all prepared commands on the SAM device
-        .processCommands();
+        .processCommands(ChannelControl.KEEP_OPEN);
 
     // Execute a card transaction to store the generated PKI into the card
     calypsoCardApiFactory
@@ -233,7 +232,7 @@ public class Main_CardKeyPairGeneratedByLegacySam_Pcsc {
             true,
             PcscReader.IsoProtocol.T1,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            PcscCardCommunicationProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
 
@@ -251,7 +250,7 @@ public class Main_CardKeyPairGeneratedByLegacySam_Pcsc {
             false,
             PcscReader.IsoProtocol.ANY,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactProtocol.ISO_7816_3_T0.name(),
+            PcscCardCommunicationProtocol.ISO_7816_3.name(),
             SAM_PROTOCOL);
   }
 
