@@ -30,8 +30,6 @@ import org.eclipse.keyple.plugin.android.nfc.AndroidNfcPluginFactoryProvider
 import org.eclipse.keyple.plugin.android.nfc.AndroidNfcSupportedProtocols
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory
 import org.eclipse.keypop.calypso.card.card.CalypsoCard
-import org.eclipse.keypop.calypso.card.transaction.CardIOException
-import org.eclipse.keypop.calypso.card.transaction.ChannelControl
 import org.eclipse.keypop.calypso.card.transaction.FreeTransactionManager
 import org.eclipse.keypop.reader.*
 import org.eclipse.keypop.reader.selection.CardSelectionManager
@@ -263,7 +261,7 @@ class MainActivity :
             CalypsoConstants.RECORD_NUMBER_1))}")
 
       addActionMessage("Waiting for card removal...")
-    } catch (e: CardIOException) {
+    } catch (e: CardCommunicationException) {
       addResultMessage("Card communication link lost.")
     } catch (e: Exception) {
       addResultMessage("An unexpected error occurred ${e.message}.")

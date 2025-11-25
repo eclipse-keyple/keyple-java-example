@@ -15,9 +15,9 @@ package org.eclipse.keyple.example.core.service.UseCase3_AidBasedSelection;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.example.core.service.common.ConfigurationUtil;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -81,8 +81,7 @@ public class Main_AidBasedSelection_Pcsc {
         .setSharingMode(PcscReader.SharingMode.SHARED);
     ((ConfigurableCardReader) cardReader)
         .activateProtocol(
-            PcscCardCommunicationProtocol.ISO_14443_4.name(),
-            ConfigurationUtil.ISO_CARD_PROTOCOL);
+            PcscCardCommunicationProtocol.ISO_14443_4.name(), ConfigurationUtil.ISO_CARD_PROTOCOL);
 
     logger.info("=============== UseCase Generic #3: AID based card selection ==================");
 

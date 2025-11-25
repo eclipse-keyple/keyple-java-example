@@ -57,7 +57,9 @@ fun copyLicenseFiles() {
   licenseFile.copyTo(File(metaInfDir, "LICENSE"), overwrite = true)
   noticeFile.copyTo(File(metaInfDir, "NOTICE.md"), overwrite = true)
 }
+
 tasks.withType<JavaCompile> { options.compilerArgs.add("-Xlint:deprecation") }
+
 tasks {
   spotless {
     java {

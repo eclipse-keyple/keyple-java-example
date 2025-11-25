@@ -13,17 +13,18 @@
 package org.eclipse.keyple.example.core.service.UseCase1_BasicSelection;
 
 import java.util.List;
-import org.eclipse.keyple.card.generic.ChannelControl;
+import org.eclipse.keyple.card.generic.CardTransactionManager;
 import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
@@ -90,11 +91,13 @@ public class Main_BasicSelection_Pcsc {
     // Execute an APDU to get CPLC Data (cf. Global Platform Specification)
     byte[] cplcApdu = HexUtil.toByteArray("80CA9F7F00");
 
-    List<String> apduResponses =
+    CardTransactionManager transactionManager =
         GenericExtensionService.getInstance()
             .createCardTransaction(cardReader, smartCard)
             .prepareApdu(cplcApdu)
-            .processApdusToHexStrings(ChannelControl.CLOSE_AFTER);
+            .processCommands(ChannelControl.CLOSE_AFTER);
+
+    List<String> apduResponses = transactionManager.getResponsesAsHexStrings();
 
     logger.info("CPLC Data: '{}'", apduResponses.get(0));
 
