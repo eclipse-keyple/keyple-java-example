@@ -29,6 +29,7 @@ import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySamSelectionExtension;
 import org.eclipse.keypop.calypso.crypto.legacysam.transaction.*;
 import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.BasicCardSelector;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
@@ -311,7 +312,7 @@ public class Main_DataSigning_Pcsc {
             .createBasicSignatureComputationData()
             .setData(HexUtil.toByteArray(DATA_TO_SIGN), KIF_BASIC, KVC_BASIC);
     freeTransactionManager.prepareComputeSignature(basicSignatureComputationData);
-    freeTransactionManager.processCommands();
+    freeTransactionManager.processCommands(ChannelControl.KEEP_OPEN);
     String signatureHex = HexUtil.toHex(basicSignatureComputationData.getSignature());
     logger.info("signature='{}'", signatureHex);
 
@@ -330,7 +331,7 @@ public class Main_DataSigning_Pcsc {
                 KIF_BASIC,
                 KVC_BASIC);
     freeTransactionManager.prepareVerifySignature(basicSignatureVerificationData);
-    freeTransactionManager.processCommands();
+    freeTransactionManager.processCommands(ChannelControl.KEEP_OPEN);
     boolean isSignatureValid = basicSignatureVerificationData.isSignatureValid();
     logger.info("Signature is valid: '{}'", isSignatureValid);
   }
@@ -354,7 +355,7 @@ public class Main_DataSigning_Pcsc {
             .setData(HexUtil.toByteArray(DATA_TO_SIGN), KIF_TRACEABLE, KVC_TRACEABLE)
             .withSamTraceabilityMode(0, SamTraceabilityMode.FULL_SERIAL_NUMBER);
     freeTransactionManager.prepareComputeSignature(traceableSignatureComputationData);
-    freeTransactionManager.processCommands();
+    freeTransactionManager.processCommands(ChannelControl.KEEP_OPEN);
     String signatureHex = HexUtil.toHex(traceableSignatureComputationData.getSignature());
     String signedDataHex = HexUtil.toHex(traceableSignatureComputationData.getSignedData());
     logger.info("signature='{}'", signatureHex);
@@ -376,7 +377,7 @@ public class Main_DataSigning_Pcsc {
                 KVC_TRACEABLE)
             .withSamTraceabilityMode(0, SamTraceabilityMode.FULL_SERIAL_NUMBER, null);
     freeTransactionManager.prepareVerifySignature(traceableSignatureVerificationData);
-    freeTransactionManager.processCommands();
+    freeTransactionManager.processCommands(ChannelControl.KEEP_OPEN);
     boolean isSignatureValid = traceableSignatureVerificationData.isSignatureValid();
     logger.info("Signature is valid: '{}'", isSignatureValid);
   }

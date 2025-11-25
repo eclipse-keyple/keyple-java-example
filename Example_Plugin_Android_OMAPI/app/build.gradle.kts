@@ -91,7 +91,10 @@ android {
     targetCompatibility = JavaVersion.toVersion(javaTargetLevel)
     println("Compiling Java $sourceCompatibility to Java $targetCompatibility")
   }
-  kotlinOptions { jvmTarget = javaTargetLevel }
+  kotlinOptions {
+    jvmTarget = javaTargetLevel
+    freeCompilerArgs = listOf("-Xlint:deprecation")
+  }
   sourceSets {
     getByName("main").java.srcDirs("src/main/kotlin")
     getByName("debug").java.srcDirs("src/debug/kotlin")
@@ -117,6 +120,8 @@ android {
   }
   lint { abortOnError = false }
 }
+
+tasks.withType<JavaCompile>().configureEach { options.compilerArgs.add("-Xlint:deprecation") }
 
 fun copyLicenseFiles() {
   val metaInfDir = File(layout.buildDirectory.get().asFile, "resources/main/META-INF")
