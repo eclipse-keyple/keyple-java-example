@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Upgraded
-- Upgrade [Keyple Java BOM](https://github.com/eclipse-keyple/keyple-java-bom) to `2025.11.21`.
+- Upgraded [Keyple Java BOM](https://github.com/eclipse-keyple/keyple-java-bom) to `2025.11.21`.
 
 ## [2025-10-29]
 ### Changed
