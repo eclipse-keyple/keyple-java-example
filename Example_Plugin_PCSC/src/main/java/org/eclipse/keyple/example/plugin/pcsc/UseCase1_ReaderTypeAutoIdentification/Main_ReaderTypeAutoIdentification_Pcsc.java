@@ -68,9 +68,7 @@ public class Main_ReaderTypeAutoIdentification_Pcsc {
         smartCardService.registerPlugin(
             PcscPluginFactoryBuilder.builder()
                 .useContactlessReaderIdentificationFilter(
-                    ".*ASK LoGO.*|.*HID OMNIKEY 5427 CK.*|.*contactless.*")
-                .useContactReaderIdentificationFilter(
-                    ".*Identive.*|.*HID Global OMNIKEY 3x21.*|(?=contact)(?!contactless)")
+                    "^(?!(.*Identive|.*HID Global OMNIKEY 3x21|.*contact\\b(?!less))).*(ASK LoGO|HID OMNIKEY 5427 CK|contactless).*")
                 .build());
 
     // Log the type of each connected reader

@@ -21,14 +21,15 @@ import org.eclipse.keyple.card.calypso.crypto.legacysam.LegacySamUtil;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactProtocol;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
 import org.eclipse.keypop.calypso.crypto.legacysam.transaction.FreeTransactionManager;
 import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
@@ -95,7 +96,7 @@ public class Main_ReadLegacySamCountersAndCeilings_Pcsc {
         legacySamApiFactory.createFreeTransactionManager(samReader, sam);
 
     // Process the transaction to read counters and ceilings
-    samTransactionManager.prepareReadAllCountersStatus().processCommands();
+    samTransactionManager.prepareReadAllCountersStatus().processCommands(ChannelControl.KEEP_OPEN);
 
     // Output results
     logger.info("\nSAM event counters =\n{}", gson.toJson(sam.getCounters()));
@@ -130,7 +131,7 @@ public class Main_ReadLegacySamCountersAndCeilings_Pcsc {
             false,
             PcscReader.IsoProtocol.ANY,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactProtocol.ISO_7816_3_T0.name(),
+            PcscCardCommunicationProtocol.ISO_7816_3.name(),
             SAM_PROTOCOL);
   }
 

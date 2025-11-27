@@ -27,12 +27,12 @@ import org.eclipse.keyple.plugin.pcsc.*;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
 import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
-import org.eclipse.keypop.calypso.card.transaction.ChannelControl;
 import org.eclipse.keypop.calypso.card.transaction.SecureRegularModeTransactionManager;
 import org.eclipse.keypop.calypso.card.transaction.SymmetricCryptoSecuritySetting;
 import org.eclipse.keypop.calypso.crypto.legacysam.LegacySamApiFactory;
 import org.eclipse.keypop.calypso.crypto.legacysam.sam.LegacySam;
 import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
@@ -311,7 +311,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             true,
             PcscReader.IsoProtocol.T1,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            PcscCardCommunicationProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
 
@@ -329,7 +329,7 @@ public class Main_PerformanceMeasurement_EmbeddedValidation_Pcsc {
             false,
             PcscReader.IsoProtocol.ANY,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactProtocol.ISO_7816_3_T0.name(),
+            PcscCardCommunicationProtocol.ISO_7816_3.name(),
             SAM_PROTOCOL);
   }
 

@@ -18,9 +18,9 @@ import java.util.Properties;
 import org.eclipse.keyple.card.calypso.CalypsoExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keypop.calypso.card.CalypsoCardApiFactory;
 import org.eclipse.keypop.calypso.card.card.CalypsoCard;
 import org.eclipse.keypop.calypso.card.card.CalypsoCardSelectionExtension;
@@ -175,7 +175,7 @@ public class Main_ExplicitSelectionAid_Pcsc {
             true,
             PcscReader.IsoProtocol.T1,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            PcscCardCommunicationProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
 

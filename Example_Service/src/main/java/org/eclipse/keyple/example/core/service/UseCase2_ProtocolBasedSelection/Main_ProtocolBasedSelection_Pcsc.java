@@ -15,9 +15,9 @@ package org.eclipse.keyple.example.core.service.UseCase2_ProtocolBasedSelection;
 import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -57,7 +57,7 @@ public class Main_ProtocolBasedSelection_Pcsc {
 
   public static final String CONTACTLESS_READER_NAME_REGEX = ".*ASK LoGO.*|.*Contactless.*";
   public static final String ISO_CARD_PROTOCOL = "ISO_14443_4_CARD";
-  public static final String MIFARE_CLASSIC_PROTOCOL = "MIFARE_CLASSIC_CARD";
+  public static final String MIFARE_ULTRALIGHT_PROTOCOL = "MIFARE_ULTRALIGHT_CARD";
   private static Plugin plugin;
   private static ReaderApiFactory readerApiFactory;
   private static CardReader cardReader;
@@ -76,7 +76,7 @@ public class Main_ProtocolBasedSelection_Pcsc {
       System.exit(0);
     }
 
-    logger.info("= #### Select the card if the protocol is '{}'.", MIFARE_CLASSIC_PROTOCOL);
+    logger.info("= #### Select the card if the protocol is '{}'.", MIFARE_ULTRALIGHT_PROTOCOL);
 
     SmartCard smartCard = selectCard(cardReader);
 
@@ -156,10 +156,10 @@ public class Main_ProtocolBasedSelection_Pcsc {
         .setSharingMode(sharingMode);
 
     ((ConfigurableCardReader) reader)
-        .activateProtocol(PcscSupportedContactlessProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
+        .activateProtocol(PcscCardCommunicationProtocol.ISO_14443_4.name(), ISO_CARD_PROTOCOL);
     ((ConfigurableCardReader) reader)
         .activateProtocol(
-            PcscSupportedContactlessProtocol.MIFARE_CLASSIC.name(), MIFARE_CLASSIC_PROTOCOL);
+            PcscCardCommunicationProtocol.MIFARE_ULTRALIGHT.name(), MIFARE_ULTRALIGHT_PROTOCOL);
 
     return reader;
   }
@@ -176,7 +176,7 @@ public class Main_ProtocolBasedSelection_Pcsc {
   private static SmartCard selectCard(CardReader reader) {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
     CardSelector<BasicCardSelector> cardSelector =
-        readerApiFactory.createBasicCardSelector().filterByCardProtocol(MIFARE_CLASSIC_PROTOCOL);
+        readerApiFactory.createBasicCardSelector().filterByCardProtocol(MIFARE_ULTRALIGHT_PROTOCOL);
     GenericCardSelectionExtension genericCardSelectionExtension =
         GenericExtensionService.getInstance().createGenericCardSelectionExtension();
     cardSelectionManager.prepareSelection(cardSelector, genericCardSelectionExtension);

@@ -268,7 +268,7 @@ public class Main_SessionTrace_TN313_Pcsc {
             true,
             PcscReader.IsoProtocol.T1,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            PcscCardCommunicationProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
 
@@ -286,7 +286,7 @@ public class Main_SessionTrace_TN313_Pcsc {
             false,
             PcscReader.IsoProtocol.ANY,
             PcscReader.SharingMode.SHARED,
-            PcscSupportedContactProtocol.ISO_7816_3_T0.name(),
+            PcscCardCommunicationProtocol.ISO_7816_3.name(),
             SAM_PROTOCOL);
   }
 

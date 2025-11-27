@@ -13,17 +13,17 @@
 package org.eclipse.keyple.example.core.service.UseCase1_BasicSelection;
 
 import java.util.List;
-import org.eclipse.keyple.card.generic.ChannelControl;
 import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
 import org.eclipse.keyple.core.service.SmartCardServiceProvider;
 import org.eclipse.keyple.core.util.HexUtil;
+import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
-import org.eclipse.keyple.plugin.pcsc.PcscSupportedContactlessProtocol;
 import org.eclipse.keypop.reader.CardReader;
+import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
 import org.eclipse.keypop.reader.selection.CardSelectionManager;
@@ -94,7 +94,8 @@ public class Main_BasicSelection_Pcsc {
         GenericExtensionService.getInstance()
             .createCardTransaction(cardReader, smartCard)
             .prepareApdu(cplcApdu)
-            .processApdusToHexStrings(ChannelControl.CLOSE_AFTER);
+            .processCommands(ChannelControl.CLOSE_AFTER)
+            .getResponsesAsHexStrings();
 
     logger.info("CPLC Data: '{}'", apduResponses.get(0));
 
@@ -137,7 +138,7 @@ public class Main_BasicSelection_Pcsc {
             true,
             PcscReader.IsoProtocol.T1,
             PcscReader.SharingMode.EXCLUSIVE,
-            PcscSupportedContactlessProtocol.ISO_14443_4.name(),
+            PcscCardCommunicationProtocol.ISO_14443_4.name(),
             ISO_CARD_PROTOCOL);
   }
 
