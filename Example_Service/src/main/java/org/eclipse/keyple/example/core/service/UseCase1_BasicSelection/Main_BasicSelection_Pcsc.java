@@ -13,7 +13,6 @@
 package org.eclipse.keyple.example.core.service.UseCase1_BasicSelection;
 
 import java.util.List;
-import org.eclipse.keyple.card.generic.CardTransactionManager;
 import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.Plugin;
@@ -91,13 +90,12 @@ public class Main_BasicSelection_Pcsc {
     // Execute an APDU to get CPLC Data (cf. Global Platform Specification)
     byte[] cplcApdu = HexUtil.toByteArray("80CA9F7F00");
 
-    CardTransactionManager transactionManager =
+    List<String> apduResponses =
         GenericExtensionService.getInstance()
             .createCardTransaction(cardReader, smartCard)
             .prepareApdu(cplcApdu)
-            .processCommands(ChannelControl.CLOSE_AFTER);
-
-    List<String> apduResponses = transactionManager.getResponsesAsHexStrings();
+            .processCommands(ChannelControl.CLOSE_AFTER)
+            .getResponsesAsHexStrings();
 
     logger.info("CPLC Data: '{}'", apduResponses.get(0));
 
