@@ -12,12 +12,12 @@
  ************************************************************************************** */
 package org.eclipse.keyple.example.core.service.UseCase2_ProtocolBasedSelection;
 
-import org.eclipse.keypop.genericcard.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keypop.genericcard.GenericCardSelectionExtension;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -178,7 +178,9 @@ public class Main_ProtocolBasedSelection_Pcsc {
     CardSelector<BasicCardSelector> cardSelector =
         readerApiFactory.createBasicCardSelector().filterByCardProtocol(MIFARE_ULTRALIGHT_PROTOCOL);
     GenericCardSelectionExtension genericCardSelectionExtension =
-        GenericExtensionService.getInstance().getGenericCardApiFactory().createGenericCardSelectionExtension();
+        GenericExtensionService.getInstance()
+            .getGenericCardApiFactory()
+            .createGenericCardSelectionExtension();
     cardSelectionManager.prepareSelection(cardSelector, genericCardSelectionExtension);
 
     CardSelectionResult selectionResult = cardSelectionManager.processCardSelectionScenario(reader);

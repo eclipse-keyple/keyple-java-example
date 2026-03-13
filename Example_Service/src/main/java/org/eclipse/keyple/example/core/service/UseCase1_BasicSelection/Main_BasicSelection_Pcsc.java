@@ -21,6 +21,7 @@ import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keypop.genericcard.GenericCardSelectionExtension;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
@@ -29,7 +30,6 @@ import org.eclipse.keypop.reader.selection.CardSelectionManager;
 import org.eclipse.keypop.reader.selection.CardSelectionResult;
 import org.eclipse.keypop.reader.selection.IsoCardSelector;
 import org.eclipse.keypop.reader.selection.spi.SmartCard;
-import org.eclipse.keypop.genericcard.GenericCardSelectionExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -193,7 +193,9 @@ public class Main_BasicSelection_Pcsc {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
     IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector();
     GenericCardSelectionExtension genericCardSelectionExtension =
-        GenericExtensionService.getInstance().getGenericCardApiFactory().createGenericCardSelectionExtension();
+        GenericExtensionService.getInstance()
+            .getGenericCardApiFactory()
+            .createGenericCardSelectionExtension();
     cardSelectionManager.prepareSelection(cardSelector, genericCardSelectionExtension);
 
     CardSelectionResult selectionResult = cardSelectionManager.processCardSelectionScenario(reader);
