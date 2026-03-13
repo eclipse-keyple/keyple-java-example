@@ -19,9 +19,10 @@ dependencies {
   implementation(platform("org.eclipse.keyple:keyple-java-bom:2026.02.20"))
   implementation("org.eclipse.keypop:keypop-reader-java-api")
   implementation("org.eclipse.keyple:keyple-common-java-api")
+  implementation("org.eclipse.keypop:keypop-genericcard-jvm-api:1.0.0")
   implementation("org.eclipse.keyple:keyple-util-java-lib")
   implementation("org.eclipse.keyple:keyple-service-java-lib")
-  implementation("org.eclipse.keyple:keyple-card-generic-java-lib")
+  implementation("org.eclipse.keyple:keyple-card-generic-java-lib:4.0.0-SNAPSHOT")
   implementation("org.eclipse.keyple:keyple-plugin-pcsc-java-lib")
   // End Keyple configuration
   implementation("org.slf4j:slf4j-simple:1.7.32")

@@ -13,7 +13,7 @@
 package org.eclipse.keyple.example.core.service.UseCase6_GroupedMultiSelection;
 
 import java.util.Map;
-import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
+import org.eclipse.keypop.genericcard.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
@@ -102,7 +102,7 @@ public class Main_GroupedMultiSelection_Pcsc {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
 
     GenericCardSelectionExtension genericCardSelectionExtension =
-        GenericExtensionService.getInstance().createGenericCardSelectionExtension();
+        GenericExtensionService.getInstance().getGenericCardApiFactory().createGenericCardSelectionExtension();
 
     // AID based selection: get the first application occurrence matching the AID, keep the
     // physical channel open

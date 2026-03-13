@@ -101,7 +101,7 @@ public class Main_ScheduledSelection_Pcsc {
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(
-        cardSelector, GenericExtensionService.getInstance().createGenericCardSelectionExtension());
+        cardSelector, GenericExtensionService.getInstance().getGenericCardApiFactory().createGenericCardSelectionExtension());
 
     // Schedule the selection scenario.
     cardSelectionManager.scheduleCardSelectionScenario(
