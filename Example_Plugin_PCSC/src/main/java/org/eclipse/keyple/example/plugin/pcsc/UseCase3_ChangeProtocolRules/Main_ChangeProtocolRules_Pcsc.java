@@ -114,7 +114,8 @@ public class Main_ChangeProtocolRules_Pcsc {
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(
-        cardSelector, cardExtension.createGenericCardSelectionExtension());
+        cardSelector,
+        cardExtension.getGenericCardApiFactory().createGenericCardSelectionExtension());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult = cardSelectionManager.processCardSelectionScenario(reader);
