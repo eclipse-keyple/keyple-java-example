@@ -5,11 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Changed
-- Switched to `keyple-card-generic-java-lib` `4.0.0-SNAPSHOT`
-
+## [2026-03-16]
 ### Fixed
 - Fixed example URLs
+### Upgraded
+- Upgraded [Keyple Java BOM](https://github.com/eclipse-keyple/keyple-java-bom) to `2026.03.16`
 
 ## [2026-03-10]
 ### Upgraded
@@ -257,7 +257,8 @@ to use the exact and latest version of each dependency. This ensures consistency
   - org.eclipse.keyple:keyple-card-calypso-java-lib:2.0.0
   - org.eclipse.keyple:keyple-util-java-lib:2.+
 
-[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2026-03-10...HEAD
+[unreleased]: https://github.com/eclipse-keyple/keyple-java-example/compare/2026-03-16...HEAD
+[2026-03-16]: https://github.com/eclipse-keyple/keyple-java-example/compare/2026-03-10...2026-03-16
 [2026-03-10]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-11-27...2026-03-10
 [2025-11-27]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-10-29...2025-11-27
 [2025-10-29]: https://github.com/eclipse-keyple/keyple-java-example/compare/2025-07-21...2025-10-29
