@@ -107,7 +107,9 @@ class CoreExamplesActivity : AbstractExampleActivity() {
 
         /** Create a card selection extension using the generic card extension. */
         val cardSelectionExtension =
-            GenericExtensionService.getInstance().createGenericCardSelectionExtension()
+            GenericExtensionService.getInstance()
+                .getGenericCardApiFactory()
+                .createGenericCardSelectionExtension()
         cardSelectionManager.prepareSelection(cardSelector, cardSelectionExtension)
 
         /** Release the channel after the selection is done */

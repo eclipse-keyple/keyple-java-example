@@ -105,7 +105,10 @@ public class Main_AidBasedSelection_Pcsc {
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(
-        cardSelector, GenericExtensionService.getInstance().createGenericCardSelectionExtension());
+        cardSelector,
+        GenericExtensionService.getInstance()
+            .getGenericCardApiFactory()
+            .createGenericCardSelectionExtension());
 
     // Actual card communication: run the selection scenario.
     CardSelectionResult selectionResult =

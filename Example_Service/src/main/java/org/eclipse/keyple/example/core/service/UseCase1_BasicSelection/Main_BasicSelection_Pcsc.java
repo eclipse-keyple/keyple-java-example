@@ -13,7 +13,6 @@
 package org.eclipse.keyple.example.core.service.UseCase1_BasicSelection;
 
 import java.util.List;
-import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.Plugin;
 import org.eclipse.keyple.core.service.SmartCardService;
@@ -22,6 +21,7 @@ import org.eclipse.keyple.core.util.HexUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keypop.genericcard.GenericCardSelectionExtension;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ChannelControl;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
@@ -92,6 +92,7 @@ public class Main_BasicSelection_Pcsc {
 
     List<String> apduResponses =
         GenericExtensionService.getInstance()
+            .getGenericCardApiFactory()
             .createCardTransaction(cardReader, smartCard)
             .prepareApdu(cplcApdu)
             .processCommands(ChannelControl.CLOSE_AFTER)
@@ -192,7 +193,9 @@ public class Main_BasicSelection_Pcsc {
     CardSelectionManager cardSelectionManager = readerApiFactory.createCardSelectionManager();
     IsoCardSelector cardSelector = readerApiFactory.createIsoCardSelector();
     GenericCardSelectionExtension genericCardSelectionExtension =
-        GenericExtensionService.getInstance().createGenericCardSelectionExtension();
+        GenericExtensionService.getInstance()
+            .getGenericCardApiFactory()
+            .createGenericCardSelectionExtension();
     cardSelectionManager.prepareSelection(cardSelector, genericCardSelectionExtension);
 
     CardSelectionResult selectionResult = cardSelectionManager.processCardSelectionScenario(reader);

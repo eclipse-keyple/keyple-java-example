@@ -12,7 +12,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.example.core.service.resource.UseCase1_CardResourceService;
 
-import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.service.resource.*;
@@ -24,6 +23,7 @@ import org.eclipse.keyple.plugin.stub.StubPlugin;
 import org.eclipse.keyple.plugin.stub.StubPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.stub.StubReader;
 import org.eclipse.keyple.plugin.stub.StubSmartCard;
+import org.eclipse.keypop.genericcard.GenericCardSelectionExtension;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -94,7 +94,9 @@ public class Main_CardResourceService_Stub {
         readerApiFactory.createIsoCardSelector().filterByPowerOnData(ATR_REGEX_A);
 
     GenericCardSelectionExtension genericCardSelectionExtension =
-        GenericExtensionService.getInstance().createGenericCardSelectionExtension();
+        GenericExtensionService.getInstance()
+            .getGenericCardApiFactory()
+            .createGenericCardSelectionExtension();
 
     CardResourceProfileExtension cardResourceExtensionA =
         GenericExtensionService.getInstance()

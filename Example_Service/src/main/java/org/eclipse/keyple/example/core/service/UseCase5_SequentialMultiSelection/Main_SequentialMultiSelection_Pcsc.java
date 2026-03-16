@@ -12,7 +12,6 @@
  ************************************************************************************** */
 package org.eclipse.keyple.example.core.service.UseCase5_SequentialMultiSelection;
 
-import org.eclipse.keyple.card.generic.GenericCardSelectionExtension;
 import org.eclipse.keyple.card.generic.GenericExtensionService;
 import org.eclipse.keyple.core.service.*;
 import org.eclipse.keyple.core.util.HexUtil;
@@ -20,6 +19,7 @@ import org.eclipse.keyple.example.core.service.common.ConfigurationUtil;
 import org.eclipse.keyple.plugin.pcsc.PcscCardCommunicationProtocol;
 import org.eclipse.keyple.plugin.pcsc.PcscPluginFactoryBuilder;
 import org.eclipse.keyple.plugin.pcsc.PcscReader;
+import org.eclipse.keypop.genericcard.GenericCardSelectionExtension;
 import org.eclipse.keypop.reader.CardReader;
 import org.eclipse.keypop.reader.ConfigurableCardReader;
 import org.eclipse.keypop.reader.ReaderApiFactory;
@@ -110,7 +110,9 @@ public class Main_SequentialMultiSelection_Pcsc {
             .setFileOccurrence(CommonIsoCardSelector.FileOccurrence.FIRST);
 
     GenericCardSelectionExtension genericCardSelectionExtension =
-        GenericExtensionService.getInstance().createGenericCardSelectionExtension();
+        GenericExtensionService.getInstance()
+            .getGenericCardApiFactory()
+            .createGenericCardSelectionExtension();
 
     // Prepare the selection by adding the created generic selection to the card selection scenario.
     cardSelectionManager.prepareSelection(cardSelector, genericCardSelectionExtension);

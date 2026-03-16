@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Switched to `keyple-card-generic-java-lib` `4.0.0-SNAPSHOT`
+
+### Fixed
+- Fixed example URLs
+
 ## [2026-03-10]
 ### Upgraded
 - Upgraded [Keyple Java BOM](https://github.com/eclipse-keyple/keyple-java-bom) to `2026.02.20`
