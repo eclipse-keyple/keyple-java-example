@@ -1,9 +1,35 @@
 # Security Policy
 
-This project implements the Eclipse Foundation Security Policy
+This Eclipse Foundation Project adheres to the [Eclipse Foundation Vulnerability Reporting Policy](https://www.eclipse.org/security/policy/).
 
-* https://www.eclipse.org/security
+## How To Report a Vulnerability
 
-## Reporting a Vulnerability
+If you think you have found a vulnerability in this repository, please report it to us through coordinated disclosure.
 
-Please report vulnerabilities to the Eclipse Foundation Security Team at security@eclipse.org
+**Please do not report security vulnerabilities through public issues, discussions, or change requests.**
+
+Instead, report it using one of the following ways:
+
+* Create a [confidential issue](https://gitlab.eclipse.org/security/vulnerability-reports/-/work_items/new?issue[confidential]=true) in the Eclipse Foundation Vulnerability Reporting Tracker
+* Report a [vulnerability](https://github.com/eclipse-keyple/keyple-java-example/security/advisories/new) directly via private vulnerability reporting on GitHub
+
+You can find more information about reporting and disclosure at the [Eclipse Foundation Security page](https://www.eclipse.org/security/).
+
+Please include as much of the information listed below as you can to help us better understand and resolve the issue:
+
+* The type of issue (e.g., buffer overflow, SQL injection, or cross-site scripting)
+* Affected version(s)
+* Impact of the issue, including how an attacker might exploit the issue
+* Step-by-step instructions to reproduce the issue
+* The location of the affected source code (tag/branch/commit or direct URL)
+* Full paths of source file(s) related to the manifestation of the issue
+* Configuration required to reproduce the issue
+* Log files that are related to this issue (if possible)
+* Proof-of-concept or exploit code (if possible)
+
+This information will help us triage your report more quickly.
+
+## Supported Versions
+
+Security fixes are provided for the latest released major version of each Keyple component.
+Older major versions do not receive security updates; users are encouraged to upgrade.
